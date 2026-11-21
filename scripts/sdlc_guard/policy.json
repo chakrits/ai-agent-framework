@@ -16,7 +16,8 @@
     ".githooks/**",
     ".claude/settings.json",
     ".codex/hooks.json",
-    ".gitattributes"
+    ".gitattributes",
+    ".sdlc/**"
   ],
   "roles": {
     "dev-coding-agent": {

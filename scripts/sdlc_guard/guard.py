@@ -31,6 +31,7 @@ class Event:
 class Decision:
     allowed: bool
     reason: str = ""
+    reasons: list[str] = field(default_factory=list)
 
 
 def load_policy(path: Path = POLICY_PATH) -> dict[str, Any]:
@@ -166,4 +167,4 @@ def decide(
             check_path(tok, write=tok in facts.write_targets)
 
     reasons = list(dict.fromkeys(reasons))
-    return Decision(allowed=not reasons, reason="; ".join(reasons))
+    return Decision(allowed=not reasons, reason="; ".join(reasons), reasons=reasons)

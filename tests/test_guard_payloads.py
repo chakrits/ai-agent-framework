@@ -23,8 +23,9 @@ LAUNCHER_CMD = ROOT / "scripts" / "bin" / "sdlc-hook.cmd"
 CLEAN_ENV = {
     k: v
     for k, v in os.environ.items()
-    if k not in {"SDLC_ACTIVE_ROLE", "RELEASE_APPROVAL", "SDLC_GUARD_FAIL_OPEN", "CLAUDE_PROJECT_DIR"}
+    if k not in {"SDLC_ACTIVE_ROLE", "RELEASE_APPROVAL", "SDLC_GUARD_FAIL_OPEN", "CLAUDE_PROJECT_DIR", "SDLC_TRACE_DIR"}
 }
+CLEAN_ENV["SDLC_TRACE_LEVEL"] = "off"  # never write test events into the developer's real trace store
 
 
 class TestFixtureDecisions(unittest.TestCase):

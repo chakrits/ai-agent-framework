@@ -1,7 +1,7 @@
 # AI-Native SDLC Agent Framework — Roadmap (v2)
 
 > **Architecture:** Enterprise-agnostic Canonical Core (`.agents/` + `docs/`) + Thin Multi-Harness Adapters (`.claude/`, `.codex/`, `.agent/`) + Deterministic Cross-Platform Guardrails (`scripts/sdlc_guard/`) + Optional Python Orchestrator
-> **Analysis & Rationale:** [Framework Review & Roadmap v2](docs/plans/framework-review-roadmap-v2.md) · [Claude AI-Native SDLC Playbook Analysis](docs/reference-architecture/benchmarks/claude-ai-native-sdlc-playbook-analysis.md) · [Cross-Platform Plan](plan.md)
+> **Analysis & Rationale:** [Framework Review & Roadmap v2](docs/plans/framework-review-roadmap-v2.md) · [Claude AI-Native SDLC Playbook Analysis](docs/reference-architecture/benchmarks/claude-ai-native-sdlc-playbook-analysis.md) · [Cross-Platform Plan](docs/plans/cross-platform-harness-plan.md)
 > **Last re-baseline:** 2026-11-21
 
 ## สถานะที่ใช้
@@ -28,7 +28,7 @@
 | P4 | Python Orchestrator & Stage 6 | 🟠 | Orchestrator + `bands.yaml` | ตอนนี้ dry-run เท่านั้น; ยังไม่อ่าน `bands.yaml`; ข้าม HITL gate ผ่าน API ได้ (แก้ใน P10) |
 | **P5** | **Hardening & Cross-Platform Baseline** | 🟡 | ให้ guardrail ใช้งานได้จริงบน Windows / macOS / Linux / WSL | CI matrix เขียวทั้ง 3 OS + ผ่าน checklist ยืนยันบน Windows |
 | P6 | Runtime Registry & Work Records | ⬜ | รองรับหลาย runtime + บันทึกการทำงาน | runtime ตัวอย่าง 2 ตัว + work item 1 ชุด ผ่าน validator |
-| P7 | Agent Trace & Observability | ⬜ | Trace จากทุก platform | trace จาก Claude + Codex ผ่าน schema validation และอ้างอิง `INT-xxx` ได้ |
+| P7 | Agent Trace & Observability | 🟡 | Trace จากทุก platform | trace จาก Claude + Codex ผ่าน schema validation และอ้างอิง `INT-xxx` ได้ |
 | P8 | Multi-Platform Parity | ⬜ | Codex / Antigravity / Gemini เท่าเทียมกัน | มีบันทึกการยืนยันต่อ platform และต่อเวอร์ชัน |
 | P9 | Real E2E Pilot | ⬜ | ทำ feature จริงข้าม FE + BE + DB | artifacts + ADR + CHANGELOG + trace ครบ, merge ผ่าน branch protection |
 | P10 | Agent Evals & Orchestrator v1 | ⬜ | รัน eval กับ agent จริง + persistent state | eval ≥10 เคสรันตาม schedule; resume หลัง restart ได้; การอนุมัติระบุตัวผู้อนุมัติ |
@@ -64,7 +64,11 @@
 - [x] CI matrix ubuntu / macOS / Windows × Python 3.10 / 3.12 (+ GitLab Windows job แบบเลือกเปิดได้)
 - [x] Commit แรก + CI เขียวบน GitHub ทั้ง 6 jobs (ubuntu / macOS / Windows × py3.10 / 3.12) — [run 44866058493](https://github.com/chakrits/ai-agent-framework/actions/runs/44866058493); Windows รัน `.cmd` launcher และ `sh` launcher ผ่าน Git Bash จริง
 - [x] แก้ bug ที่พบจาก log ของ Windows CI: `cwd` แบบ relative (`"."`) ถูกแปลงเป็น `/` ทำให้เช็ค protected path พลาด
+- [x] Versioning: `version.txt` (SemVer, เริ่ม `0.1.0`) + release-please + `CHANGELOG.md` + commit-msg hook บังคับ Conventional Commits + `LICENSE` (MIT) + `CONTRIBUTING.md` + README badges
+- [x] Governance quick fixes: constitution อ้าง `policy.json` แทน `.sdlc` ที่คลุมเครือ, ลบ permission ปลอมใน `settings.json`, อัปเดต PR/MR templates, สแกนเนื้อหา staged diff หา secret ใน pre-commit
+- [x] แก้ guard ให้นับ override env var เฉพาะที่มีผลจริง (ไม่นับข้อความใน quote/heredoc) + อัป `actions/checkout@v5`, `setup-python@v6`
 - [ ] CI บน GitLab (ยังไม่ได้ผูก remote) + ตั้ง branch protection บน `main`
+- [ ] Release แรก `v0.1.0` (merge Release PR ของ release-please หรือสร้าง tag) + เปิด Discussions และ "Allow GitHub Actions to create and approve pull requests" ใน repo settings
 - [ ] ยืนยันบน Windows จริง: Git Bash รับ path `C:\…` ใน `CLAUDE_PROJECT_DIR`, ชื่อ tool PowerShell ของ Claude, Codex `commandWindows` + การ pipe stdin ผ่าน `$input`
 - [ ] ให้ `routing.yaml` เป็นแหล่งข้อมูลเดียว (แก้ปัญหา routing ใน doc กับ `router.py` ไม่ตรงกัน)
 
@@ -75,9 +79,11 @@
 - [ ] Validators: `validate-runtimes`, validator ของ intent / spec / review + แปลง contracts เป็น JSON Schema จริง
 
 ### P7: Agent Trace & Observability — ⬜
-- [ ] Trace schema ตาม OTel GenAI (`invoke_agent`, `execute_tool`, `gate_decision`, `artifact_write`) โดยอ้างอิง `work_item` + `runtime`
-- [ ] เขียน trace จาก hooks (Claude: Pre/PostToolUse, SubagentStart/Stop, Stop; Codex hooks) และให้ orchestrator ใช้ schema เดียวกัน
-- [ ] ส่งออก OTel ได้ (optional) + สรุป trace ต่อ work item
+- [x] Trace schema [`trace-event.schema.json`](docs/contracts/trace-event.schema.json) (operation ตาม OTel GenAI: `invoke_agent`, `execute_tool`) + `work_item`
+- [x] เขียน trace จาก hooks ของ Claude (SessionStart/End, UserPromptSubmit, Pre/PostToolUse, PostToolUseFailure, SubagentStart/Stop, Stop) และ Codex (`.codex/hooks.json` generated); เก็บใน `.sdlc/traces/` (local, redact secret, ตัด output, retention 30 วัน, lock ข้าม OS)
+- [x] CLI `scripts/sdlc_trace.py` (`list` / `show` / `summary` / `export`) — ยืนยันกับ event จริงของ Claude Code แล้ว; ยังไม่ได้ยืนยัน payload ของ Codex จริง
+- [ ] ให้ orchestrator `TelemetryTracker` ใช้ schema เดียวกัน + `runtime` field (หลัง P6)
+- [ ] ส่งออก OTel (optional) + บันทึก rule ID ของ guard (หลังทำ rule registry)
 
 ### P8: Multi-Platform Parity — ⬜
 - [ ] ตรวจ Antigravity ว่าอ่าน `.agents/` (rules / skills / workflows) ได้เองหรือไม่ → ลด mirror `.agent/`

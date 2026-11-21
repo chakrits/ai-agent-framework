@@ -8,3 +8,6 @@
 - [ ] QA test oracles preserved (not weakened by implementation agent)
 - [ ] `REVIEW.md` generated (`code-reviewer-agent` + `security-audit-agent` for medium/high risk)
 - [ ] All CI checks pass (`validate_framework`, `unit_tests`, `agent_evals`)
+- [ ] Commit messages follow Conventional Commits (release-please reads them)
+- [ ] If this is a **Framework Change** (constitution, contracts, guard/hooks, CI gates): a human maintainer reviewed it and committed with `SDLC_ALLOW_PROTECTED=1`
+- [ ] Agent trace summary attached for `medium`/`high` risk work (`python3 scripts/sdlc_trace.py export --work-item INT-xxx --out work/INT-xxx/trace-summary.md`)

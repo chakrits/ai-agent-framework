@@ -26,6 +26,84 @@
           }
         ]
       }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "sh \"$(git rev-parse --show-toplevel)/scripts/bin/sdlc-hook\" trace --platform codex",
+            "commandWindows": "powershell.exe -NoProfile -NonInteractive -ExecutionPolicy Bypass -EncodedCommand WwBDAG8AbgBzAG8AbABlAF0AOgA6AEkAbgBwAHUAdABFAG4AYwBvAGQAaQBuAGcAIAA9ACAAWwBUAGUAeAB0AC4AVQBUAEYAOABFAG4AYwBvAGQAaQBuAGcAXQA6ADoAbgBlAHcAKAAkAGYAYQBsAHMAZQApADsAIAAkAE8AdQB0AHAAdQB0AEUAbgBjAG8AZABpAG4AZwAgAD0AIABbAFQAZQB4AHQALgBVAFQARgA4AEUAbgBjAG8AZABpAG4AZwBdADoAOgBuAGUAdwAoACQAZgBhAGwAcwBlACkAOwAgACQAcgBvAG8AdAAgAD0AIAAoAGcAaQB0ACAAcgBlAHYALQBwAGEAcgBzAGUAIAAtAC0AcwBoAG8AdwAtAHQAbwBwAGwAZQB2AGUAbAApADsAIAAkAGkAbgBwAHUAdAAgAHwAIAAmACAAKABKAG8AaQBuAC0AUABhAHQAaAAgACQAcgBvAG8AdAAgACcAcwBjAHIAaQBwAHQAcwBcAGIAaQBuAFwAcwBkAGwAYwAtAGgAbwBvAGsALgBjAG0AZAAnACkAIAB0AHIAYQBjAGUAIAAtAC0AcABsAGEAdABmAG8AcgBtACAAYwBvAGQAZQB4ADsAIABlAHgAaQB0ACAAJABMAEEAUwBUAEUAWABJAFQAQwBPAEQARQA=",
+            "timeout": 10,
+            "async": true
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Bash|apply_patch",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "sh \"$(git rev-parse --show-toplevel)/scripts/bin/sdlc-hook\" trace --platform codex",
+            "commandWindows": "powershell.exe -NoProfile -NonInteractive -ExecutionPolicy Bypass -EncodedCommand WwBDAG8AbgBzAG8AbABlAF0AOgA6AEkAbgBwAHUAdABFAG4AYwBvAGQAaQBuAGcAIAA9ACAAWwBUAGUAeAB0AC4AVQBUAEYAOABFAG4AYwBvAGQAaQBuAGcAXQA6ADoAbgBlAHcAKAAkAGYAYQBsAHMAZQApADsAIAAkAE8AdQB0AHAAdQB0AEUAbgBjAG8AZABpAG4AZwAgAD0AIABbAFQAZQB4AHQALgBVAFQARgA4AEUAbgBjAG8AZABpAG4AZwBdADoAOgBuAGUAdwAoACQAZgBhAGwAcwBlACkAOwAgACQAcgBvAG8AdAAgAD0AIAAoAGcAaQB0ACAAcgBlAHYALQBwAGEAcgBzAGUAIAAtAC0AcwBoAG8AdwAtAHQAbwBwAGwAZQB2AGUAbAApADsAIAAkAGkAbgBwAHUAdAAgAHwAIAAmACAAKABKAG8AaQBuAC0AUABhAHQAaAAgACQAcgBvAG8AdAAgACcAcwBjAHIAaQBwAHQAcwBcAGIAaQBuAFwAcwBkAGwAYwAtAGgAbwBvAGsALgBjAG0AZAAnACkAIAB0AHIAYQBjAGUAIAAtAC0AcABsAGEAdABmAG8AcgBtACAAYwBvAGQAZQB4ADsAIABlAHgAaQB0ACAAJABMAEEAUwBUAEUAWABJAFQAQwBPAEQARQA=",
+            "timeout": 10,
+            "async": true
+          }
+        ]
+      }
+    ],
+    "SubagentStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "sh \"$(git rev-parse --show-toplevel)/scripts/bin/sdlc-hook\" trace --platform codex",
+            "commandWindows": "powershell.exe -NoProfile -NonInteractive -ExecutionPolicy Bypass -EncodedCommand WwBDAG8AbgBzAG8AbABlAF0AOgA6AEkAbgBwAHUAdABFAG4AYwBvAGQAaQBuAGcAIAA9ACAAWwBUAGUAeAB0AC4AVQBUAEYAOABFAG4AYwBvAGQAaQBuAGcAXQA6ADoAbgBlAHcAKAAkAGYAYQBsAHMAZQApADsAIAAkAE8AdQB0AHAAdQB0AEUAbgBjAG8AZABpAG4AZwAgAD0AIABbAFQAZQB4AHQALgBVAFQARgA4AEUAbgBjAG8AZABpAG4AZwBdADoAOgBuAGUAdwAoACQAZgBhAGwAcwBlACkAOwAgACQAcgBvAG8AdAAgAD0AIAAoAGcAaQB0ACAAcgBlAHYALQBwAGEAcgBzAGUAIAAtAC0AcwBoAG8AdwAtAHQAbwBwAGwAZQB2AGUAbAApADsAIAAkAGkAbgBwAHUAdAAgAHwAIAAmACAAKABKAG8AaQBuAC0AUABhAHQAaAAgACQAcgBvAG8AdAAgACcAcwBjAHIAaQBwAHQAcwBcAGIAaQBuAFwAcwBkAGwAYwAtAGgAbwBvAGsALgBjAG0AZAAnACkAIAB0AHIAYQBjAGUAIAAtAC0AcABsAGEAdABmAG8AcgBtACAAYwBvAGQAZQB4ADsAIABlAHgAaQB0ACAAJABMAEEAUwBUAEUAWABJAFQAQwBPAEQARQA=",
+            "timeout": 10,
+            "async": true
+          }
+        ]
+      }
+    ],
+    "SubagentStop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "sh \"$(git rev-parse --show-toplevel)/scripts/bin/sdlc-hook\" trace --platform codex",
+            "commandWindows": "powershell.exe -NoProfile -NonInteractive -ExecutionPolicy Bypass -EncodedCommand WwBDAG8AbgBzAG8AbABlAF0AOgA6AEkAbgBwAHUAdABFAG4AYwBvAGQAaQBuAGcAIAA9ACAAWwBUAGUAeAB0AC4AVQBUAEYAOABFAG4AYwBvAGQAaQBuAGcAXQA6ADoAbgBlAHcAKAAkAGYAYQBsAHMAZQApADsAIAAkAE8AdQB0AHAAdQB0AEUAbgBjAG8AZABpAG4AZwAgAD0AIABbAFQAZQB4AHQALgBVAFQARgA4AEUAbgBjAG8AZABpAG4AZwBdADoAOgBuAGUAdwAoACQAZgBhAGwAcwBlACkAOwAgACQAcgBvAG8AdAAgAD0AIAAoAGcAaQB0ACAAcgBlAHYALQBwAGEAcgBzAGUAIAAtAC0AcwBoAG8AdwAtAHQAbwBwAGwAZQB2AGUAbAApADsAIAAkAGkAbgBwAHUAdAAgAHwAIAAmACAAKABKAG8AaQBuAC0AUABhAHQAaAAgACQAcgBvAG8AdAAgACcAcwBjAHIAaQBwAHQAcwBcAGIAaQBuAFwAcwBkAGwAYwAtAGgAbwBvAGsALgBjAG0AZAAnACkAIAB0AHIAYQBjAGUAIAAtAC0AcABsAGEAdABmAG8AcgBtACAAYwBvAGQAZQB4ADsAIABlAHgAaQB0ACAAJABMAEEAUwBUAEUAWABJAFQAQwBPAEQARQA=",
+            "timeout": 10,
+            "async": true
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "sh \"$(git rev-parse --show-toplevel)/scripts/bin/sdlc-hook\" trace --platform codex",
+            "commandWindows": "powershell.exe -NoProfile -NonInteractive -ExecutionPolicy Bypass -EncodedCommand WwBDAG8AbgBzAG8AbABlAF0AOgA6AEkAbgBwAHUAdABFAG4AYwBvAGQAaQBuAGcAIAA9ACAAWwBUAGUAeAB0AC4AVQBUAEYAOABFAG4AYwBvAGQAaQBuAGcAXQA6ADoAbgBlAHcAKAAkAGYAYQBsAHMAZQApADsAIAAkAE8AdQB0AHAAdQB0AEUAbgBjAG8AZABpAG4AZwAgAD0AIABbAFQAZQB4AHQALgBVAFQARgA4AEUAbgBjAG8AZABpAG4AZwBdADoAOgBuAGUAdwAoACQAZgBhAGwAcwBlACkAOwAgACQAcgBvAG8AdAAgAD0AIAAoAGcAaQB0ACAAcgBlAHYALQBwAGEAcgBzAGUAIAAtAC0AcwBoAG8AdwAtAHQAbwBwAGwAZQB2AGUAbAApADsAIAAkAGkAbgBwAHUAdAAgAHwAIAAmACAAKABKAG8AaQBuAC0AUABhAHQAaAAgACQAcgBvAG8AdAAgACcAcwBjAHIAaQBwAHQAcwBcAGIAaQBuAFwAcwBkAGwAYwAtAGgAbwBvAGsALgBjAG0AZAAnACkAIAB0AHIAYQBjAGUAIAAtAC0AcABsAGEAdABmAG8AcgBtACAAYwBvAGQAZQB4ADsAIABlAHgAaQB0ACAAJABMAEEAUwBUAEUAWABJAFQAQwBPAEQARQA=",
+            "timeout": 10,
+            "async": true
+          }
+        ]
+      }
+    ],
+    "SessionEnd": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "sh \"$(git rev-parse --show-toplevel)/scripts/bin/sdlc-hook\" trace --platform codex",
+            "commandWindows": "powershell.exe -NoProfile -NonInteractive -ExecutionPolicy Bypass -EncodedCommand WwBDAG8AbgBzAG8AbABlAF0AOgA6AEkAbgBwAHUAdABFAG4AYwBvAGQAaQBuAGcAIAA9ACAAWwBUAGUAeAB0AC4AVQBUAEYAOABFAG4AYwBvAGQAaQBuAGcAXQA6ADoAbgBlAHcAKAAkAGYAYQBsAHMAZQApADsAIAAkAE8AdQB0AHAAdQB0AEUAbgBjAG8AZABpAG4AZwAgAD0AIABbAFQAZQB4AHQALgBVAFQARgA4AEUAbgBjAG8AZABpAG4AZwBdADoAOgBuAGUAdwAoACQAZgBhAGwAcwBlACkAOwAgACQAcgBvAG8AdAAgAD0AIAAoAGcAaQB0ACAAcgBlAHYALQBwAGEAcgBzAGUAIAAtAC0AcwBoAG8AdwAtAHQAbwBwAGwAZQB2AGUAbAApADsAIAAkAGkAbgBwAHUAdAAgAHwAIAAmACAAKABKAG8AaQBuAC0AUABhAHQAaAAgACQAcgBvAG8AdAAgACcAcwBjAHIAaQBwAHQAcwBcAGIAaQBuAFwAcwBkAGwAYwAtAGgAbwBvAGsALgBjAG0AZAAnACkAIAB0AHIAYQBjAGUAIAAtAC0AcABsAGEAdABmAG8AcgBtACAAYwBvAGQAZQB4ADsAIABlAHgAaQB0ACAAJABMAEEAUwBUAEUAWABJAFQAQwBPAEQARQA=",
+            "timeout": 3
+          }
+        ]
+      }
     ]
   }
 }

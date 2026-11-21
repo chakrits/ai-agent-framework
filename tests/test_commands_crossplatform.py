@@ -107,6 +107,50 @@ class TestRules(unittest.TestCase):
         self.assertTrue(self.check("$env:SDLC_GUARD_FAIL_OPEN='1'; git status", family="powershell"))
         self.assertTrue(self.check("set SDLC_ALLOW_PROTECTED=1", family="cmd"))
 
+    def test_assignment_text_in_data_is_not_an_override(self) -> None:
+        for cmd in (
+            'echo "RELEASE_APPROVAL=1"',
+            "grep -rn SDLC_ALLOW_PROTECTED=1 docs",
+            "cat > notes.md <<'EOF'\nSDLC_ALLOW_PROTECTED=1 git commit\nRELEASE_APPROVAL=1 ./go\nEOF",
+            "python3 - <<EOF\nprint('SDLC_GUARD_FAIL_OPEN=1')\nEOF",
+        ):
+            with self.subTest(cmd=cmd):
+                self.assertEqual(self.check(cmd), [])
+
+    def test_assignment_forms_that_take_effect_are_blocked(self) -> None:
+        for cmd in (
+            "export RELEASE_APPROVAL=1",
+            "env SDLC_ALLOW_PROTECTED=1 git commit -m x",
+            "FOO=1 SDLC_ALLOW_PROTECTED=1 git commit -m x",
+            'bash -c "SDLC_ALLOW_PROTECTED=1 git commit -m x"',
+            "bash <<EOF\nSDLC_ALLOW_PROTECTED=1 git commit -m x\nEOF",
+            "git status && SDLC_GUARD_FAIL_OPEN=1 ./run",
+        ):
+            with self.subTest(cmd=cmd):
+                facts = commands.analyze(commands.detect_family("Bash", cmd, windows_host=False)[1], "posix")
+                self.assertTrue(commands.dangerous_command_reasons(facts, {}, allow_force_with_lease=False), cmd)
+
+    def test_shell_heredoc_commands_are_still_analysed(self) -> None:
+        for cmd in (
+            "sh <<'EOF'\ngit push --force\nEOF",
+            "cat <<'EOF' | bash\ngit push --force\nEOF",
+            "cat <<EOF | sudo /bin/sh\ngit push -f\nEOF",
+            "cat <<EOF | xargs bash -c\ngit push -f\nEOF",
+            "FOO=1 bash <<EOF\ngit push -f\nEOF",
+            "echo go; sh <<EOF\ngit push -f\nEOF",
+        ):
+            with self.subTest(cmd=cmd):
+                self.assertTrue(self.check(cmd), cmd)
+
+    def test_data_heredocs_are_not_analysed(self) -> None:
+        for cmd in (
+            "cat > run.sh <<'EOF'\ngit push --force\nEOF",
+            "tee notes.md <<EOF\ngit push -f\nEOF",
+            "python3 - <<'PY'\nprint('git push --force')\nPY",
+        ):
+            with self.subTest(cmd=cmd):
+                self.assertEqual(self.check(cmd), [], cmd)
+
     def test_powershell_force_push(self) -> None:
         self.assertTrue(self.check("git push --force origin main", family="powershell"))
 

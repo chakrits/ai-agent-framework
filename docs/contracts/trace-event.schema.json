@@ -1,0 +1,64 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ai-sdlc-framework.local/contracts/trace-event.schema.json",
+  "title": "Agent Trace Event (one JSON object per line in .sdlc/traces/YYYY-MM-DD/<session>.jsonl)",
+  "description": "Written by scripts/sdlc_hook.py from Claude Code / Codex hook events. Secrets are redacted and long values truncated before writing. `operation` names follow OpenTelemetry GenAI conventions where one exists (invoke_agent, execute_tool).",
+  "type": "object",
+  "required": ["v", "ts", "level", "framework_version", "platform", "os", "session_id", "event", "operation"],
+  "properties": {
+    "v": { "const": 1 },
+    "ts": { "type": "string", "format": "date-time" },
+    "level": { "enum": ["info", "debug"] },
+    "framework_version": { "type": "string" },
+    "platform": { "enum": ["claude", "codex", "orchestrator"] },
+    "os": { "enum": ["windows", "macos", "linux", "wsl", "other"] },
+    "session_id": { "type": "string", "pattern": "^[A-Za-z0-9_-]{1,64}$" },
+    "event": { "type": "string", "description": "Hook event name, e.g. PreToolUse, PostToolUse, PostToolUseFailure, UserPromptSubmit, SubagentStop, Stop" },
+    "operation": { "enum": ["session", "user_prompt", "execute_tool", "invoke_agent", "turn_end", "gate_decision", "other"] },
+    "role": { "type": "string", "description": "agent_type from the payload, else SDLC_ACTIVE_ROLE, else main" },
+    "agent_type": { "type": "string" },
+    "agent_id": { "type": "string" },
+    "tool_name": { "type": "string" },
+    "tool_use_id": { "type": "string" },
+    "cwd": { "type": "string" },
+    "git_branch": { "type": "string" },
+    "work_item": { "type": "string", "pattern": "^INT-[0-9]{3,}$" },
+    "input": {
+      "type": "object",
+      "properties": {
+        "command": { "type": "string" },
+        "file_path": { "type": "string" },
+        "path": { "type": "string" },
+        "notebook_path": { "type": "string" },
+        "summary": { "type": "string", "description": "Short argument summary for tools without command/path (e.g. MCP tools)" }
+      }
+    },
+    "input_raw": { "type": "string", "description": "Full tool_input as JSON text (debug level only)" },
+    "output": {
+      "type": "object",
+      "required": ["stdout", "stderr", "truncated", "bytes"],
+      "properties": {
+        "stdout": { "type": "string" },
+        "stderr": { "type": "string" },
+        "truncated": { "type": "boolean" },
+        "bytes": { "type": "integer", "minimum": 0, "description": "Original size before truncation (stdout + stderr)" }
+      }
+    },
+    "error": { "type": "string" },
+    "exit_code": { "type": "integer" },
+    "is_interrupt": { "type": "boolean" },
+    "duration_ms": { "type": "number", "minimum": 0 },
+    "prompt": { "type": "string" },
+    "message": { "type": "string" },
+    "reason": { "type": "string" },
+    "source": { "type": "string" },
+    "decision": {
+      "type": "object",
+      "required": ["allowed", "reasons"],
+      "properties": {
+        "allowed": { "type": "boolean" },
+        "reasons": { "type": "array", "items": { "type": "string" } }
+      }
+    }
+  }
+}

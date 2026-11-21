@@ -1,0 +1,4 @@
+#!/bin/sh
+# Enforces Conventional Commits (release-please reads them). Git passes the message file path as $1.
+ROOT=$(git rev-parse --show-toplevel) || exit 1
+exec sh "$ROOT/scripts/bin/sdlc-hook" commit-msg "$1"

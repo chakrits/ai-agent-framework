@@ -16,7 +16,7 @@ Agents may draft, analyze, implement, and verify, but **human sign-off is mandat
 
 - **No Self-Approval:** An agent that writes code must never approve its own PR or merge directly to `main`.
 - **Test Oracle Integrity:** Coding agents (`dev-coding-agent`) must not modify or weaken QA test specifications or acceptance criteria to force a green build.
-- **Constitution Protection:** Agents cannot modify `docs/operating-model/constitution.md` or `.sdlc` / CI gate scripts unless explicitly tasked with a *Framework/Process Change* workflow and reviewed by a human maintainer.
+- **Constitution Protection:** Agents cannot modify the paths listed in `protected_globs` and `roles.*.ci_gate_globs` of [`scripts/sdlc_guard/policy.json`](../../scripts/sdlc_guard/policy.json) (constitution, contracts, guard and hooks, CI workflows and validators) unless explicitly tasked with a *Framework/Process Change* workflow and reviewed by a human maintainer. Committing them requires the maintainer to set `SDLC_ALLOW_PROTECTED=1`; agents must never set it.
 
 ## 3. Security & Secret Hygiene
 

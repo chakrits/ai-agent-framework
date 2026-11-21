@@ -35,11 +35,40 @@ _CMD_WRITE_LAST = {"copy", "move", "xcopy", "robocopy"}
 _GIT_PATH_SUBCOMMANDS = {"checkout", "restore", "rm", "mv"}
 
 _REDIRECT_RE = re.compile(r"^(?:\d|&|\*)?>>?(.*)$")
-_ASSIGN_RES = (
-    re.compile(r"(?:^|[\s;&|])(?:export\s+)?([A-Za-z_][A-Za-z0-9_]*)=", re.MULTILINE),  # POSIX
-    re.compile(r"\$env:([A-Za-z_][A-Za-z0-9_]*)\s*=", re.IGNORECASE),  # PowerShell
-    re.compile(r"(?:^|[\s&|])set\s+\"?([A-Za-z_][A-Za-z0-9_]*)=", re.IGNORECASE),  # cmd
-)
+# Assignments are only counted where they take effect: at the start of a command segment, not inside
+# quoted arguments or heredoc bodies.
+_PS_ASSIGN_RE = re.compile(r"^\s*\$env:([A-Za-z_][A-Za-z0-9_]*)\s*=|SetEnvironmentVariable\(\s*['\"]([A-Za-z_][A-Za-z0-9_]*)", re.IGNORECASE)
+_PS_SET_ITEM_RE = re.compile(r"^\s*(?:set-item|si|new-item|ni)\s+(?:-path\s+)?env:([A-Za-z_][A-Za-z0-9_]*)", re.IGNORECASE)
+_CMD_ASSIGN_RE = re.compile(r"^\s*(?:set|setx)\s+\"?([A-Za-z_][A-Za-z0-9_]*)[=\s]", re.IGNORECASE)
+_POSIX_ASSIGN_RE = re.compile(r"^([A-Za-z_][A-Za-z0-9_]*)=")
+_POSIX_EXPORTERS = {"export", "declare", "typeset", "readonly", "local"}
+# A shell interpreter anywhere in command position on the heredoc line (start, or after | ; & ( xargs sudo env).
+_SHELL_HEREDOC_RE = re.compile(r"(?:^|[|;&(]|\bxargs|\bsudo|\benv)\s*(?:[A-Za-z_][A-Za-z0-9_]*=\S*\s+)*(?:\S*/)?(?:ba|z|da|k)?sh\b")
+_HEREDOC_RE = re.compile(r"<<-?\s*(['\"]?)([A-Za-z_][A-Za-z0-9_]*)\1")
+
+
+def _strip_heredocs(command: str) -> str:
+    """Drop heredoc bodies (data, not commands) so text inside them is never analysed as commands."""
+    out: list[str] = []
+    terminator: str | None = None
+    strip_tabs = False
+    keep_body = False
+    for line in command.split("\n"):
+        if terminator is not None:
+            check = line.lstrip("\t") if strip_tabs else line
+            if check.rstrip() == terminator:
+                terminator = None
+            elif keep_body:
+                out.append(line)
+            continue
+        out.append(line)
+        m = _HEREDOC_RE.search(line)
+        if m:
+            terminator = m.group(2)
+            strip_tabs = "<<-" in line[m.start() : m.start() + 4]
+            # A heredoc fed to a shell interpreter is executable code, so it must still be analysed.
+            keep_body = bool(_SHELL_HEREDOC_RE.search(line))
+    return "\n".join(out)
 _PROD_RE = re.compile(r"\bprod(?:uction)?\b", re.IGNORECASE)
 
 
@@ -215,11 +244,15 @@ def _ps_param_values(tokens: list[str], names: set[str]) -> list[str]:
     return vals
 
 
-def _strip_prefixes(tokens: list[str], family: str) -> list[str]:
+def _strip_prefixes(tokens: list[str], family: str) -> tuple[list[str], set[str]]:
+    """Remove leading env assignments / wrapper commands; also return the variable names assigned."""
+    assigned: set[str] = set()
     i = 0
     while i < len(tokens):
         tok = tokens[i]
-        if family == "posix" and re.fullmatch(r"[A-Za-z_][A-Za-z0-9_]*=.*", tok):
+        m = _POSIX_ASSIGN_RE.match(tok) if family == "posix" else None
+        if m:
+            assigned.add(m.group(1).upper())
             i += 1
         elif family == "posix" and _base(tok) in _PREFIX_COMMANDS:
             i += 1
@@ -227,15 +260,30 @@ def _strip_prefixes(tokens: list[str], family: str) -> list[str]:
             i += 1
         else:
             break
-    return tokens[i:]
+    rest = tokens[i:]
+    if family == "posix" and rest and _base(rest[0]) in _POSIX_EXPORTERS:
+        for tok in rest[1:]:
+            m = _POSIX_ASSIGN_RE.match(tok)
+            if m:
+                assigned.add(m.group(1).upper())
+    return rest, assigned
 
 
 def analyze(command: str, family: str) -> CommandFacts:
     facts = CommandFacts(family=family, raw=command)
-    for rx in _ASSIGN_RES:
-        facts.assignments.update(m.group(1).upper() for m in rx.finditer(command))
+    if family == "posix":
+        command = _strip_heredocs(command)
 
     for seg in split_segments(command, family):
+        if family == "powershell":
+            for rx in (_PS_ASSIGN_RE, _PS_SET_ITEM_RE):
+                m = rx.search(seg)
+                if m:
+                    facts.assignments.add(next(g for g in m.groups() if g).upper())
+        elif family == "cmd":
+            m = _CMD_ASSIGN_RE.match(seg)
+            if m:
+                facts.assignments.add(m.group(1).upper())
         raw_tokens = tokenize(seg, family)
         tokens: list[str] = []
         i = 0
@@ -253,7 +301,8 @@ def analyze(command: str, family: str) -> CommandFacts:
             tokens.append(tok)
             i += 1
 
-        tokens = _strip_prefixes(tokens, family)
+        tokens, assigned = _strip_prefixes(tokens, family)
+        facts.assignments |= assigned
         if not tokens:
             continue
         facts.segments.append(tokens)
@@ -328,7 +377,7 @@ def dangerous_command_reasons(
 ) -> list[str]:
     reasons: list[str] = []
     for name in sorted(facts.assignments & set(HUMAN_ONLY_OVERRIDES)):
-        reasons.append(f"Agents may not set human-only override {name} inline; a human must export it.")
+        reasons.append(f"Agents may not set human-only override {name} inline - a human must export it in their own shell.")
 
     for tokens in facts.segments:
         head = _base(tokens[0])

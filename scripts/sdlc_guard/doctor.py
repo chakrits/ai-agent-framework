@@ -14,7 +14,7 @@ import sys
 from dataclasses import asdict, dataclass
 from pathlib import Path
 
-from . import platform_env
+from . import platform_env, version
 
 ROOT = Path(__file__).resolve().parents[2]
 LF_CRITICAL = ("scripts/bin/sdlc-hook", ".githooks/pre-commit", "scripts/sdlc_hook.py")
@@ -95,14 +95,14 @@ def collect() -> dict:
     if " " in str(ROOT):
         checks.append(Check("path_spaces", "info", "Repository path contains spaces (supported; hook commands are quoted)"))
 
-    return {"environment": info, "repo_root": str(ROOT), "python_command": py, "checks": [asdict(c) for c in checks]}
+    return {"framework_version": version.framework_version(), "environment": info, "repo_root": str(ROOT), "python_command": py, "checks": [asdict(c) for c in checks]}
 
 
 def render_context(report: dict) -> str:
     env = report["environment"]
     os_name = env["os"]
     shell = env["shell"]
-    lines = [f"[sdlc-doctor] Host OS: {os_name} | shell: {shell} | Python: {env['python']} | repo: {report['repo_root']}"]
+    lines = [f"[sdlc-doctor] SDLC framework v{report['framework_version']} | Host OS: {os_name} | shell: {shell} | Python: {env['python']} | repo: {report['repo_root']}"]
     if os_name == "windows":
         lines.append(
             "- Windows: the Bash tool runs Git Bash (POSIX syntax, paths like /c/Users/... or C:/Users/...); "

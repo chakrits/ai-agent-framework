@@ -1,11 +1,5 @@
 {
   "permissions": {
-    "deny": [
-      "Read(.env*)",
-      "Read(./secrets/**)",
-      "Bash(curl *)",
-      "Bash(wget *)"
-    ],
     "allow": [
       "Bash(git status*)",
       "Bash(git diff*)",
@@ -33,6 +27,18 @@
         ]
       }
     ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "sh \"$CLAUDE_PROJECT_DIR/scripts/bin/sdlc-hook\" trace --platform claude",
+            "timeout": 10,
+            "async": true
+          }
+        ]
+      }
+    ],
     "PreToolUse": [
       {
         "matcher": "Edit|Write|MultiEdit|NotebookEdit|Bash|PowerShell|Read",
@@ -41,6 +47,79 @@
             "type": "command",
             "command": "sh \"$CLAUDE_PROJECT_DIR/scripts/bin/sdlc-hook\" pretooluse --platform claude",
             "timeout": 30
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "sh \"$CLAUDE_PROJECT_DIR/scripts/bin/sdlc-hook\" trace --platform claude",
+            "timeout": 10,
+            "async": true
+          }
+        ]
+      }
+    ],
+    "PostToolUseFailure": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "sh \"$CLAUDE_PROJECT_DIR/scripts/bin/sdlc-hook\" trace --platform claude",
+            "timeout": 10,
+            "async": true
+          }
+        ]
+      }
+    ],
+    "SubagentStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "sh \"$CLAUDE_PROJECT_DIR/scripts/bin/sdlc-hook\" trace --platform claude",
+            "timeout": 10,
+            "async": true
+          }
+        ]
+      }
+    ],
+    "SubagentStop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "sh \"$CLAUDE_PROJECT_DIR/scripts/bin/sdlc-hook\" trace --platform claude",
+            "timeout": 10,
+            "async": true
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "sh \"$CLAUDE_PROJECT_DIR/scripts/bin/sdlc-hook\" trace --platform claude",
+            "timeout": 10,
+            "async": true
+          }
+        ]
+      }
+    ],
+    "SessionEnd": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "sh \"$CLAUDE_PROJECT_DIR/scripts/bin/sdlc-hook\" trace --platform claude",
+            "timeout": 10
           }
         ]
       }

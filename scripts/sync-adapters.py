@@ -47,8 +47,8 @@ def _powershell_encoded(subcommand: str) -> str:
     return base64.b64encode(script.encode("utf-16-le")).decode("ascii")
 
 
-def _codex_handler(subcommand: str, timeout: int) -> dict:
-    return {
+def _codex_handler(subcommand: str, timeout: int, background: bool = False) -> dict:
+    handler = {
         "type": "command",
         "command": f'sh "$(git rev-parse --show-toplevel)/scripts/bin/sdlc-hook" {subcommand} --platform codex',
         "commandWindows": (
@@ -57,6 +57,9 @@ def _codex_handler(subcommand: str, timeout: int) -> dict:
         ),
         "timeout": timeout,
     }
+    if background:
+        handler["async"] = True  # trace hooks must never slow down or block a tool call
+    return handler
 
 
 def render_codex_hooks() -> str:
@@ -69,6 +72,12 @@ def render_codex_hooks() -> str:
         "hooks": {
             "SessionStart": [{"matcher": "startup|resume|clear", "hooks": [_codex_handler("session-start", 30)]}],
             "PreToolUse": [{"matcher": "Bash|apply_patch", "hooks": [_codex_handler("pretooluse", 30)]}],
+            "UserPromptSubmit": [{"hooks": [_codex_handler("trace", 10, background=True)]}],
+            "PostToolUse": [{"matcher": "Bash|apply_patch", "hooks": [_codex_handler("trace", 10, background=True)]}],
+            "SubagentStart": [{"hooks": [_codex_handler("trace", 10, background=True)]}],
+            "SubagentStop": [{"hooks": [_codex_handler("trace", 10, background=True)]}],
+            "Stop": [{"hooks": [_codex_handler("trace", 10, background=True)]}],
+            "SessionEnd": [{"hooks": [_codex_handler("trace", 3)]}],
         },
     }
     return json.dumps(data, indent=2, ensure_ascii=False) + "\n"

@@ -1,0 +1,24 @@
+name: Release Please
+
+# On every push to main, release-please opens/updates a "Release PR" that bumps version.txt and CHANGELOG.md
+# from Conventional Commits. Merging that PR creates the vX.Y.Z tag and the GitHub Release.
+# Requires: Settings -> Actions -> General -> "Allow GitHub Actions to create and approve pull requests".
+# Note: PRs opened with GITHUB_TOKEN do not trigger other workflows; use a PAT/GitHub App token if CI must run on them.
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  release-please:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: googleapis/release-please-action@v4
+        with:
+          config-file: release-please-config.json
+          manifest-file: .release-please-manifest.json
+          token: ${{ secrets.GITHUB_TOKEN }}

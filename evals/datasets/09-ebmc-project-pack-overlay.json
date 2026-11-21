@@ -1,0 +1,12 @@
+{
+  "eval_id": "EVAL-009",
+  "title": "EBMC Project Pack Overlay Keeps Core Agnostic & Robot Tags Aligned",
+  "target_agent": "qa-function-agent",
+  "prompt": "Using the EBMC project pack skill, produce a 13-section Function Test Report with Thai descriptions and Robot Framework compatible TC-xxx IDs.",
+  "required_artifacts": ["test-report.md"],
+  "validator": "test_report_markdown",
+  "assertions": {
+    "required_id_prefixes": ["TC-HC-", "TC-NEG-", "TC-BVA-", "TC-EP-", "URD-", "FS-"]
+  },
+  "sample_output_ref": "docs/templates/function-test-report.template.md"
+}

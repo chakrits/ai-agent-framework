@@ -113,5 +113,5 @@
 
 - Command analysis เป็นแบบ best-effort: script ซ้อนหรือ obfuscation หลบได้ ด่านสุดท้ายคือ pre-commit + CI + branch protection
 - กฎ deploy production จับจากข้อความ จึงมี false positive (เช่น `grep "deploy production"`)
-- Codex hooks จะยังไม่รันจนกว่าจะ trust ด้วย `/hooks`; Antigravity ไม่มี tool hook จึงพึ่ง pre-commit / CI
+- Codex hooks จะยังไม่รันจนกว่าจะ trust ด้วย `/hooks`; Antigravity รองรับ `hooks.json` แบบ synchronous แล้ว (`.agent/hooks.json` generated โดย `sync-adapters.py`) และควรเปิด session ใหม่เพื่อโหลด hook ล่าสุด
 - Windows ที่ไม่มี Python 3.10+ จะถูก block ทุก tool call (fail-closed ตามที่ออกแบบ)

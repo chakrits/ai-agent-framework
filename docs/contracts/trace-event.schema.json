@@ -10,7 +10,7 @@
     "ts": { "type": "string", "format": "date-time", "description": "Local time with offset, millisecond precision, e.g. 2026-11-21T12:34:56.789+07:00" },
     "level": { "enum": ["info", "debug"] },
     "framework_version": { "type": "string" },
-    "platform": { "enum": ["claude", "codex", "orchestrator"] },
+    "platform": { "enum": ["claude", "codex", "antigravity", "orchestrator"] },
     "os": { "enum": ["windows", "macos", "linux", "wsl", "other"] },
     "session_id": { "type": "string", "pattern": "^[A-Za-z0-9_-]{1,64}$" },
     "event": { "type": "string", "description": "Hook event name, e.g. PreToolUse, PostToolUse, PostToolUseFailure, UserPromptSubmit, PermissionRequest, ConfigChange, TraceConfigChange" },

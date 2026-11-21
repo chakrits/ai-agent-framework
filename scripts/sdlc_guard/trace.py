@@ -23,7 +23,7 @@ from typing import Any, Mapping
 from . import platform_env, redact, trace_config, trace_state, version
 
 SCHEMA_VERSION = 1
-PLATFORMS = ("claude", "codex", "orchestrator")
+PLATFORMS = ("claude", "codex", "antigravity", "orchestrator")
 OPERATIONS = (
     "session", "user_prompt", "execute_tool", "invoke_agent", "turn_end", "gate_decision",
     "permission", "config", "model", "compaction", "task", "notification", "other",

@@ -1,0 +1,31 @@
+{
+  "intent_ref": "INT-001",
+  "spec_ref": "SPEC-001",
+  "test_report_ref": "QAR-001",
+  "tasks": [
+    {
+      "task_id": "TASK-001",
+      "title": "Implement URD-xxx intent-to-spec traceability validation (FS-001)",
+      "description": "Extract URD-xxx IDs from intent.md and spec.md and fail if intent has none or any URD is omitted from spec.md.",
+      "fs_refs": ["FS-001"],
+      "test_refs": ["TC-HC-001", "TC-NEG-001", "TC-BVA-001", "TC-EP-001"],
+      "target_files": ["scripts/validate_work_item.py"],
+      "status": "completed",
+      "passes": true,
+      "verification_cmd": "python3 -m unittest tests/test_work_item_validator.py -v",
+      "evidence": "Ran 4 tests in 0.002s - OK"
+    },
+    {
+      "task_id": "TASK-002",
+      "title": "Implement FS-xxx downstream spec-to-tasks-and-qa validation CLI (FS-002)",
+      "description": "Verify every FS-xxx in spec.md is referenced in tasks.json fs_refs and test-report.md, with optional --require-review flag.",
+      "fs_refs": ["FS-002"],
+      "test_refs": ["TC-HC-001", "TC-NEG-002", "TC-NEG-003", "TC-BVA-002"],
+      "target_files": ["scripts/validate_work_item.py", "tests/test_work_item_validator.py"],
+      "status": "completed",
+      "passes": true,
+      "verification_cmd": "python3 scripts/validate_work_item.py work/INT-001 --require-review",
+      "evidence": "Work item validation PASSED (work/INT-001); Contract validation PASSED"
+    }
+  ]
+}

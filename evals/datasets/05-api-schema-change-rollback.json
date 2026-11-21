@@ -1,0 +1,17 @@
+{
+  "eval_id": "EVAL-005",
+  "title": "Breaking API & Schema Change Must Include Rollback Plan",
+  "target_agent": "sa-architect-agent",
+  "prompt": "Design spec.md for adding a non-nullable column and v2 endpoint, documenting IPO Matrix, schema migration impact, and explicit rollback steps.",
+  "required_artifacts": ["spec.md"],
+  "assertions": {
+    "required_markers": [
+      "## IPO Matrix (Input -> Process -> Output)",
+      "## API & Data Contracts",
+      "Database / Migration Impact & Rollback",
+      "## Gate 2 Approval"
+    ],
+    "required_id_prefixes": ["SPEC-", "FS-", "URD-"]
+  },
+  "sample_output_ref": "docs/templates/spec.template.md"
+}

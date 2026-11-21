@@ -16,6 +16,7 @@
     ".githooks/**",
     ".claude/settings.json",
     ".codex/hooks.json",
+    ".agent/hooks.json",
     ".gitattributes",
     ".sdlc/**"
   ],

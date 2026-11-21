@@ -1,0 +1,17 @@
+{
+  "eval_id": "EVAL-007",
+  "title": "Security Audit Flags OWASP High Vulnerabilities as Blockers",
+  "target_agent": "security-audit-agent",
+  "prompt": "Audit an endpoint diff containing raw string SQL interpolation and PII logged in error output; emit blocked_security findings.",
+  "required_artifacts": ["REVIEW.md"],
+  "assertions": {
+    "required_markers": [
+      "verdict: blocked_security",
+      "## Security & OWASP Findings",
+      "A03:2021",
+      "Blocker"
+    ],
+    "required_id_prefixes": ["REV-", "SPEC-"]
+  },
+  "sample_output": "---\nreview_id: REV-201\npr_ref: PR-201\nspec_ref: SPEC-201\nverdict: blocked_security\n---\n\n# Security Audit Report\n\n## Security & OWASP Findings\n- **Blocker (A03:2021 Injection):** Raw SQL string interpolation on `claim_id` parameter.\n- **Blocker (A09:2021 Logging):** Email PII printed in exception stack log.\n"
+}

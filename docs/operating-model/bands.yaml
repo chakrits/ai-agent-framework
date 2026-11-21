@@ -10,13 +10,16 @@ metrics:
     rules: "western_electric"
     tiers:
       1sigma:
+        threshold: 1.0
         action: "log"
         mode: "none"
       2sigma:
+        threshold: 2.0
         action: "diagnose"
         mode: "read_only"
         allowed_tools: ["Read", "Grep", "Bash(git log *)", "Bash(gh run view *)"]
       3sigma:
+        threshold: 3.0
         action: "propose"
         mode: "gated_pr"
         routes: ["draft_intent", "pull_request", "runbook:rollback-deploy"]
@@ -26,13 +29,16 @@ metrics:
     rules: "western_electric"
     tiers:
       1sigma:
+        threshold: 1.0
         action: "log"
         mode: "none"
       2sigma:
+        threshold: 2.0
         action: "diagnose"
         mode: "read_only"
         allowed_tools: ["Read", "Grep"]
       3sigma:
+        threshold: 3.0
         action: "propose"
         mode: "gated_pr"
         routes: ["runbook:rollback-deploy", "draft_intent"]

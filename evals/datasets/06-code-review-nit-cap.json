@@ -1,0 +1,18 @@
+{
+  "eval_id": "EVAL-006",
+  "title": "Multi-Pass Code Review with Oracle Check and Nit Cap",
+  "target_agent": "code-reviewer-agent",
+  "prompt": "Review a PR against SPEC-001 and PLAN-001 running Bugs, Security, and Compliance passes, checking Test Oracle Integrity and capping Nits at 5.",
+  "required_artifacts": ["REVIEW.md"],
+  "assertions": {
+    "required_markers": [
+      "## Review Scope & Traceability Check",
+      "## Spec Compliance & Architectural Drift",
+      "## Test Oracle Integrity Check",
+      "## Findings Summary (Blocker / Major / Minor)",
+      "## Gate 3 Human Sign-Off"
+    ],
+    "required_id_prefixes": ["REV-", "PR-", "SPEC-"]
+  },
+  "sample_output_ref": "docs/templates/review.template.md"
+}

@@ -72,8 +72,10 @@ def is_absolute(canon: str) -> bool:
 
 
 def join(base: str, rel: str, *, windows_host: bool) -> str:
-    base_c = canonical(base, windows_host=windows_host).rstrip("/")
-    return canonical(f"{base_c}/{rel}", windows_host=windows_host)
+    base_c = canonical(base, windows_host=windows_host)
+    if not base_c:
+        return canonical(rel, windows_host=windows_host)
+    return canonical(f"{base_c.rstrip('/')}/{rel}", windows_host=windows_host)
 
 
 def to_repo_relative(
@@ -90,7 +92,12 @@ def to_repo_relative(
     """
     canon = canonical(path, windows_host=windows_host)
     if not is_absolute(canon):
-        canon = join(cwd or repo_root, canon, windows_host=windows_host)
+        base = repo_root
+        if cwd:
+            cwd_c = canonical(cwd, windows_host=windows_host)
+            # A relative cwd (e.g. "." from a hook payload) is relative to the repo root, not to "/".
+            base = cwd if is_absolute(cwd_c) else join(repo_root, cwd_c, windows_host=windows_host)
+        canon = join(base, canon, windows_host=windows_host)
 
     root = canonical(repo_root, windows_host=windows_host).rstrip("/")
     c_fold, r_fold = canon.casefold(), root.casefold()

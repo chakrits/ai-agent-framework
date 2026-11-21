@@ -62,7 +62,9 @@
 - [x] SessionStart doctor (ตรวจ OS / shell / Python / Git / line endings) + `setup.py` + pre-commit ที่ตรวจ staged diff
 - [x] Claude `settings.json` (matcher ครบ, path มี quote) + Codex `.codex/hooks.json` (generated, มี `commandWindows`)
 - [x] CI matrix ubuntu / macOS / Windows × Python 3.10 / 3.12 (+ GitLab Windows job แบบเลือกเปิดได้)
-- [ ] Commit แรกโดย human (`SDLC_ALLOW_PROTECTED=1`) + CI เขียวบน GitHub และ GitLab
+- [x] Commit แรก + CI เขียวบน GitHub ทั้ง 6 jobs (ubuntu / macOS / Windows × py3.10 / 3.12) — [run 44866058493](https://github.com/chakrits/ai-agent-framework/actions/runs/44866058493); Windows รัน `.cmd` launcher และ `sh` launcher ผ่าน Git Bash จริง
+- [x] แก้ bug ที่พบจาก log ของ Windows CI: `cwd` แบบ relative (`"."`) ถูกแปลงเป็น `/` ทำให้เช็ค protected path พลาด
+- [ ] CI บน GitLab (ยังไม่ได้ผูก remote) + ตั้ง branch protection บน `main`
 - [ ] ยืนยันบน Windows จริง: Git Bash รับ path `C:\…` ใน `CLAUDE_PROJECT_DIR`, ชื่อ tool PowerShell ของ Claude, Codex `commandWindows` + การ pipe stdin ผ่าน `$input`
 - [ ] ให้ `routing.yaml` เป็นแหล่งข้อมูลเดียว (แก้ปัญหา routing ใน doc กับ `router.py` ไม่ตรงกัน)
 

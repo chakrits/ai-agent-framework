@@ -68,6 +68,13 @@ class TestRepoRelative(unittest.TestCase):
         )
         self.assertEqual(rel, "docs/x.md")
 
+    def test_relative_cwd_is_resolved_against_repo_root(self) -> None:
+        for cwd in (".", "", "src/.."):
+            rel, abs_path = paths.to_repo_relative(".env", repo_root=r"D:\a\repo", cwd=cwd, windows_host=True)
+            self.assertEqual((rel, abs_path), (".env", "d:/a/repo/.env"), cwd)
+        rel, _ = paths.to_repo_relative("x.md", repo_root="/r", cwd="docs", windows_host=False)
+        self.assertEqual(rel, "docs/x.md")
+
     def test_outside_repo(self) -> None:
         rel, abs_path = paths.to_repo_relative("/etc/hosts", repo_root="/Users/a/repo", windows_host=False)
         self.assertIsNone(rel)

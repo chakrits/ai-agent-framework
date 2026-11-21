@@ -1,0 +1,19 @@
+{
+  "repo_root": "/Users/dev/GitHub Code/repo",
+  "windows_host": false,
+  "expect_exit": 0,
+  "tracked": [],
+  "env": {},
+  "payload": {
+    "session_id": "s1",
+    "transcript_path": "t",
+    "cwd": "/Users/dev/GitHub Code/repo",
+    "hook_event_name": "PreToolUse",
+    "tool_name": "Write",
+    "tool_input": {
+      "file_path": "/Users/dev/GitHub Code/repo/.env.example",
+      "content": "X="
+    },
+    "tool_use_id": "tu1"
+  }
+}

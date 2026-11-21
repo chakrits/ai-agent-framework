@@ -1,0 +1,67 @@
+name: SDLC Framework Validation & Agent Evals
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  schedule:
+    - cron: "0 2 * * *"
+
+jobs:
+  validate-and-eval:
+    name: ${{ matrix.os }} / py${{ matrix.python }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        python: ["3.10", "3.12"]
+    defaults:
+      run:
+        shell: bash  # Git Bash on Windows (the same shell Claude Code hooks and git hooks use there)
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+
+      - name: Environment doctor
+        run: python scripts/doctor.py
+
+      - name: Verify script line endings survived checkout
+        run: |
+          if grep -l $'\r' scripts/bin/sdlc-hook .githooks/pre-commit scripts/*.py scripts/sdlc_guard/*.py; then
+            echo "CRLF found in POSIX scripts - check .gitattributes" >&2; exit 1
+          fi
+
+      - name: Check multi-harness adapter parity
+        run: python scripts/sync-adapters.py --check
+
+      - name: Check context budget limits
+        run: python scripts/validate-context-budget.py
+
+      - name: Validate SDLC contracts and templates
+        run: python scripts/validate-contracts.py --check-defaults
+
+      - name: Run harness unit tests
+        run: python -m unittest discover -s tests -v
+
+      - name: Run deterministic agent eval suite
+        run: python evals/run_evals.py
+
+      - name: Hook smoke test via sh launcher (must block with exit 2)
+        run: |
+          set +e
+          echo '{"tool_name":"Bash","tool_input":{"command":"git push --force"},"cwd":"."}' | sh scripts/bin/sdlc-hook pretooluse
+          rc=$?
+          test "$rc" -eq 2 || { echo "expected exit 2, got $rc" >&2; exit 1; }
+
+      - name: Hook smoke test via cmd launcher from PowerShell (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          '{"tool_name":"PowerShell","tool_input":{"command":"Get-Content .env"},"cwd":"."}' | & scripts\bin\sdlc-hook.cmd pretooluse
+          if ($LASTEXITCODE -ne 2) { Write-Error "expected exit 2, got $LASTEXITCODE"; exit 1 }
+          exit 0

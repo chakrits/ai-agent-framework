@@ -1,0 +1,83 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ai-sdlc-framework.local/contracts/test-report.schema.json",
+  "title": "QA Function Test Report Contract",
+  "description": "Validates completeness, ID conventions, and traceability coverage of QA function test reports.",
+  "type": "object",
+  "required": [
+    "report_id",
+    "intent_ref",
+    "spec_ref",
+    "required_sections",
+    "id_patterns",
+    "traceability_matrix"
+  ],
+  "properties": {
+    "report_id": {
+      "type": "string",
+      "pattern": "^QAR-[0-9]{3,}$"
+    },
+    "intent_ref": {
+      "type": "string",
+      "pattern": "^INT-[0-9]{3,}$"
+    },
+    "spec_ref": {
+      "type": "string",
+      "pattern": "^SPEC-[0-9]{3,}$"
+    },
+    "required_sections": {
+      "type": "array",
+      "const": [
+        "Section 1: Header Information",
+        "Section 2: Scope & Objectives",
+        "Section 3: IPO Matrix (Input -> Process -> Output)",
+        "Section 4: High-Level Scenario (Happy Case Flow)",
+        "Section 5: Happy Case Test Scenarios (Detailed Level)",
+        "Section 6: Test Case Design (Happy Case + Negative Case)",
+        "Section 7: Negative Test Coverage",
+        "Section 8: BVA / EP",
+        "Section 9: API Test Case",
+        "Section 10: Risk-based Testing",
+        "Section 11: Exploratory Session Charter",
+        "Section 12: Traceability Matrix",
+        "Section 13: Performance & Security Test Fundamentals"
+      ]
+    },
+    "id_patterns": {
+      "type": "object",
+      "const": {
+        "happy_case": "^TC-HC-[0-9]{3,}$",
+        "negative_case": "^TC-NEG-[0-9]{3,}$",
+        "bva": "^TC-BVA-[0-9]{3,}$",
+        "ep": "^TC-EP-[0-9]{3,}$",
+        "api": "^TC-API-[0-9]{3,}$",
+        "performance": "^TC-PERF-[0-9]{3,}$",
+        "security": "^TC-SEC-[0-9]{3,}$",
+        "exploratory": "^EXP-[0-9]{3,}$",
+        "risk": "^R-[0-9]{3,}$"
+      }
+    },
+    "traceability_matrix": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["urd_id", "fs_id", "test_case_ids", "status"],
+        "properties": {
+          "urd_id": { "type": "string", "pattern": "^URD-[0-9]{3,}$" },
+          "fs_id": { "type": "string", "pattern": "^FS-[0-9]{3,}$" },
+          "scr_id": { "type": "string" },
+          "test_case_ids": {
+            "type": "array",
+            "minItems": 1,
+            "items": { "type": "string" }
+          },
+          "status": {
+            "type": "string",
+            "enum": ["Covered", "Partial", "Gap"]
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,41 @@
+$schema: "https://json-schema.org/draft/2020-12/schema"
+contract_id: "spec-ipo-v1"
+artifact: "spec.md"
+owner_role: "sa-architect-agent"
+upstream_dependency: "intent.md"
+hitl_gate: "Gate 2: Architecture & Spec"
+
+frontmatter_required:
+  - spec_id          # Pattern: ^SPEC-[0-9]{3,}$
+  - intent_ref       # Pattern: ^INT-[0-9]{3,}$
+  - status           # draft | pending_approval | approved
+  - owner
+
+id_conventions:
+  spec_id: "^SPEC-[0-9]{3,}$"
+  function_id: "^FS-[0-9]{3,}$"
+  screen_id: "^SCR-[0-9]{3,}$"
+  adr_id: "^ADR-[0-9]{3,}$"
+
+required_sections:
+  - "Header & References"
+  - "Architecture & Component Impact"
+  - "IPO Matrix (Input -> Process -> Output)"
+  - "API & Data Contracts"
+  - "Security, Privacy & NFR Constraints"
+  - "Requirement-to-Spec Mapping"
+  - "Gate 2 Approval"
+
+ipo_matrix_columns:
+  - "Function ID"       # FS-xxx
+  - "Function Name"
+  - "URD Reference"     # URD-xxx
+  - "Input"
+  - "Process/Logic"
+  - "Expected Output"
+  - "Validation Rules"
+
+validation_rules:
+  - "Every approved URD-xxx from intent.md must map to at least one FS-xxx in Requirement-to-Spec Mapping."
+  - "Every FS-xxx must specify Input, Process/Logic, Expected Output, and Validation Rules (boundary limits, types, error conditions)."
+  - "Any breaking API or DB schema change must include a rollback strategy."

@@ -1,0 +1,22 @@
+{
+  "repo_root": "/Users/dev/GitHub Code/repo",
+  "windows_host": false,
+  "expect_exit": 2,
+  "tracked": [],
+  "env": {},
+  "payload": {
+    "session_id": "s1",
+    "transcript_path": "t",
+    "cwd": "/Users/dev/GitHub Code/repo",
+    "hook_event_name": "PreToolUse",
+    "tool_name": "Edit",
+    "tool_input": {
+      "file_path": "/Users/dev/GitHub Code/repo/docs/operating-model/constitution.md",
+      "old_string": "a",
+      "new_string": "b"
+    },
+    "tool_use_id": "tu1",
+    "agent_id": "a1",
+    "agent_type": "dev-coding-agent"
+  }
+}

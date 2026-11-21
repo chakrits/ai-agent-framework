@@ -1,0 +1,27 @@
+{
+  "eval_id": "EVAL-003",
+  "title": "Bug Fix TDD Tasks State & Evidence Verification",
+  "target_agent": "dev-coding-agent",
+  "prompt": "Reproduce a defect as a failing test, fix the implementation without modifying QA test oracles, and record passing verification evidence in tasks.json.",
+  "required_artifacts": ["tasks.json"],
+  "validator": "tasks_json",
+  "sample_output": {
+    "intent_ref": "INT-102",
+    "spec_ref": "SPEC-102",
+    "test_report_ref": "QAR-102",
+    "tasks": [
+      {
+        "task_id": "TASK-001",
+        "title": "Fix boundary check off-by-one error on FS-002",
+        "description": "Reproduced with failing unit test first; fixed inclusive upper bound.",
+        "fs_refs": ["FS-002"],
+        "test_refs": ["TC-BVA-001", "TC-NEG-002"],
+        "target_files": ["src/validator.py"],
+        "status": "completed",
+        "passes": true,
+        "verification_cmd": "python3 -m unittest tests/test_validator.py",
+        "evidence": "Ran 12 tests in 0.04s - OK (0 skipped)"
+      }
+    ]
+  }
+}

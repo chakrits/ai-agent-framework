@@ -1,0 +1,49 @@
+{
+  "permissions": {
+    "deny": [
+      "Read(.env*)",
+      "Read(./secrets/**)",
+      "Bash(curl *)",
+      "Bash(wget *)"
+    ],
+    "allow": [
+      "Bash(git status*)",
+      "Bash(git diff*)",
+      "Bash(python3 scripts/*)",
+      "Bash(python scripts/*)",
+      "Bash(py -3 scripts/*)",
+      "Bash(python3 -m unittest*)",
+      "Bash(python -m unittest*)",
+      "Bash(py -3 -m unittest*)",
+      "Bash(python3 evals/*)",
+      "Bash(python evals/*)",
+      "Bash(sh scripts/bin/sdlc-hook *)"
+    ]
+  },
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "startup|resume|clear|compact",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "sh \"$CLAUDE_PROJECT_DIR/scripts/bin/sdlc-hook\" session-start --platform claude",
+            "timeout": 30
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Edit|Write|MultiEdit|NotebookEdit|Bash|PowerShell|Read",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "sh \"$CLAUDE_PROJECT_DIR/scripts/bin/sdlc-hook\" pretooluse --platform claude",
+            "timeout": 30
+          }
+        ]
+      }
+    ]
+  }
+}

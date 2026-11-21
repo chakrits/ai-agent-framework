@@ -1,0 +1,4 @@
+# Optional HTTP API dependencies (core loader, router, pipeline, and CLI use Python stdlib only)
+fastapi>=0.115.0
+uvicorn>=0.30.0
+pydantic>=2.9.0

@@ -1,0 +1,16 @@
+{
+  "repo_root": "/Users/dev/GitHub Code/repo",
+  "windows_host": false,
+  "expect_exit": 2,
+  "tracked": [],
+  "env": {},
+  "payload": {
+    "cwd": "/Users/dev/GitHub Code/repo",
+    "hook_event_name": "PreToolUse",
+    "tool_name": "Edit",
+    "agent_type": "dev-coding-agent",
+    "tool_input": {
+      "file_path": "/Users/dev/GitHub Code/repo/.github/workflows/validate.yml"
+    }
+  }
+}

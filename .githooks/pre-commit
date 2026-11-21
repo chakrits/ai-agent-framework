@@ -1,0 +1,4 @@
+#!/bin/sh
+# Git runs this through sh on macOS/Linux/WSL and through Git for Windows' bundled sh.exe on Windows.
+ROOT=$(git rev-parse --show-toplevel) || exit 1
+exec sh "$ROOT/scripts/bin/sdlc-hook" precommit

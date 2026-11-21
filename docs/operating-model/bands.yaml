@@ -1,0 +1,38 @@
+# Operational Control Bands for Stage 6 (Maintain & Closing the Loop)
+# Detection is strictly deterministic; ops-maintain-agent is invoked only on breach.
+
+version: "1.0"
+owner_agent: "ops-maintain-agent"
+
+metrics:
+  ci_test_failure_rate:
+    baseline_window_days: 30
+    rules: "western_electric"
+    tiers:
+      1sigma:
+        action: "log"
+        mode: "none"
+      2sigma:
+        action: "diagnose"
+        mode: "read_only"
+        allowed_tools: ["Read", "Grep", "Bash(git log *)", "Bash(gh run view *)"]
+      3sigma:
+        action: "propose"
+        mode: "gated_pr"
+        routes: ["draft_intent", "pull_request", "runbook:rollback-deploy"]
+
+  post_deploy_5xx_rate:
+    baseline_window_days: 30
+    rules: "western_electric"
+    tiers:
+      1sigma:
+        action: "log"
+        mode: "none"
+      2sigma:
+        action: "diagnose"
+        mode: "read_only"
+        allowed_tools: ["Read", "Grep"]
+      3sigma:
+        action: "propose"
+        mode: "gated_pr"
+        routes: ["runbook:rollback-deploy", "draft_intent"]

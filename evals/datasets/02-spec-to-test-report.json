@@ -1,0 +1,12 @@
+{
+  "eval_id": "EVAL-002",
+  "title": "Spec-to-QA Function Test Report 13-Section & Traceability Gate",
+  "target_agent": "qa-function-agent",
+  "prompt": "Given INT-101 and SPEC-101 (FS-001), generate a complete 13-section Function Test Report with BVA, EP, Negative, Security, and 100% Traceability Matrix.",
+  "required_artifacts": ["test-report.md"],
+  "validator": "test_report_markdown",
+  "assertions": {
+    "required_id_prefixes": ["TC-HC-", "TC-NEG-", "TC-BVA-", "TC-EP-", "TC-SEC-", "URD-", "FS-"]
+  },
+  "sample_output_ref": "docs/templates/function-test-report.template.md"
+}

@@ -1,0 +1,28 @@
+$schema: "https://json-schema.org/draft/2020-12/schema"
+contract_id: "review-gate-v1"
+artifact: "REVIEW.md"
+owner_roles:
+  - "code-reviewer-agent"
+  - "security-audit-agent"
+hitl_gate: "Gate 3: Release & Merge"
+
+frontmatter_required:
+  - review_id        # Pattern: ^REV-[0-9]{3,}$
+  - pr_ref           # Pattern: ^PR-[0-9]{3,}$ or Git PR URL
+  - spec_ref         # Pattern: ^SPEC-[0-9]{3,}$
+  - verdict          # approved_for_human_gate | changes_requested | blocked_security
+
+required_sections:
+  - "Review Scope & Traceability Check"
+  - "Spec Compliance & Architectural Drift"
+  - "Verification Evidence (Tests & Linters)"
+  - "Test Oracle Integrity Check"
+  - "Security & OWASP Findings"
+  - "Findings Summary (Blocker / Major / Minor)"
+  - "Gate 3 Human Sign-Off"
+
+blocking_conditions:
+  - "Any Blocker or Critical/High security vulnerability remains open."
+  - "Coding agent modified QA test oracles or weakened assertions without Gate 2 re-approval."
+  - "Verification command output is missing, stale, or skipped."
+  - "Business logic changed without corresponding update to spec.md or intent.md."

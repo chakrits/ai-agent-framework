@@ -1,0 +1,33 @@
+$schema: "https://json-schema.org/draft/2020-12/schema"
+contract_id: "intent-v1"
+artifact: "intent.md"
+owner_role: "ba-po-agent"
+hitl_gate: "Gate 1: Scope & Intent"
+
+frontmatter_required:
+  - intent_id        # Pattern: ^INT-[0-9]{3,}$
+  - title
+  - work_type        # new_feature | api_schema_change | bug_fix | enhancement
+  - risk_tier        # low | medium | high
+  - status           # draft | pending_approval | approved
+  - owner
+
+id_conventions:
+  intent_id: "^INT-[0-9]{3,}$"
+  requirement_id: "^URD-[0-9]{3,}$"
+  business_rule_id: "^BR-[0-9]{3,}$"
+
+required_sections:
+  - "Header & Context"
+  - "Problem Statement & Objective"
+  - "Business Flow Summary"
+  - "Requirements & Acceptance Criteria"
+  - "Business Rules & Constraints"
+  - "Out of Scope"
+  - "Risks & Open Questions"
+  - "Gate 1 Approval"
+
+validation_rules:
+  - "Every URD-xxx item must include measurable Acceptance Criteria."
+  - "Business Flow Summary must cover Main Flow, Alternative Flow, Pre-condition, and Post-condition."
+  - "Ambiguities or unresolved permissions/data boundaries must be listed under Risks & Open Questions before Gate 1."

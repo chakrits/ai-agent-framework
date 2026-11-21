@@ -1,0 +1,17 @@
+{
+  "eval_id": "EVAL-001",
+  "title": "Intent-to-Spec IPO Matrix Completeness",
+  "target_agent": "sa-architect-agent",
+  "prompt": "Read an approved intent.md containing URD-001 and URD-002 and produce spec.md with an IPO Matrix, API contract, rollback notes, and 100% URD-to-FS mapping.",
+  "required_artifacts": ["intent.md", "spec.md"],
+  "assertions": {
+    "required_markers": [
+      "## IPO Matrix (Input -> Process -> Output)",
+      "## API & Data Contracts",
+      "## Security, Privacy & NFR Constraints",
+      "## Requirement-to-Spec Mapping"
+    ],
+    "required_id_prefixes": ["SPEC-", "FS-", "URD-"]
+  },
+  "sample_output": "---\nspec_id: SPEC-101\nintent_ref: INT-101\nstatus: pending_approval\nowner: sa-architect-agent\n---\n\n# Technical & Functional Specification: Claim Status Lookup\n\n## IPO Matrix (Input -> Process -> Output)\n| Function ID | Function Name | URD Reference | Input | Process/Logic | Expected Output | Validation Rules |\n| :--- | :--- | :--- | :--- | :--- | :--- | :--- |\n| `FS-001` | Lookup Claim Status | `URD-001` | `claim_id: str` | Query status by authenticated owner | `200 {status, updated_at}` | Must match `^CLM-[0-9]{6}$`, auth required |\n\n## API & Data Contracts\n- `GET /api/v1/claims/{claim_id}`\n\n## Security, Privacy & NFR Constraints\n- AuthZ owner check; zero PII in logs.\n\n## Requirement-to-Spec Mapping\n| URD ID | Function ID (`FS-xxx`) | Screen / Endpoint (`SCR-xxx`) | Notes |\n| :--- | :--- | :--- | :--- |\n| `URD-001` | `FS-001` | `SCR-001` | Covered |\n"
+}

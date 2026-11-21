@@ -1,0 +1,19 @@
+{
+  "intent_ref": "INT-001",
+  "spec_ref": "SPEC-001",
+  "test_report_ref": "QAR-001",
+  "tasks": [
+    {
+      "task_id": "TASK-001",
+      "title": "Implement core validation and happy path for FS-001",
+      "description": "Follow SPEC-001 IPO Matrix for FS-001 and verify against QA test cases.",
+      "fs_refs": ["FS-001"],
+      "test_refs": ["TC-HC-001", "TC-NEG-001"],
+      "target_files": ["src/module/service.py"],
+      "status": "pending",
+      "passes": false,
+      "verification_cmd": "pytest tests/test_service.py -k test_fs_001",
+      "evidence": ""
+    }
+  ]
+}

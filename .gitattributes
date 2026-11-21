@@ -1,0 +1,21 @@
+# Normalize line endings so scripts and hooks work on Windows, macOS, Linux and WSL.
+* text=auto eol=lf
+
+# POSIX shell scripts and Git hooks must stay LF (CRLF breaks sh/bash with "\r: command not found").
+*.sh text eol=lf
+.githooks/* text eol=lf
+scripts/bin/sdlc-hook text eol=lf
+*.py text eol=lf
+
+# Windows-native launchers must be CRLF.
+*.cmd text eol=crlf
+*.bat text eol=crlf
+*.ps1 text eol=crlf
+
+# Binary files.
+*.png binary
+*.jpg binary
+*.gif binary
+*.ico binary
+*.pdf binary
+*.zip binary

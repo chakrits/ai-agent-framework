@@ -1,0 +1,18 @@
+{
+  "repo_root": "C:\\Users\\dev\\repo",
+  "windows_host": true,
+  "expect_exit": 2,
+  "tracked": [],
+  "env": {},
+  "payload": {
+    "session_id": "s1",
+    "transcript_path": "t",
+    "cwd": "C:\\Users\\dev\\repo",
+    "hook_event_name": "PreToolUse",
+    "tool_name": "Read",
+    "tool_input": {
+      "file_path": "C:\\Users\\dev\\.ssh\\id_rsa"
+    },
+    "tool_use_id": "tu1"
+  }
+}

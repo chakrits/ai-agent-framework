@@ -1,0 +1,22 @@
+#!/bin/sh
+# Cross-platform hook launcher for macOS, Linux, WSL and Git Bash / MSYS on Windows.
+# Picks the first working Python 3.10+ (python3, python, py -3) and execs scripts/sdlc_hook.py.
+# Fail-closed: if no suitable Python exists, exit 2 so PreToolUse blocks instead of silently allowing.
+
+SCRIPT_DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
+ENTRY="$SCRIPT_DIR/../sdlc_hook.py"
+CHECK='import sys; sys.exit(0 if sys.version_info >= (3, 10) else 1)'
+
+# Windows "python3"/"python" may be Microsoft Store stubs; the version probe filters them out.
+if command -v python3 >/dev/null 2>&1 && python3 -c "$CHECK" >/dev/null 2>&1; then
+  exec python3 "$ENTRY" "$@"
+fi
+if command -v python >/dev/null 2>&1 && python -c "$CHECK" >/dev/null 2>&1; then
+  exec python "$ENTRY" "$@"
+fi
+if command -v py >/dev/null 2>&1 && py -3 -c "$CHECK" >/dev/null 2>&1; then
+  exec py -3 "$ENTRY" "$@"
+fi
+
+echo "BLOCKED: sdlc-hook could not find Python 3.10+ (tried python3, python, py -3). Install Python 3.10+ then run: python scripts/setup.py" >&2
+exit 2

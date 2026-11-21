@@ -1,0 +1,19 @@
+{
+  "repo_root": "/Users/dev/GitHub Code/repo",
+  "windows_host": false,
+  "expect_exit": 2,
+  "tracked": [],
+  "env": {},
+  "payload": {
+    "session_id": "s1",
+    "cwd": "/Users/dev/GitHub Code/repo",
+    "hook_event_name": "PreToolUse",
+    "model": "m",
+    "turn_id": "t1",
+    "tool_name": "apply_patch",
+    "tool_use_id": "tu1",
+    "tool_input": {
+      "command": "*** Begin Patch\n*** Update File: config/.env\n@@\n-A=1\n+A=2\n*** End Patch"
+    }
+  }
+}

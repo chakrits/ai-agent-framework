@@ -59,6 +59,8 @@ jobs:
           export SDLC_TRACE_DIR="$RUNNER_TEMP/traces"
           echo '{"session_id":"ci","hook_event_name":"PostToolUse","tool_name":"Bash","tool_input":{"command":"echo hi"},"tool_response":{"stdout":"hi","stderr":""}}' | sh scripts/bin/sdlc-hook trace --platform claude
           python scripts/sdlc_trace.py summary --json
+          python scripts/sdlc_trace.py config show
+          python -c "import sys; sys.path.insert(0, 'scripts'); from sdlc_guard import trace; ts = trace.stamp('local'); print(ts); assert ts[-6] in '+-' and ts[-3] == ':'"
 
       - name: Hook smoke test via sh launcher (must block with exit 2)
         run: |

@@ -1,0 +1,79 @@
+{
+  "index_patterns": ["sdlc-agent-trace-*"],
+  "priority": 100,
+  "template": {
+    "settings": { "number_of_shards": 1, "number_of_replicas": 0 },
+    "mappings": {
+      "dynamic": false,
+      "properties": {
+        "ts": { "type": "date", "format": "strict_date_optional_time" },
+        "v": { "type": "integer" },
+        "level": { "type": "keyword" },
+        "framework_version": { "type": "keyword" },
+        "platform": { "type": "keyword" },
+        "os": { "type": "keyword" },
+        "session_id": { "type": "keyword" },
+        "event": { "type": "keyword" },
+        "operation": { "type": "keyword" },
+        "role": { "type": "keyword" },
+        "model": { "type": "keyword" },
+        "model_source": { "type": "keyword" },
+        "effort": { "type": "keyword" },
+        "effort_source": { "type": "keyword" },
+        "agent_type": { "type": "keyword" },
+        "agent_id": { "type": "keyword" },
+        "subagent_model": { "type": "keyword" },
+        "tool_name": { "type": "keyword" },
+        "tool_use_id": { "type": "keyword" },
+        "mcp_server": { "type": "keyword" },
+        "git_branch": { "type": "keyword" },
+        "work_item": { "type": "keyword" },
+        "prompt_id": { "type": "keyword" },
+        "turn_id": { "type": "keyword" },
+        "permission_mode": { "type": "keyword" },
+        "status": { "type": "keyword" },
+        "error_type": { "type": "keyword" },
+        "trigger": { "type": "keyword" },
+        "notification_type": { "type": "keyword" },
+        "config_source": { "type": "keyword" },
+        "switch_source": { "type": "keyword" },
+        "from_model": { "type": "keyword" },
+        "to_model": { "type": "keyword" },
+        "exit_code": { "type": "integer" },
+        "duration_ms": { "type": "float" },
+        "tool_count": { "type": "integer" },
+        "is_interrupt": { "type": "boolean" },
+        "cwd": { "type": "keyword", "ignore_above": 1024 },
+        "file_path": { "type": "keyword", "ignore_above": 1024 },
+        "input": {
+          "properties": {
+            "command": { "type": "text", "fields": { "raw": { "type": "keyword", "ignore_above": 256 } } },
+            "file_path": { "type": "keyword", "ignore_above": 1024 },
+            "path": { "type": "keyword", "ignore_above": 1024 },
+            "summary": { "type": "text" }
+          }
+        },
+        "output": {
+          "properties": {
+            "stdout": { "type": "text" },
+            "stderr": { "type": "text" },
+            "truncated": { "type": "boolean" },
+            "bytes": { "type": "long" }
+          }
+        },
+        "decision": {
+          "properties": {
+            "allowed": { "type": "boolean" },
+            "reasons": { "type": "keyword", "ignore_above": 512 }
+          }
+        },
+        "token_usage": { "type": "object", "dynamic": true },
+        "error": { "type": "text" },
+        "prompt": { "type": "text" },
+        "message": { "type": "text" },
+        "reason": { "type": "text" },
+        "input_raw": { "type": "text", "index": false }
+      }
+    }
+  }
+}

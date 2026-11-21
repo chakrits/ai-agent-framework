@@ -58,7 +58,7 @@ Designed to work seamlessly across interactive coding harnesses (**Claude Code**
 
 ## Agent Trace & Versioning
 
-- **Agent trace:** hooks record prompts, commands, outputs and guard decisions to `.sdlc/traces/` (local, gitignored, secrets redacted). Inspect with `python3 scripts/sdlc_trace.py list | show | summary | export` ([details](CONTRIBUTING.md#5-agent-traces-local-debugging-and-audit)).
+- **Agent trace:** hooks record prompts, commands, outputs, guard decisions, model and effort to `.sdlc/traces/` (local, gitignored, secrets redacted, timestamps in the machine's local time with UTC offset, e.g. `+07:00`). Inspect with `python3 scripts/sdlc_trace.py list | show | summary | export`; change `SDLC_TRACE_LEVEL` (`off|info|debug`) with `config set` — see the [manual (TH)](docs/guides/agent-trace-manual.md) and the [monitoring guide](docs/guides/agent-trace-monitoring.md) for Grafana / Elastic / OpenSearch / OpenTelemetry.
 - **Versioning:** SemVer in `version.txt` (`python3 scripts/sdlc_hook.py --version`), released by [release-please](https://github.com/googleapis/release-please) from [Conventional Commits](https://www.conventionalcommits.org/) — see [CHANGELOG.md](CHANGELOG.md).
 
 ## GitHub & GitLab Support

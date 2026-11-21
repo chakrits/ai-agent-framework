@@ -12,6 +12,8 @@ import shlex
 from dataclasses import dataclass, field
 from typing import Mapping
 
+from . import trace_config
+
 # Environment variables that only a human may set (overrides for gates / guard).
 HUMAN_ONLY_OVERRIDES = ("RELEASE_APPROVAL", "SDLC_ALLOW_PROTECTED", "SDLC_GUARD_FAIL_OPEN")
 
@@ -372,6 +374,57 @@ def _git_subcommand(args: list[str]) -> tuple[str, list[str]] | None:
     return None
 
 
+_TRACE_CLI_MSG = (
+    "Agents may only run 'config show', 'hooks list' and 'config set level debug --for <=120m' on the trace CLI; "
+    "turning tracing off, persistent changes, unset, tz/retention and hooks enable/disable are human-only"
+)
+
+
+def _flag_value(args: list[str], flag: str) -> str | None:
+    for i, tok in enumerate(args):
+        if tok == flag and i + 1 < len(args):
+            return args[i + 1]
+        if tok.startswith(flag + "="):
+            return tok.split("=", 1)[1]
+    return None
+
+
+def _trace_cli_reasons(tokens: list[str]) -> list[str]:
+    """Limit what an agent may change through scripts/sdlc_trace.py (the CLI also demands a TTY for human-only changes)."""
+    rest: list[str] | None = None
+    for i, tok in enumerate(tokens):
+        name = tok.replace("\\", "/").rsplit("/", 1)[-1].casefold()
+        if name.endswith("sdlc_trace.py"):
+            rest = tokens[i + 1 :]
+            break
+        if name.endswith("sdlc_hook.py") and i + 1 < len(tokens) and tokens[i + 1] == "traces":
+            rest = tokens[i + 2 :]
+            break
+    if rest is None:
+        return []
+    while rest and rest[0].startswith("--dir"):
+        rest = rest[1:] if "=" in rest[0] else rest[2:]
+    if not rest:
+        return []
+    if rest[0] == "config":
+        action = rest[1] if len(rest) > 1 else ""
+        if action in {"", "show"}:
+            return []
+        if action == "set":
+            key, value = (rest[2] if len(rest) > 2 else ""), (rest[3] if len(rest) > 3 else "")
+            ttl = _flag_value(rest[4:], "--for")
+            if key == "level" and value.casefold() == "debug" and ttl:
+                try:
+                    if trace_config.parse_duration_minutes(ttl) <= trace_config.MAX_TTL_MINUTES:
+                        return []
+                except ValueError:
+                    pass
+        return [_TRACE_CLI_MSG]
+    if rest[0] == "hooks" and len(rest) > 1 and rest[1] in {"enable", "disable"}:
+        return [_TRACE_CLI_MSG]
+    return []
+
+
 def dangerous_command_reasons(
     facts: CommandFacts, env: Mapping[str, str], *, allow_force_with_lease: bool
 ) -> list[str]:
@@ -382,6 +435,7 @@ def dangerous_command_reasons(
     for tokens in facts.segments:
         head = _base(tokens[0])
         joined = " ".join(tokens)
+        reasons.extend(_trace_cli_reasons(tokens))
         if head == "git":
             sub = _git_subcommand(tokens[1:])
             if sub:

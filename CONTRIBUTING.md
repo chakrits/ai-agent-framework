@@ -57,7 +57,15 @@ python3 scripts/sdlc_trace.py summary --work-item INT-001
 python3 scripts/sdlc_trace.py export --work-item INT-001 --out work/INT-001/trace-summary.md
 ```
 
-Set in your own shell: `SDLC_TRACE_LEVEL=off|info|debug` (default `info`), `SDLC_TRACE_RETENTION_DAYS` (default 30), `SDLC_WORK_ITEM=INT-001`.
+Full guide (Thai): [docs/guides/agent-trace-manual.md](docs/guides/agent-trace-manual.md). Levels: `off`, `info` (default), `debug`. Precedence: env `SDLC_TRACE_LEVEL` > `.sdlc/trace.json` > default.
+
+```bash
+python3 scripts/sdlc_trace.py config show
+python3 scripts/sdlc_trace.py config set level debug --for 30m   # temporary, reverts itself (agents may run this; max 120m)
+python3 scripts/sdlc_trace.py config set level off               # human only (interactive terminal)
+```
+
+Also settable in your shell: `SDLC_TRACE_TZ=local|utc`, `SDLC_TRACE_RETENTION_DAYS` (default 30), `SDLC_WORK_ITEM=INT-001`.
 Never commit raw traces; commit only an exported, redacted summary as evidence.
 
 ## 6. Releases

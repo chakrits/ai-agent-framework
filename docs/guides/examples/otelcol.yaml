@@ -1,0 +1,40 @@
+# OpenTelemetry Collector: read agent trace JSONL and forward as OTLP logs (to Grafana, Elastic, OpenSearch via Data
+# Prepper, or any OTLP backend). STATUS: NOT TESTED. Verify against the filelog receiver docs for your Collector version.
+#
+# Claude Code / Codex can also export their OWN OpenTelemetry (tokens, cost, API requests). Send that to the same
+# Collector and correlate with these logs by session id / prompt id (see docs/guides/agent-trace-monitoring.md).
+
+receivers:
+  filelog/sdlc_agent_trace:
+    include:
+      # Windows: C:\path\to\repo\.sdlc\traces\*\*.jsonl
+      - /path/to/repo/.sdlc/traces/*/*.jsonl
+    start_at: beginning
+    operators:
+      - type: json_parser
+        parse_from: body
+        timestamp:
+          parse_from: attributes.ts
+          layout_type: gotime
+          layout: "2006-01-02T15:04:05.000Z07:00"   # local time with offset, e.g. 2026-11-21T12:34:56.789+07:00
+
+processors:
+  resource/sdlc:
+    attributes:
+      - key: service.name
+        value: sdlc-agent-trace
+        action: upsert
+  batch: {}
+
+exporters:
+  debug:
+    verbosity: basic
+  otlphttp:
+    endpoint: http://localhost:4318   # your OTLP backend / gateway
+
+service:
+  pipelines:
+    logs:
+      receivers: [filelog/sdlc_agent_trace]
+      processors: [resource/sdlc, batch]
+      exporters: [debug, otlphttp]

@@ -82,6 +82,9 @@
 - [x] Trace schema [`trace-event.schema.json`](docs/contracts/trace-event.schema.json) (operation ตาม OTel GenAI: `invoke_agent`, `execute_tool`) + `work_item`
 - [x] เขียน trace จาก hooks ของ Claude (SessionStart/End, UserPromptSubmit, Pre/PostToolUse, PostToolUseFailure, SubagentStart/Stop, Stop) และ Codex (`.codex/hooks.json` generated); เก็บใน `.sdlc/traces/` (local, redact secret, ตัด output, retention 30 วัน, lock ข้าม OS)
 - [x] CLI `scripts/sdlc_trace.py` (`list` / `show` / `summary` / `export`) — ยืนยันกับ event จริงของ Claude Code แล้ว; ยังไม่ได้ยืนยัน payload ของ Codex จริง
+- [x] Trace v1.1: field `model` / `effort` (+ที่มา), เวลาท้องถิ่นพร้อม offset (UTC+7 ตามเครื่อง, `SDLC_TRACE_TZ=utc` ได้), `prompt_id` / `turn_id` / `permission_mode`, event เพิ่ม (PermissionRequest/Denied, ConfigChange, InstructionsLoaded, StopFailure, PostModelSwitch, Compact, Notification, Task; Codex: PostModelRequest + token_usage, Interrupt) และ Tier 2 แบบ opt-in
+- [x] ควบคุม level: `off|info|debug` ผ่าน env > `.sdlc/trace.json`; agent ขอ `debug --for <=120m` ได้, การปิด/ถาวร/unset เป็น human-only (TTY + guard) และบันทึก `TraceConfigChange`
+- [x] คู่มือ [agent-trace-manual.md](docs/guides/agent-trace-manual.md), [monitoring guide](docs/guides/agent-trace-monitoring.md) + ตัวอย่าง Alloy/Filebeat/OTel Collector/OpenSearch template (**ยังไม่ได้ทดสอบกับ stack จริง**), skill `agent-trace`
 - [ ] ให้ orchestrator `TelemetryTracker` ใช้ schema เดียวกัน + `runtime` field (หลัง P6)
 - [ ] ส่งออก OTel (optional) + บันทึก rule ID ของ guard (หลังทำ rule registry)
 

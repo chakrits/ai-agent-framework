@@ -10,6 +10,10 @@ import shutil
 import sys
 from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+
+from sdlc_guard import trace_hooks  # noqa: E402
+
 ROOT = Path(__file__).resolve().parent.parent
 CANONICAL = ROOT / ".agents"
 
@@ -22,6 +26,7 @@ TARGETS: dict[str, list[Path]] = {
 
 
 CODEX_HOOKS = ROOT / ".codex" / "hooks.json"
+CLAUDE_SETTINGS = ROOT / ".claude" / "settings.json"
 
 
 def _normalized(path: Path) -> bytes:
@@ -62,6 +67,23 @@ def _codex_handler(subcommand: str, timeout: int, background: bool = False) -> d
     return handler
 
 
+def _codex_trace_events() -> dict:
+    """Trace-only hooks from the shared registry (silent, async; SessionEnd is synchronous by design)."""
+    events: dict = {}
+    for event in trace_hooks.CODEX_TIER1_ASYNC:
+        entry: dict = {"hooks": [_codex_handler("trace", 10, background=True)]}
+        if event == "PostToolUse":
+            entry = {"matcher": "Bash|apply_patch", **entry}
+        events[event] = [entry]
+    for event in trace_hooks.CODEX_TIER1_SYNC:
+        events[event] = [{"hooks": [_codex_handler("trace", 3)]}]
+    return events
+
+
+def render_claude_settings() -> str:
+    return json.dumps(trace_hooks.render_claude_settings(), indent=2, ensure_ascii=False) + "\n"
+
+
 def render_codex_hooks() -> str:
     data = {
         "description": (
@@ -72,12 +94,7 @@ def render_codex_hooks() -> str:
         "hooks": {
             "SessionStart": [{"matcher": "startup|resume|clear", "hooks": [_codex_handler("session-start", 30)]}],
             "PreToolUse": [{"matcher": "Bash|apply_patch", "hooks": [_codex_handler("pretooluse", 30)]}],
-            "UserPromptSubmit": [{"hooks": [_codex_handler("trace", 10, background=True)]}],
-            "PostToolUse": [{"matcher": "Bash|apply_patch", "hooks": [_codex_handler("trace", 10, background=True)]}],
-            "SubagentStart": [{"hooks": [_codex_handler("trace", 10, background=True)]}],
-            "SubagentStop": [{"hooks": [_codex_handler("trace", 10, background=True)]}],
-            "Stop": [{"hooks": [_codex_handler("trace", 10, background=True)]}],
-            "SessionEnd": [{"hooks": [_codex_handler("trace", 3)]}],
+            **_codex_trace_events(),
         },
     }
     return json.dumps(data, indent=2, ensure_ascii=False) + "\n"
@@ -113,6 +130,7 @@ def sync_adapters() -> int:
 
     write_codex_index()
     write_text_lf(CODEX_HOOKS, render_codex_hooks())
+    write_text_lf(CLAUDE_SETTINGS, render_claude_settings())
     print(f"Synced {copied} adapter files from .agents/ and updated .codex/README.md + .codex/hooks.json")
     return 0
 
@@ -148,6 +166,10 @@ def check_parity() -> int:
         mismatches.append("Missing generated file: .codex/hooks.json (run --sync)")
     elif _normalized(CODEX_HOOKS) != render_codex_hooks().encode("utf-8"):
         mismatches.append("Content drift in .codex/hooks.json (run --sync)")
+    if not CLAUDE_SETTINGS.exists():
+        mismatches.append("Missing generated file: .claude/settings.json (run --sync)")
+    elif _normalized(CLAUDE_SETTINGS) != render_claude_settings().encode("utf-8"):
+        mismatches.append("Content drift in .claude/settings.json (run --sync)")
 
     if mismatches:
         print("Adapter parity check FAILED:", file=sys.stderr)

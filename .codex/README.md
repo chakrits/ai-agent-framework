@@ -15,6 +15,7 @@ Follow [AGENTS.md](../AGENTS.md) at the repository root.
 - `security-audit-agent`
 
 ## Canonical Skills (`.agents/skills/`)
+- `agent-trace`
 - `istqb-test-design`
 - `owasp-security-review`
 - `spec-driven-design`

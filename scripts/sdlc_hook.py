@@ -161,7 +161,7 @@ def main(argv: list[str]) -> int:
             payload = payload if isinstance(payload, dict) else {}
             payload.setdefault("hook_event_name", "SessionStart")
             _trace(payload, platform)
-            trace.cleanup(trace.trace_root(_repo_root(), os.environ), trace.retention_days(os.environ))
+            trace.maintenance(_repo_root(), os.environ)  # retention for traces and per-session state
         except Exception:  # noqa: BLE001
             pass
         return doctor.session_start(platform=platform)

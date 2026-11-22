@@ -169,6 +169,33 @@ DIGEST_PLACEHOLDER_RE = re.compile(
 DIGEST_SECTION_NUMBERS = (1, 2, 3, 4, 5)
 
 
+def _mask_code_fences(text: str) -> str:
+    """Replace every line inside a ``` / ~~~ fence with a neutral token so headings in code are ignored.
+
+    The token still counts as section content, so a section whose body is only a code block is not empty.
+    """
+    out: list[str] = []
+    fence: str | None = None
+    for line in text.splitlines():
+        stripped = line.lstrip()
+        marker = stripped[:3]
+        if fence is None and marker in ("```", "~~~"):
+            fence = marker
+            out.append("codeblock")
+        elif fence is not None:
+            if stripped.startswith(fence):
+                fence = None
+            out.append("codeblock")
+        else:
+            out.append(line)
+    return "\n".join(out) + "\n"
+
+
+def _has_content(body: str) -> bool:
+    """True when a body has at least one non-heading line containing a letter or digit."""
+    return any(re.search(r"\w", ln) for ln in body.splitlines() if not ln.lstrip().startswith("#"))
+
+
 def _section_body(digest_text: str, number: int) -> str:
     """Return the text between the `## <number>.` heading and the next `#`/`##` heading (or EOF)."""
     match = re.search(rf"^## {number}\.[^\n]*\n(.*?)(?=^#{{1,2}} |\Z)", digest_text, re.MULTILINE | re.DOTALL)
@@ -180,13 +207,14 @@ def check_change_digest(digest_text: str) -> list[str]:
     if not digest_text.strip():
         return [f"{DIGEST_FILE} is empty"]
     errors: list[str] = []
-    missing = [n for n in DIGEST_SECTION_NUMBERS if not re.search(rf"^## {n}\.", digest_text, re.MULTILINE)]
+    structure = _mask_code_fences(digest_text)
+    missing = [n for n in DIGEST_SECTION_NUMBERS if not re.search(rf"^## {n}\.", structure, re.MULTILINE)]
     if missing:
         errors.append(f"{DIGEST_FILE} is missing required section(s): " + ", ".join(f"## {n}." for n in missing))
     empty = [
         n
         for n in DIGEST_SECTION_NUMBERS
-        if n not in missing and not _section_body(digest_text, n).strip()
+        if n not in missing and not _has_content(_section_body(structure, n))
     ]
     if empty:
         errors.append(f"{DIGEST_FILE} has section(s) with no content: " + ", ".join(f"## {n}." for n in empty))

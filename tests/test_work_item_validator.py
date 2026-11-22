@@ -327,6 +327,30 @@ class TestChangeDigestRequirement(unittest.TestCase):
         errs = validate_work_item.check_change_digest(one_empty)
         self.assertTrue(any("no content" in e and "## 3." in e for e in errs), errs)
 
+    def test_headings_inside_code_fences_do_not_count_as_sections(self) -> None:
+        fenced = VALID_DIGEST.replace(
+            "## 5. Verified Evidence\n- รัน unittest ผ่านหลังแก้ครั้งสุดท้าย\n",
+            "```markdown\n## 5. Verified Evidence\n- example only\n```\n",
+        )
+        self.assertNotEqual(fenced, VALID_DIGEST)
+        errs = validate_work_item.check_change_digest(fenced)
+        self.assertTrue(any("missing required section" in e and "## 5." in e for e in errs), errs)
+
+    def test_section_with_only_punctuation_or_subheadings_has_no_content(self) -> None:
+        for filler in ("-\n", "### Sub heading\n", "- \n---\n"):
+            with self.subTest(filler=filler):
+                text = VALID_DIGEST.replace(
+                    "## 5. Verified Evidence\n- รัน unittest ผ่านหลังแก้ครั้งสุดท้าย\n",
+                    f"## 5. Verified Evidence\n{filler}",
+                )
+                self.assertNotEqual(text, VALID_DIGEST)
+                errs = validate_work_item.check_change_digest(text)
+                self.assertTrue(any("no content" in e and "## 5." in e for e in errs), errs)
+
+    def test_code_block_inside_a_section_still_counts_as_content(self) -> None:
+        self.assertIn("```bash", VALID_DIGEST)
+        self.assertEqual(validate_work_item.check_change_digest(VALID_DIGEST), [])
+
     def test_work_item_flags_without_work_dir_are_a_usage_error(self) -> None:
         script = str(ROOT / "scripts" / "validate_work_item.py")
         with tempfile.TemporaryDirectory() as tmp:

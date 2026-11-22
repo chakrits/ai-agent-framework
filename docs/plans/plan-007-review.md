@@ -128,6 +128,52 @@ Raw diff reviewed first; the handoff digest and the Author Response were read af
 
 Remaining before Gate 3: fix R2-N1 (optional), then the Human reviews the staged-file list (plan F3) and commits protected paths with `SDLC_ALLOW_PROTECTED=1`.
 
+## Re-review (Round 3)
+Scope: commits `7872de4`, `211d7c2`, `41b5109` and `8c4ae79` (branch `feat/PLAN-007-governance-consistency`, clean tree at review start). The raw diffs were reviewed first, and the commit messages were treated as claims. Verdict for this round: **approved**. There is no Blocker and no Important finding. The Gate 3 Human Sign-Off below remains `Pending`. Rounds 1 and 2 are unchanged.
+
+### 7872de4 - validator (`scripts/validate_work_item.py`, tests)
+- `_section_body` is correct for every case that matters in practice. I probed it directly:
+  - An empty section 5 at EOF is rejected, with or without a trailing newline.
+  - CRLF input passes normally.
+  - A fenced block whose first line is a `# comment` (the template's own section 4) cuts the body at that line, but the body still contains the fence-opening line, so it is never wrongly reported empty.
+  - `\Z` plus DOTALL has no hang or off-by-one.
+- Known weaknesses (accepted, see Nits): (a) a fake `## 5.` heading inside a code fence satisfies the presence check, (b) a body of just `-` or a lone `### sub` heading counts as content. This is a lint for a human-reviewed artifact, not a security boundary.
+- The usage error for `--require-*` without a work dir is backward compatible. Before this commit those flags were silently ignored only when no work dir was given, which was not previously possible, because `work_dir` was required until Round 2. A grep over `.github`, `.gitlab-ci.yml`, `scripts/`, `evals/`, `docs/` and the README shows no caller that passes a `--require-*` flag without a work dir. The documented calls always pass `work/<INT-xxx>`.
+- The new tests prove the behaviour. One checks headings-only and one-empty-section input, with an assertion that the replace changed the text. The other runs the CLI for both flags and asserts exit 2 plus the message text.
+
+### 211d7c2 - docs and README
+- The workflows, ADR template and README, PLAN-007 Gate 2 record, and README all agree with `constitution.md` and `dynamic-routing.md`. The new-feature flow is High-Risk with no Plan Checkpoint. The bug-fix flow splits Standard from High-Risk Fast-Track with no Gate 1.
+- README facts verified: `.agents/agents` has 7 role files, the 6 listed skill names match `.agents/skills/`, and every relative README link resolves (no broken link found by script). The commands match AGENTS.md.
+- The Gate 2 record in the plan states honestly that it is chat-only and self-reported.
+- The INT-001 `spec.md` addendum is acceptable. It adds one indented line to the CLI-interface bullet, states "does not change `FS-001`/`FS-002`", and the flags are opt-in. `validate_work_item.py work/INT-001 --require-review --require-digest` still passes. Note the addendum edits an approved Gate 2 artifact. It is a documentation clarification, not a requirement change, but ideally the Human acknowledges it as such at Gate 3.
+- The workflow and mirror files are in parity (`sync-adapters --check` passes).
+
+### 41b5109 - constitution (protected)
+- The new rows do not contradict `router.py`. `_stages_for` gives `TEST_OR_DOCS_ONLY` a `lightweight_review` ending in Gate 3 and no design gate at every risk level. The `risk_tier: high` bug fix and config rows match lines 121-123 and 135. `dynamic-routing.md`, AGENTS.md section 3 and the README tier table agree with the rows.
+- The claim that the router escalates "only on sensitive-scope keywords" is almost accurate. `classify_and_route` also raises LOW to HIGH for `api_schema_change` / `framework_change` regardless of keywords. The sentence is true of the Standard-to-High escalation, which is what it discusses, so this is a wording nit only.
+
+### 8c4ae79 - Windows test fixture
+- The assertion is unchanged, and the diff touches only the fake-CLI source string. The fixture still deletes `.git`, so the fail-closed git check is still exercised. The callback (`chmod` then retry) only runs when `rmtree` hits an error, so it is a no-op on POSIX.
+- `onexc` exists in 3.12 and later, while `onerror` is used below that. The version gate is evaluated inside the spawned child interpreter, so it is consistent. Python 3.10 and 3.12 were not run here (only 3.14 is installed), so this is reasoned, not observed. The Windows behaviour is likewise untested here.
+
+### Nits (4)
+- **R3-N1:** `docs/handoff/2026-11-22-governance-consistency-digest.md:22` says 11 new tests. After `7872de4` the digest test class has 13 (two added). Update the number or remove it.
+- **R3-N2:** `scripts/validate_work_item.py` `_section_body` / `check_change_digest`: a fake `## 5.` heading inside a fenced code block satisfies the presence check, and a `-` or `### sub` only body counts as content. Acceptable for a lint; optionally strip fenced blocks before matching.
+- **R3-N3:** `docs/operating-model/constitution.md` (new `test_or_docs_only` row): "at `risk_tier: high` the reviewer runs the full Bugs/Security/Compliance passes" is a policy that the router does not implement. `_stages_for` always uses `lightweight_review` (one agent). It sits beside "matches `router.py`", which could mislead. Say that the full-pass requirement is a documented rule not yet enforced by the orchestrator, or wire it in a later plan.
+- **R3-N4:** the constitution sentence about the router should add the work-type escalation (`api_schema_change` / `framework_change` at low risk) for completeness.
+
+### Round 3 verification (SDLC_TRACE_LEVEL=off, run by me on the clean tree)
+- `python3 scripts/sync-adapters.py --check` -> PASSED (parity 100%)
+- `python3 scripts/validate-context-budget.py` -> PASSED
+- `python3 scripts/validate-contracts.py --check-defaults` -> PASSED
+- `python3 evals/run_evals.py --mode contract` -> PASSED (10/10)
+- `python3 scripts/validate_work_item.py work/INT-001 --require-review --require-digest` -> PASSED
+- `python3 scripts/validate_work_item.py --digest-file docs/handoff/2026-11-22-governance-consistency-digest.md` -> PASSED
+- `python3 -m unittest discover -s tests` -> 249 tests OK (skipped=3)
+- `git diff --check` -> clean
+- Ad-hoc probes of `check_change_digest` edge cases (fenced headings, EOF, CRLF) as described above.
+- Not verified: Python 3.10 / 3.12 runs, Windows, Docker, real CI.
+
 ## Gate 3 Human Sign-Off
 - **Reviewer:** `[Human Maintainer / Tech Lead]`
 - **Decision:** `Pending` (`Approved` / `Changes Requested`)

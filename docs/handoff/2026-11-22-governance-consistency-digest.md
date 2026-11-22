@@ -19,7 +19,7 @@
 | `AGENTS.md`, `docs/templates/AGENTS.template.md` | ตัดตารางซ้ำ, ปรับเกณฑ์ขนาดงาน, ระบุภาษา, ผูก dry-run กับ reviewer | Phase A/C/E |
 | `CLAUDE.md` | แก้กฎที่เก็บแผน | Phase B: ไม่ให้ขัดกับกฎห้ามไฟล์ที่ root |
 | `plan.md` → `docs/plans/plan-005-trace-v1-1.md` (+ แก้ลิงก์ 3 จุด) | ย้ายไฟล์ | Phase B |
-| `scripts/validate_work_item.py`, `tests/test_work_item_validator.py` | เพิ่ม `--require-digest` และ `--digest-file` (ตรวจ digest ที่ไม่มี work item) + เทสต์ใหม่ 11 ข้อ (ไฟล์มีทั้งหมด 20 ข้อ) เขียนเทสต์ก่อนและเห็นว่า fail ก่อนแก้โค้ดในเซสชันนี้ (ตรวจย้อนจาก diff ไม่ได้) | Phase D + แก้ตาม review I3: ตัวตรวจ ตรวจหัวข้อ 1–5 และ placeholder แต่ **ยังไม่ถูกเรียกจาก CI/hook** ผู้ review ต้องรันเอง |
+| `scripts/validate_work_item.py`, `tests/test_work_item_validator.py` | เพิ่ม `--require-digest` และ `--digest-file` (ตรวจ digest ที่ไม่มี work item) + เทสต์ใหม่ 16 ข้อในคลาส `TestChangeDigestRequirement` (ไฟล์มีทั้งหมด 25 ข้อ; รวมเทสต์ที่เพิ่มตอนแก้ nit รอบ 2–3) เขียนเทสต์ก่อนและเห็นว่า fail ก่อนแก้โค้ดในเซสชันนี้ (ตรวจย้อนจาก diff ไม่ได้) | Phase D + แก้ตาม review I3: ตัวตรวจ ตรวจหัวข้อ 1–5 และ placeholder แต่ **ยังไม่ถูกเรียกจาก CI/hook** ผู้ review ต้องรันเอง |
 | `work/INT-001/change-digest.md`, `work/index.yaml` | backfill digest | Phase D |
 | `docs/adr/README.md`, `docs/templates/adr.template.md` | สร้างที่เก็บ ADR | Phase D: แทน `DECISIONS.md` ที่ไม่มีอยู่จริง |
 | `docs/contracts/README.md` | แยกแถว digest ออกจาก review schema | Phase D |

@@ -156,7 +156,36 @@ def check_spec_downstream(spec_text: str, tasks_data: dict[str, Any], report_tex
     return errors
 
 
-def validate_work_item_dir(work_dir: Path, require_review: bool = False) -> list[str]:
+DIGEST_FILE = "change-digest.md"
+# Unfilled markers copied from docs/templates/change-digest.template.md. The date and file-path
+# placeholders are anchored to the template's own line shapes so prose that merely mentions
+# "YYYY-MM-DD HH:mm:ss" or "path/to/file" is not a false positive.
+DIGEST_PLACEHOLDER_RE = re.compile(
+    r"^- \*\*Date[^\n]*YYYY-MM-DD"
+    r"|^\| `path/to/file` \|"
+    r"|\[(?:อธิบาย|สิ่งใหม่|เพิ่มฟังก์ชัน|เหตุผล|ขั้นที่|ระบุคำสั่ง)",
+    re.MULTILINE,
+)
+DIGEST_SECTION_NUMBERS = (1, 2, 3, 4, 5)
+
+
+def check_change_digest(digest_text: str) -> list[str]:
+    """Reject an empty, stub, or still-templated Change Digest (required sections + placeholder check)."""
+    if not digest_text.strip():
+        return [f"{DIGEST_FILE} is empty"]
+    errors: list[str] = []
+    missing = [n for n in DIGEST_SECTION_NUMBERS if not re.search(rf"^## {n}\.", digest_text, re.MULTILINE)]
+    if missing:
+        errors.append(f"{DIGEST_FILE} is missing required section(s): " + ", ".join(f"## {n}." for n in missing))
+    leftovers = sorted({m.group(0).strip() for m in DIGEST_PLACEHOLDER_RE.finditer(digest_text)})
+    if leftovers:
+        errors.append(f"{DIGEST_FILE} still contains template placeholder(s): {', '.join(leftovers)}")
+    return errors
+
+
+def validate_work_item_dir(
+    work_dir: Path, require_review: bool = False, require_digest: bool = False
+) -> list[str]:
     """Validate artifact presence and cross-artifact URD <-> FS -> TC -> TASK traceability in work_dir."""
     if not work_dir.is_dir():
         return [f"Work item directory not found: {work_dir}"]
@@ -164,6 +193,8 @@ def validate_work_item_dir(work_dir: Path, require_review: bool = False) -> list
     required_files = ["intent.md", "spec.md", "test-report.md", "tasks.json"]
     if require_review:
         required_files.append("REVIEW.md")
+    if require_digest:
+        required_files.append(DIGEST_FILE)
 
     errors: list[str] = []
     for fname in required_files:
@@ -179,23 +210,46 @@ def validate_work_item_dir(work_dir: Path, require_review: bool = False) -> list
 
     errors.extend(check_intent_to_spec(intent_text, spec_text))
     errors.extend(check_spec_downstream(spec_text, tasks_data, report_text))
+    if require_digest:
+        errors.extend(check_change_digest((work_dir / DIGEST_FILE).read_text(encoding="utf-8")))
     return errors
 
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Validate cross-artifact traceability for a work item directory.")
-    parser.add_argument("work_dir", type=Path, help="Path to work/INT-xxx directory")
+    parser.add_argument("work_dir", type=Path, nargs="?", help="Path to work/INT-xxx directory")
     parser.add_argument("--require-review", action="store_true", help="Require REVIEW.md presence (Gate 3)")
+    parser.add_argument(
+        "--require-digest", action="store_true", help="Require a filled change-digest.md (High-Risk / Framework tier)"
+    )
+    parser.add_argument(
+        "--digest-file",
+        type=Path,
+        help="Validate a standalone Change Digest (e.g., docs/handoff/*-digest.md for changes without a work item)",
+    )
     args = parser.parse_args(argv)
+    if args.work_dir is None and args.digest_file is None:
+        parser.error("provide a work item directory and/or --digest-file")
 
-    errors = validate_work_item_dir(args.work_dir, require_review=args.require_review)
+    errors: list[str] = []
+    if args.work_dir is not None:
+        errors.extend(
+            validate_work_item_dir(
+                args.work_dir, require_review=args.require_review, require_digest=args.require_digest
+            )
+        )
+    if args.digest_file is not None:
+        if args.digest_file.is_file():
+            errors.extend(check_change_digest(args.digest_file.read_text(encoding="utf-8")))
+        else:
+            errors.append(f"Digest file not found: {args.digest_file}")
     if errors:
         print("Work item validation FAILED:", file=sys.stderr)
         for err in errors:
             print(f"  - {err}", file=sys.stderr)
         return 1
 
-    print(f"Work item validation PASSED ({args.work_dir})")
+    print(f"Work item validation PASSED ({args.work_dir or args.digest_file})")
     return 0
 
 

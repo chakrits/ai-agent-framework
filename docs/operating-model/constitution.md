@@ -23,10 +23,10 @@ Agents propose, implement, and verify; **human sign-off is mandatory** at these 
 | `new_feature` or `api_schema_change` | **High-Risk** | Gate 1 → Gate 2 → Gate 3 |
 | `risk_tier: high` **bug fix** or **config/data change** | **High-Risk (Fast-Track)** | Gate 2 (Fast-Track Spec / Change Plan) → Gate 3; no `intent.md` required (matches `router.py`) |
 | `framework_change` | **High-Risk (Framework)** | Gate 2 (Framework Spec) → Gate 3; no `intent.md` required |
-| `test_or_docs_only` at **any** `risk_tier` (no product behavior changes) | **Standard** | Plan Checkpoint → Gate 3 (matches `router.py`); at `risk_tier: high` the reviewer runs the full Bugs/Security/Compliance passes instead of a lightweight review. Docs/tests under framework or protected paths are a `framework_change` instead |
+| `test_or_docs_only` at **any** `risk_tier` (no product behavior changes) | **Standard** | Plan Checkpoint → Gate 3 (gate flow matches `router.py`). At `risk_tier: high` the reviewer must run the full Bugs/Security/Compliance passes instead of a lightweight review. *This is a reviewer rule only: `router.py` always routes this work type to a single-agent `lightweight_review`, so the orchestrator does not enforce it.* Docs/tests under framework or protected paths are a `framework_change` instead |
 | low/medium task that is **not** isolated (touches any excluded area above) | **High-Risk** — treated as `risk_tier: high` | Re-classify with the `risk_tier: high` row for its work type: Gate 1 → 2 → 3, or the Fast-Track / Framework row |
 
-A Standard task that touches any excluded area **escalates to High-Risk immediately**. `orchestrator/core/router.py` escalates automatically only on sensitive-scope keywords in the summary, so the classifier must still apply this rule by hand.
+A Standard task that touches any excluded area **escalates to High-Risk immediately**. `orchestrator/core/router.py` (`classify_and_route`) escalates automatically in only two cases: sensitive-scope keywords in the task summary, and `api_schema_change` / `framework_change` requested at `low` risk. Every other non-isolated task must be escalated by the classifier by hand.
 
 ## 2. Bounded Autonomy & Protected Paths
 

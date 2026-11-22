@@ -2,7 +2,7 @@
 
 > **Architecture:** Enterprise-agnostic Canonical Core (`.agents/` + `docs/`) + Thin Multi-Harness Adapters (`.claude/`, `.codex/`, `.agent/`) + Deterministic Cross-Platform Guardrails (`scripts/sdlc_guard/`) + Optional Python Orchestrator
 > **Analysis & Rationale:** [Framework Review & Roadmap v2](docs/plans/framework-review-roadmap-v2.md) · [Claude AI-Native SDLC Playbook Analysis](docs/reference-architecture/benchmarks/claude-ai-native-sdlc-playbook-analysis.md) · [Cross-Platform Plan](docs/plans/cross-platform-harness-plan.md)
-> **Last re-baseline:** 2026-11-21
+> **Last re-baseline:** 2026-11-21 · **Last update:** 2026-11-22 (PLAN-007 closeout, release `v0.3.0`)
 
 ## สถานะที่ใช้
 
@@ -67,15 +67,26 @@
 - [x] Versioning: `version.txt` (SemVer, เริ่ม `0.1.0`) + release-please + `CHANGELOG.md` + commit-msg hook บังคับ Conventional Commits + `LICENSE` (MIT) + `CONTRIBUTING.md` + README badges
 - [x] Governance quick fixes: constitution อ้าง `policy.json` แทน `.sdlc` ที่คลุมเครือ, ลบ permission ปลอมใน `settings.json`, อัปเดต PR/MR templates, สแกนเนื้อหา staged diff หา secret ใน pre-commit
 - [x] แก้ guard ให้นับ override env var เฉพาะที่มีผลจริง (ไม่นับข้อความใน quote/heredoc) + อัป `actions/checkout@v5`, `setup-python@v6`
-- [ ] CI บน GitLab (ยังไม่ได้ผูก remote) + ตั้ง branch protection บน `main`
-- [ ] Release แรก `v0.1.0` (merge Release PR ของ release-please หรือสร้าง tag) + เปิด Discussions และ "Allow GitHub Actions to create and approve pull requests" ใน repo settings
+- [x] Release แรกและรอบถัดไปผ่าน release-please: `v0.1.0`, `v0.2.0`, `v0.3.0` ([releases](https://github.com/chakrits/ai-agent-framework/releases)); Discussions เปิดแล้ว และ GitHub Actions สร้าง Release PR ได้ (PR #1, #3)
+- [x] แก้เทสต์ `test_eval_runner` ที่ fail บน Windows CI มาตั้งแต่ `main` `eca7f22`: fixture ลบ `.git` ที่เป็น read-only ไม่ได้ (`8c4ae79`, PR #4) — CI 6/6 เขียวที่ [run 45005508352](https://github.com/chakrits/ai-agent-framework/actions/runs/45005508352)
+- [ ] CI บน GitLab (ยังไม่ได้ผูก remote)
+- [ ] ตั้ง branch protection บน `main` — **ยังไม่ได้ตั้ง** (GitHub API ตอบ `Branch not protected` เมื่อ 2026-11-22) ทั้งที่ `AGENTS.md` §1 เขียนว่า `main` protected; ต้องให้ admin ของ repo เปิดเอง
 - [ ] ยืนยันบน Windows จริง: Git Bash รับ path `C:\…` ใน `CLAUDE_PROJECT_DIR`, ชื่อ tool PowerShell ของ Claude, Codex `commandWindows` + การ pipe stdin ผ่าน `$input`
-- [ ] ให้ `routing.yaml` เป็นแหล่งข้อมูลเดียว (แก้ปัญหา routing ใน doc กับ `router.py` ไม่ตรงกัน)
+- [ ] ให้ `routing.yaml` เป็นแหล่งข้อมูลเดียว — *ความคืบหน้า:* PLAN-007 ทำให้ gate model ใน constitution / dynamic-routing / AGENTS.md ตรงกับ `router.py` แล้ว แต่ยังไม่มี `routing.yaml`
+
+### Governance Consistency (PLAN-007) — ✅ Verified
+> แผนและผลรีวิว: [plan-007-governance-consistency.md](docs/plans/plan-007-governance-consistency.md) · [plan-007-review.md](docs/plans/plan-007-review.md) · merge [PR #4](https://github.com/chakrits/ai-agent-framework/pull/4) (`d764d5f`) · release `v0.3.0`
+- [x] Gate model เดียวทั้งระบบ (Plan Checkpoint / Gate 1 Intent / Gate 2 Spec / Gate 3 Merge) + ตาราง Risk → Tier ที่เดียวใน constitution; routing, bootloader, AGENTS.md, workflows และ README ตรงกัน
+- [x] ที่วาง artifact ตายตัว (`work/<INT-xxx>/`, `docs/plans/`, `docs/handoff/`, `.sdlc/`) + ย้าย `plan.md` ที่ root ไป `docs/plans/plan-005-trace-v1-1.md`
+- [x] ELI10 Change Digest + `validate_work_item.py --require-digest` / `--digest-file` (เทสต์ 16 ข้อ)
+- [x] ที่เก็บ ADR (`docs/adr/` + template), skill `council-pressure-test`, reviewer อ่าน diff ก่อน digest
+- [x] Independent review 3 รอบ (สุดท้าย `approved`) + CI 6/6 เขียวที่ head สุดท้าย
+- [ ] ให้ CI / git hook เรียก digest validator (ต้องเป็น Framework Change แยก เพราะแตะ protected path)
 
 ### P6: Runtime Registry & Work Records — ⬜
 - [ ] `runtimes/registry.yaml` + `runtimes/<app>/runtime.yaml` (stack FE/BE/DB/Redis/API, คำสั่ง build/test/lint/run, env, ports, health)
-- [ ] `AGENTS.md` แยกต่อ runtime (ไฟล์ที่ใกล้ที่สุดมีผล) + `STATUS.md` + `CHANGELOG.md` + `decisions/` (ADR แบบ MADR)
-- [ ] `work/INT-xxx/` เก็บ intent / spec / plan / tasks / test-report / REVIEW + `log.md` และ `work/index.yaml`
+- [ ] `AGENTS.md` แยกต่อ runtime (ไฟล์ที่ใกล้ที่สุดมีผล) + `STATUS.md` + `CHANGELOG.md` + ADR — *ความคืบหน้า:* ที่เก็บ ADR อยู่ที่ `docs/adr/` แล้ว (PLAN-007) และมี [AGENTS.template.md](docs/templates/AGENTS.template.md) สำหรับ repo ปลายทาง
+- [ ] `work/INT-xxx/` เก็บ intent / spec / plan / tasks / test-report / REVIEW + `log.md` และ `work/index.yaml` — *ความคืบหน้า:* `work/INT-001/` + `work/index.yaml` มีแล้ว (รวม `change-digest.md`); ยังไม่มี `log.md`
 - [ ] Validators: `validate-runtimes`, validator ของ intent / spec / review + แปลง contracts เป็น JSON Schema จริง
 
 ### P7: Agent Trace & Observability — ⬜

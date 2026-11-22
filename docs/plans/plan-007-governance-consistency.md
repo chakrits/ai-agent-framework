@@ -3,8 +3,10 @@ plan_id: PLAN-007
 intent_ref: N/A (Framework / Process Change)
 spec_ref: this document (Framework Spec — Gate 2)
 owner: sa-architect-agent (design) / dev-coding-agent (implement)
-status: gate_2_approved_implemented_pending_gate_3
+status: merged
 created: 2026-11-22 (Asia/Bangkok)
+merged: 2026-11-22 16:05:10 +07 (PR #4, merge commit d764d5f)
+released_in: v0.3.0
 ---
 
 # Implementation Plan: Governance Consistency Fixes (Gate Model, Routing, Placement, Enforcement)
@@ -147,3 +149,26 @@ grep -rn "DECISIONS.md\|record the plan in \`plan.md\`" AGENTS.md CLAUDE.md docs
 - Phase D: flag `--require-digest` เป็น opt-in ถ้าเกิดปัญหาให้เอาออกจาก DoD/PR template ได้โดยไม่กระทบ CI เดิม
 - ถ้า budget ใหม่ทำให้ CI fail ให้ตัดเนื้อหาไฟล์ที่เกิน **ห้ามขยาย budget** ใน PR เดียวกัน
 - 2-Strike Rule: ถ้า verification fail 2 รอบติดให้หยุดและ escalate
+
+---
+
+## 7. Closeout (2026-11-22, after merge)
+
+| Item | Result | Evidence |
+| :--- | :--- | :--- |
+| Gate 3 (Release & Merge) | Merged by the Human maintainer with a merge commit | [PR #4](https://github.com/chakrits/ai-agent-framework/pull/4), merge commit `d764d5f`, 2026-11-22 16:05:10 +07 |
+| CI at final PR head `64a29ea` | 6/6 jobs green (ubuntu / macOS / Windows × py3.10 / 3.12) | [run 45005508352](https://github.com/chakrits/ai-agent-framework/actions/runs/45005508352) |
+| CI on `main` after both merges (`32ca870`) | `SDLC Framework Validation & Agent Evals` completed `success` | GitHub Actions on `main` |
+| Release | `v0.3.0` tagged by release-please; CHANGELOG lists `feat(validator)` + 2 `fix(validator)` commits from this plan | [PR #3](https://github.com/chakrits/ai-agent-framework/pull/3), merge commit `32ca870` |
+| Independent review | Round 1 `changes_requested` → Round 2 `approved` → Round 3 `approved` (commits 7–9 + Windows fixture) | [plan-007-review.md](plan-007-review.md) |
+| Not reviewed independently | `3fce192` (validator: code-fence headings / real content) and `64a29ea` (constitution wording) — round-3 nit fixes, covered by CI only | — |
+
+### Lessons (feed back into the framework)
+1. **Windows + `.git` fixtures:** Git marks object files read-only, so `shutil.rmtree(".git")` fails on Windows. Tests that delete a repo must clear the read-only bit (fixed in `tests/test_eval_runner.py`, `8c4ae79`). This failure was already on `main` (`eca7f22`) before PLAN-007.
+2. **Merge method matters for releases:** squash-merging a mixed PR under a `docs(...)` title would hide its `feat`/`fix` commits from release-please. Use a merge commit (or rebase) for PRs that contain releasable commits.
+3. **Implementer claims drift:** the independent review caught the digest overstating facts 3 times (budget "reduced", test counts, enforcement). Keep "diff first, digest last" in `code-reviewer-agent`.
+
+### Still open after closeout
+- `main` has **no branch protection** (GitHub API: `Branch not protected`), although `AGENTS.md` §1 says `main` is protected and PR-only. A repo admin must enable it (ROADMAP P5).
+- The digest validator (`--require-digest` / `--digest-file`) is not run by CI or the git hooks yet (protected paths; needs its own Framework Change).
+- `routing.yaml` as the single source for routing (ROADMAP P5) is still not done; PLAN-007 only aligned the docs with `router.py`.

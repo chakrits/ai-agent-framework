@@ -130,6 +130,8 @@ grep -rn "DECISIONS.md\|record the plan in \`plan.md\`" AGENTS.md CLAUDE.md docs
 
 ## 5. Decision Points (Human ตัดสินแล้ว 2026-11-22)
 
+**Gate 2 Approval (Framework Spec):** approved by the Human maintainer in the Claude Code chat session on 2026-11-22 (Asia/Bangkok), choosing the recommended options for D1–D3 and `500` for D4. Evidence: chat transcript only (no PR comment); self-reported, not machine-verified.
+
 | # | คำถาม | ผลการตัดสิน |
 | :--- | :--- | :--- |
 | **D1** | Plan Checkpoint ของงาน Standard ควรเป็น gate ใน orchestrator ด้วยไหม | ✅ **ยังไม่ต้อง**: บันทึกใน PR ไปก่อน แล้วค่อยทำเป็น PLAN ถัดไปถ้าต้องการ (ต้องแก้ router/auth/tests) |

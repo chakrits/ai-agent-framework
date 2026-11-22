@@ -13,7 +13,7 @@ Tier and gate definitions live in [constitution.md](../operating-model/constitut
 | **Bug Fix (High / Prod)** | High-Risk | Ops/Dev Triage → SA Impact Check → Dev → QA → Security → Reviewer | Postmortem note, regression test, `REVIEW.md`, `change-digest.md` | Gate 2 (Fast-Track Spec), Gate 3 |
 | **API / Schema Change** | High-Risk | BA/PO → SA (Contract/ADR) → QA → Dev → Security + Reviewer | `spec.md`, Contract diff, migration rollback plan, `REVIEW.md`, `change-digest.md` | Gate 1, Gate 2, Gate 3 |
 | **Config / Data Change** | Standard (High if risk high → Gate 2 Change Plan) | SA/Dev Impact Check → Validation & Rollback Plan → Reviewer | Change checklist, rollback evidence, `REVIEW.md` (lightweight) | Plan Checkpoint, Gate 3 |
-| **Test-Only / Docs-Only** | Standard | Specialist (QA or Docs) → Reviewer | Updated test/doc + verification output, `REVIEW.md` (lightweight) | Plan Checkpoint, Gate 3 |
+| **Test-Only / Docs-Only** | Standard | Specialist (QA or Docs) → Reviewer | Updated test/doc + verification output, `REVIEW.md` (lightweight; full passes when `risk_tier: high`) | Plan Checkpoint, Gate 3 |
 | **Framework Change** | High-Risk (Framework) | Architect/Orchestrator → Contract & Parity Checks → Human Maintainer | `docs/plans/plan-<NNN>-<slug>.md` + passing CI parity/evals, `REVIEW.md`, `change-digest.md` | Gate 2 (Framework Spec), Gate 3 |
 
 ## Escalation Rules

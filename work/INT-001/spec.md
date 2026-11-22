@@ -26,6 +26,7 @@ owner: sa-architect-agent
 
 ## API & Data Contracts
 - **CLI Interface:** `python3 scripts/validate_work_item.py <work_item_dir> [--require-review]`
+  - *Addendum (PLAN-007, 2026-11-22 — outside INT-001 scope, does not change `FS-001`/`FS-002`):* the same script later gained `[--require-digest]` (requires a filled `change-digest.md` in the work item) and `[--digest-file PATH]` (checks a standalone digest; `<work_item_dir>` becomes optional). Both flags are opt-in, so the contract above is unchanged when they are omitted.
 - **Exit Codes:** `0` = valid & 100% covered; `1` = missing file or traceability error; `2` = CLI usage error.
 - **Database / Migration Impact & Rollback:** `N/A` — pure read-only CLI script; rollback is removing the two new files.
 

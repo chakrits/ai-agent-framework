@@ -27,4 +27,7 @@ supersedes: null
 - **Rollback / Reversal Cost:** [...]
 
 ## Approval
-- **Approver (Gate 2):** `Pending`
+- **Approver (Gate 2, Human SA / Tech Lead):** `Pending`
+- **Decision:** `Pending` (`Accepted` / `Rejected`)
+- **Date (`YYYY-MM-DD`):** `Pending`
+- **Evidence Link (PR review, comment, or chat quote):** `Pending`

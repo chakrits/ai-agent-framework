@@ -37,11 +37,21 @@ def _git(repo_root: Path, *args: str) -> subprocess.CompletedProcess[str]:
 
 
 def resolve_worktree_path(repo_root: Path, work_item: str) -> Path:
-    """Resolve .worktrees/<INT-xxx> and enforce containment under repo_root/.worktrees."""
+    """Resolve .worktrees/<INT-xxx> and enforce containment under repo_root (rejecting symlinks outside repo)."""
     item = validate_work_item(work_item)
-    base_dir = (repo_root / ".worktrees").resolve()
-    target = (base_dir / item).resolve()
-    if not target.is_relative_to(base_dir) or target == base_dir:
+    root_real = repo_root.resolve()
+    raw_base = repo_root / ".worktrees"
+    if raw_base.is_symlink():
+        raise ValueError(f"Worktree parent .worktrees must not be a symlink: {raw_base}")
+    base_dir = raw_base.resolve()
+    if not base_dir.is_relative_to(root_real) or base_dir == root_real:
+        raise ValueError(f"Worktree parent escapes repository root: {base_dir}")
+
+    raw_target = raw_base / item
+    if raw_target.is_symlink():
+        raise ValueError(f"Worktree target must not be a symlink: {raw_target}")
+    target = raw_target.resolve()
+    if not target.is_relative_to(base_dir) or target == base_dir or not target.is_relative_to(root_real):
         raise ValueError(f"Worktree path escapes .worktrees boundary: {target}")
     return target
 

@@ -130,8 +130,7 @@ class TestAgyHookEndToEnd(unittest.TestCase):
             {"conversationId": "agy-ss-1", "modelName": "gemini-4-hydrogen", "hookEventName": "SessionStart"},
         )
         self.assertEqual(ss.returncode, 0)
-        ss_json = json.loads(ss.stdout)
-        self.assertIn("injectSteps", ss_json)
+        self.assertEqual(json.loads(ss.stdout), {})
 
         tr = self._run_hook(
             "trace",

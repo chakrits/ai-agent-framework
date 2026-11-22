@@ -8,18 +8,53 @@ import tempfile
 from contextlib import contextmanager
 from dataclasses import asdict
 from pathlib import Path
-from typing import Any, Iterator
+from typing import Any, Callable, Iterator
 
 from orchestrator.core.router import RiskTier, RoutePlan, RouteStage, WorkType
 from orchestrator.graphs.sdlc_pipeline import AgentExecutionResult, PipelineState
 
 
+class StateLockError(RuntimeError):
+    """Raised when FileStateStore cannot acquire an exclusive lock for a run (fail-closed)."""
+
+
+def _default_acquire_lock(fd: int) -> None:
+    if os.name == "nt":
+        import msvcrt
+
+        os.lseek(fd, 0, os.SEEK_SET)
+        msvcrt.locking(fd, msvcrt.LK_LOCK, 1)
+    else:
+        import fcntl
+
+        fcntl.flock(fd, fcntl.LOCK_EX)
+
+
+def _default_release_lock(fd: int) -> None:
+    if os.name == "nt":
+        import msvcrt
+
+        os.lseek(fd, 0, os.SEEK_SET)
+        msvcrt.locking(fd, msvcrt.LK_UNLCK, 1)
+    else:
+        import fcntl
+
+        fcntl.flock(fd, fcntl.LOCK_UN)
+
+
 class FileStateStore:
     """Persist and reload PipelineState as JSON under .sdlc/runs/<run_id>.json."""
 
-    def __init__(self, runs_dir: Path) -> None:
+    def __init__(
+        self,
+        runs_dir: Path,
+        lock_acquirer: Callable[[int], None] = _default_acquire_lock,
+        lock_releaser: Callable[[int], None] = _default_release_lock,
+    ) -> None:
         self.runs_dir = runs_dir
         self.runs_dir.mkdir(parents=True, exist_ok=True)
+        self._acquire_lock = lock_acquirer
+        self._release_lock = lock_releaser
 
     def path_for(self, run_id: str) -> Path:
         safe = "".join(ch for ch in run_id if ch.isalnum() or ch in "-_")
@@ -29,39 +64,25 @@ class FileStateStore:
 
     @contextmanager
     def locked(self, run_id: str) -> Iterator[None]:
-        """Acquire an exclusive advisory lock around load -> modify -> save for run_id."""
+        """Acquire an exclusive lock around load -> modify -> save; fail closed if lock fails."""
         lock_path = self.path_for(run_id).with_suffix(".lock")
-        with lock_path.open("a+b") as fh:
-            locked = False
+        try:
+            fh = lock_path.open("a+b")
+        except OSError as exc:
+            raise StateLockError(f"Cannot open lock file for {run_id}: {exc}") from exc
+
+        with fh:
             try:
-                if os.name == "nt":
-                    import msvcrt
-
-                    fh.seek(0)
-                    msvcrt.locking(fh.fileno(), msvcrt.LK_LOCK, 1)
-                else:
-                    import fcntl
-
-                    fcntl.flock(fh.fileno(), fcntl.LOCK_EX)
-                locked = True
-            except (OSError, ImportError):
-                pass
+                self._acquire_lock(fh.fileno())
+            except Exception as exc:
+                raise StateLockError(f"Failed to acquire state lock for {run_id}: {exc}") from exc
             try:
                 yield
             finally:
-                if locked:
-                    try:
-                        if os.name == "nt":
-                            import msvcrt
-
-                            fh.seek(0)
-                            msvcrt.locking(fh.fileno(), msvcrt.LK_UNLCK, 1)
-                        else:
-                            import fcntl
-
-                            fcntl.flock(fh.fileno(), fcntl.LOCK_UN)
-                    except (OSError, ImportError):
-                        pass
+                try:
+                    self._release_lock(fh.fileno())
+                except OSError:
+                    pass
 
     def save(self, state: PipelineState) -> Path:
         target = self.path_for(state.run_id)
@@ -90,6 +111,8 @@ class FileStateStore:
             "run_id": state.run_id,
             "workspace_root": state.workspace_root,
             "task_summary": state.task_summary,
+            "scope": state.scope,
+            "owner_actor_id": state.owner_actor_id,
             "route_plan": {
                 "work_type": state.route_plan.work_type.value,
                 "risk_tier": state.route_plan.risk_tier.value,
@@ -138,6 +161,8 @@ class FileStateStore:
             workspace_root=data["workspace_root"],
             task_summary=data["task_summary"],
             route_plan=plan,
+            scope=str(data.get("scope", "default")),
+            owner_actor_id=str(data.get("owner_actor_id", "")),
             current_stage_index=int(data.get("current_stage_index", 0)),
             status=str(data.get("status", "running")),
             pending_gate=data.get("pending_gate"),

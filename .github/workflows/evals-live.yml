@@ -4,11 +4,11 @@ on:
   workflow_dispatch:
     inputs:
       harness:
-        description: "CLI harness to evaluate"
+        description: "CLI harness to evaluate (Claude native budget and plan mode)"
         required: true
         default: "claude"
         type: choice
-        options: [claude, codex, antigravity]
+        options: [claude]
       limit:
         description: "Max eval cases to execute (1-20)"
         required: true
@@ -32,8 +32,8 @@ jobs:
           python3 - <<'PY'
           import os, sys
           harness = os.environ["INPUT_HARNESS"]
-          if harness not in {"claude", "codex", "antigravity"}:
-              sys.exit(f"Invalid harness: {harness}")
+          if harness != "claude":
+              sys.exit(f"Invalid or unsupported live CI harness: {harness}")
           try:
               limit = int(os.environ["INPUT_LIMIT"])
           except ValueError:
@@ -64,41 +64,3 @@ jobs:
         run: |
           python3 evals/run_evals.py --mode contract
           python3 evals/run_evals.py --mode live --harness claude --limit "$EVAL_LIMIT" --max-budget 2.0 --timeout 120
-
-  live-codex:
-    needs: validate-inputs
-    if: needs.validate-inputs.outputs.harness == 'codex'
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v5
-      - uses: actions/setup-python@v6
-        with:
-          python-version: "3.12"
-      - uses: actions/setup-node@v4
-        with:
-          node-version: "22"
-      - run: npm install -g @openai/codex
-      - name: Run contract baseline + live Codex evals
-        env:
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-          EVAL_LIMIT: ${{ needs.validate-inputs.outputs.limit }}
-        run: |
-          python3 evals/run_evals.py --mode contract
-          python3 evals/run_evals.py --mode live --harness codex --limit "$EVAL_LIMIT" --max-budget 2.0 --timeout 120
-
-  live-antigravity:
-    needs: validate-inputs
-    if: needs.validate-inputs.outputs.harness == 'antigravity'
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v5
-      - uses: actions/setup-python@v6
-        with:
-          python-version: "3.12"
-      - name: Run contract baseline + live Antigravity evals
-        env:
-          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-          EVAL_LIMIT: ${{ needs.validate-inputs.outputs.limit }}
-        run: |
-          python3 evals/run_evals.py --mode contract
-          python3 evals/run_evals.py --mode live --harness antigravity --limit "$EVAL_LIMIT" --max-budget 2.0 --timeout 120

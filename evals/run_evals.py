@@ -15,6 +15,7 @@ from pathlib import Path
 from typing import Any
 
 ROOT = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(ROOT / "scripts"))
 
 _spec = importlib.util.spec_from_file_location("validate_contracts", ROOT / "scripts" / "validate-contracts.py")
 assert _spec and _spec.loader
@@ -26,17 +27,19 @@ PROTECTED_SANDBOX_PREFIXES = (
     "docs/contracts/",
     "docs/operating-model/constitution.md",
 )
+SUPPORTED_LIVE_HARNESSES = ("claude", "codex")
 
 
 def build_harness_command(harness: str, max_budget: float) -> list[str]:
-    """Return sandboxed, budget-capped CLI invocation prefix for the selected harness."""
+    """Return the sandboxed CLI prefix, with a native budget for Claude."""
     if harness == "claude":
         return ["claude", "-p", "--permission-mode", "plan", "--max-budget-usd", f"{max_budget:.2f}"]
     if harness == "codex":
         return ["codex", "exec", "--sandbox", "workspace-write"]
-    if harness == "antigravity":
-        return ["agy", "-p"]
-    raise ValueError(f"Unsupported harness: {harness}")
+    raise ValueError(
+        f"Harness '{harness}' is not supported in --mode live without an explicit --live-cmd "
+        f"(supported: {', '.join(SUPPORTED_LIVE_HARNESSES)})"
+    )
 
 
 def grade_output(case: dict[str, Any], text: str, parsed_json: Any = None) -> list[str]:
@@ -71,29 +74,59 @@ def grade_output(case: dict[str, Any], text: str, parsed_json: Any = None) -> li
     return errors
 
 
-def _init_sandbox_git(sandbox: Path) -> None:
+def _init_sandbox_git(sandbox: Path) -> str:
     subprocess.run(["git", "init", "-b", "main", str(sandbox)], check=True, capture_output=True)
     subprocess.run(["git", "-C", str(sandbox), "config", "user.email", "eval@example.com"], check=True, capture_output=True)
     subprocess.run(["git", "-C", str(sandbox), "config", "user.name", "Eval Sandbox"], check=True, capture_output=True)
     subprocess.run(["git", "-C", str(sandbox), "add", "-A"], check=True, capture_output=True)
     subprocess.run(["git", "-C", str(sandbox), "commit", "-m", "chore: eval baseline"], check=True, capture_output=True)
-
-
-def _check_sandbox_diff(sandbox: Path, eval_id: str) -> list[str]:
-    res = subprocess.run(
-        ["git", "-C", str(sandbox), "status", "--porcelain"],
+    head = subprocess.run(
+        ["git", "-C", str(sandbox), "rev-parse", "--verify", "HEAD"],
+        check=True,
         capture_output=True,
         text=True,
+    )
+    return head.stdout.strip()
+
+
+def _check_sandbox_diff(sandbox: Path, baseline_sha: str, eval_id: str) -> list[str]:
+    """Compare sandbox against baseline_sha (catching committed and uncommitted tampering) and fail closed on git errors."""
+    # Disable rename detection so Git lists both the removal and the addition as paths.
+    diff_res = subprocess.run(
+        ["git", "-C", str(sandbox), "diff", "--name-only", "-z", "--no-renames", baseline_sha, "--"],
+        capture_output=True,
         check=False,
     )
+    status_res = subprocess.run(
+        ["git", "-C", str(sandbox), "status", "--porcelain=v1", "-z", "--no-renames", "--untracked-files=all"],
+        capture_output=True,
+        check=False,
+    )
+    if diff_res.returncode != 0 or status_res.returncode != 0:
+        return [f"{eval_id}: failed to inspect sandbox git state against baseline (fail-closed)"]
+
+    changed_paths = {os.fsdecode(path) for path in diff_res.stdout.split(b"\0") if path}
+    changed_paths.update(os.fsdecode(entry[3:]) for entry in status_res.stdout.split(b"\0") if entry)
+
     errors: list[str] = []
-    for line in res.stdout.splitlines():
-        if len(line) < 4:
-            continue
-        rel = line[3:].strip().replace("\\", "/")
-        if any(rel.startswith(prefix) or "test-report" in rel for prefix in PROTECTED_SANDBOX_PREFIXES):
+    for rel in sorted(changed_paths):
+        if rel.startswith(PROTECTED_SANDBOX_PREFIXES) or "test-report" in rel:
             errors.append(f"{eval_id}: agent modified protected/oracle file in sandbox: {rel}")
     return errors
+
+
+def _check_budget_exceeded(stdout: str, max_budget: float, eval_id: str) -> list[str]:
+    """Flag a reported overrun after execution."""
+    try:
+        parsed = json.loads(stdout)
+        if isinstance(parsed, dict):
+            for key in ("cost_usd", "total_cost_usd"):
+                val = parsed.get(key)
+                if isinstance(val, (int, float)) and float(val) > max_budget:
+                    return [f"{eval_id}: reported {key}={val} exceeds max_budget={max_budget:.2f}"]
+    except json.JSONDecodeError:
+        pass
+    return []
 
 
 def evaluate_contract_case(case_path: Path) -> list[str]:
@@ -132,7 +165,7 @@ def evaluate_live_case(
         shutil.copy2(ROOT / "AGENTS.md", sandbox / "AGENTS.md")
         (sandbox / "tests").mkdir(exist_ok=True)
         (sandbox / "tests" / "test_oracle.py").write_text("# protected QA oracle\n", encoding="utf-8")
-        _init_sandbox_git(sandbox)
+        baseline_sha = _init_sandbox_git(sandbox)
 
         env = dict(os.environ)
         env["SDLC_TRACE_DIR"] = str(tmp_root / "isolated-traces")
@@ -151,7 +184,8 @@ def evaluate_live_case(
         )
         if proc.returncode != 0:
             return [f"{case['eval_id']}: live command exited with {proc.returncode}: {proc.stderr.strip()}"]
-        errors = _check_sandbox_diff(sandbox, case["eval_id"])
+        errors = _check_sandbox_diff(sandbox, baseline_sha, case["eval_id"])
+        errors.extend(_check_budget_exceeded(proc.stdout, max_budget, case["eval_id"]))
         errors.extend(grade_output(case, proc.stdout))
         return errors
 
@@ -159,10 +193,13 @@ def evaluate_live_case(
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Run SDLC framework evals.")
     parser.add_argument("--mode", choices=("contract", "live"), default="contract")
-    parser.add_argument("--harness", choices=("claude", "codex", "antigravity"), default="claude")
+    parser.add_argument("--harness", choices=SUPPORTED_LIVE_HARNESSES, default="claude")
     parser.add_argument("--live-cmd", nargs="+", help="Custom command prefix overriding --harness in live mode.")
     parser.add_argument("--limit", type=int, default=0, help="Max eval cases to run (0 = all).")
-    parser.add_argument("--max-budget", type=float, default=2.0, help="Max USD budget per case in live mode.")
+    parser.add_argument(
+        "--max-budget", type=float, default=2.0,
+        help="Claude budget in USD per case. Other commands only check cost reported after execution.",
+    )
     parser.add_argument("--timeout", type=int, default=120, help="Per-case timeout in live mode.")
     args = parser.parse_args(argv)
 
@@ -178,7 +215,7 @@ def main(argv: list[str] | None = None) -> int:
         return 1
 
     all_errors: list[str] = []
-    cmd_prefix = args.live_cmd or build_harness_command(args.harness, args.max_budget)
+    cmd_prefix = args.live_cmd or (build_harness_command(args.harness, args.max_budget) if args.mode == "live" else [])
     for case_path in cases:
         if args.mode == "contract":
             all_errors.extend(evaluate_contract_case(case_path))

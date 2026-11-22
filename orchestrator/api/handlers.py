@@ -8,7 +8,7 @@ from dataclasses import asdict
 from pathlib import Path
 from typing import Any
 
-from orchestrator.api.auth import AuthenticatedActor, authorize_gate
+from orchestrator.api.auth import AuthenticatedActor, authorize_gate, authorize_run_scope
 from orchestrator.core.loader import FrameworkBundle, load_framework
 from orchestrator.core.router import classify_and_route
 from orchestrator.core.state_store import FileStateStore
@@ -33,11 +33,12 @@ class OrchestratorService:
         repo_root: Path,
         telemetry_log: Path | None = None,
         runs_dir: Path | None = None,
+        state_store: FileStateStore | None = None,
     ) -> None:
         self.repo_root = repo_root
         self.telemetry_log = telemetry_log or (repo_root / ".sdlc" / "telemetry" / "runs.jsonl")
         self.tracker = TelemetryTracker(self.telemetry_log)
-        self.state_store = FileStateStore(runs_dir or (repo_root / ".sdlc" / "runs"))
+        self.state_store = state_store or FileStateStore(runs_dir or (repo_root / ".sdlc" / "runs"))
 
     def get_bundle(self, project_pack: str | None = None) -> FrameworkBundle:
         return load_framework(self.repo_root, project_pack=project_pack)
@@ -70,10 +71,16 @@ class OrchestratorService:
         work_type: str,
         summary: str,
         risk_tier: str = "medium",
+        scope: str = "default",
         project_pack: str | None = None,
         auto_approve_gates: bool = False,
         allow_auto_approve: bool | None = None,
+        actor: AuthenticatedActor | None = None,
     ) -> dict[str, Any]:
+        clean_scope = (scope or "default").strip() or "default"
+        if actor is not None:
+            authorize_run_scope(actor, clean_scope)
+
         can_auto = (
             allow_auto_approve
             if allow_auto_approve is not None
@@ -90,11 +97,14 @@ class OrchestratorService:
             workspace_root=str(self.repo_root),
             task_summary=summary,
             route_plan=plan,
+            scope=clean_scope,
+            owner_actor_id=actor.actor_id if actor is not None else "",
         )
-        runner = SDLCPipelineRunner(bundle=bundle, executor=DryRunExecutor(), tracker=self.tracker)
-        state = runner.run(state, auto_approve_gates=auto_approve_gates)
-        self.state_store.save(state)
-        return self._serialize_state(state)
+        with self.state_store.locked(run_id):
+            runner = SDLCPipelineRunner(bundle=bundle, executor=DryRunExecutor(), tracker=self.tracker)
+            state = runner.run(state, auto_approve_gates=auto_approve_gates)
+            self.state_store.save(state)
+            return self._serialize_state(state)
 
     def approve_run_gate(
         self,
@@ -106,6 +116,8 @@ class OrchestratorService:
     ) -> dict[str, Any]:
         with self.state_store.locked(run_id):
             state = self.state_store.load(run_id)
+            if actor is not None:
+                authorize_run_scope(actor, state.scope)
             if not state.pending_gate:
                 raise GateConflictError(f"Run '{run_id}' has no pending gate (status={state.status})")
             if expected_gate is not None and state.pending_gate != expected_gate:
@@ -113,7 +125,7 @@ class OrchestratorService:
                     f"Gate mismatch: expected '{expected_gate}', but pending gate is '{state.pending_gate}'"
                 )
             if actor is not None:
-                authorize_gate(actor, state.pending_gate)
+                authorize_gate(actor, state.pending_gate, run_scope=state.scope)
                 verified_approver = actor.actor_id
             else:
                 verified_approver = approver_id
@@ -124,8 +136,12 @@ class OrchestratorService:
             self.state_store.save(state)
             return self._serialize_state(state)
 
-    def get_run(self, run_id: str) -> dict[str, Any]:
-        return self._serialize_state(self.state_store.load(run_id))
+    def get_run(self, run_id: str, actor: AuthenticatedActor | None = None) -> dict[str, Any]:
+        with self.state_store.locked(run_id):
+            state = self.state_store.load(run_id)
+            if actor is not None:
+                authorize_run_scope(actor, state.scope)
+            return self._serialize_state(state)
 
     def check_band(
         self,
@@ -153,6 +169,8 @@ class OrchestratorService:
         summary = self.tracker.summarize_run(state.run_id)
         return {
             "run_id": state.run_id,
+            "scope": state.scope,
+            "owner_actor_id": state.owner_actor_id,
             "status": state.status,
             "pending_gate": state.pending_gate,
             "approved_gates": list(state.approved_gates),

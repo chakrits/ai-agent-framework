@@ -19,7 +19,7 @@ status: draft_pending_approval
 | **WS-A** | **Antigravity (`agy`) Hooks & Trace Integration** | P8 (Multi-Platform Parity) + P7 (Trace) | **1** |
 | **WS-B** | **FastAPI Server Verification & Orchestrator v1 Hardening** | P10 (Orchestrator v1) + P7 (`TelemetryTracker` unified schema) | **2** |
 | **WS-C** | **Worktree Helper, Orchestrator Dockerfile & Monitoring Stack Test** | P10 + Handoff §8.5 (ทดสอบ Alloy/Loki/OTel stack จริง) | **3** |
-| **WS-D** | **Live Eval Mode & Expanded Regression Dataset** | P10 (Agent Evals `claude -p` / `codex exec` / `agy`) | **4** |
+| **WS-D** | **Live Eval Mode & Expanded Regression Dataset** | P10 (Agent Evals `claude -p` / `codex exec`) | **4** |
 | **WS-E** | **Real E2E Pilot Feature (`INT-001`)** | P6 (Work Records) + P9 (Real E2E Pilot ผ่าน 3 HITL Gates) | **5** |
 
 ### Dependency Flow
@@ -41,7 +41,7 @@ status: draft_pending_approval
 - Antigravity ค้นพบ `.agent/hooks.json` (หรือ `.agents/hooks.json`) และอ่าน `AGENTS.md` / `.agents/skills/` โดยตรง
 - Hook รันแบบ **Synchronous เท่านั้น** (ยังไม่รองรับ `async: true`) → ลงทะเบียนเฉพาะ 4 events ที่คุ้มค่า: `SessionStart`, `PreToolUse` (matcher: `run_command|write_to_file|replace_file_content|multi_replace_file_content|view_file`), `PostToolUse` (`run_command|write_to_file|replace_file_content|multi_replace_file_content`), `Stop`
 - Input `stdin` เป็น **camelCase** (`conversationId`, `modelName`, `lastUserInput`, `toolCall.id`, `toolCall.name`, `toolCall.args.CommandLine` / `Path` / `TargetFile`, `error`)
-- Output `stdout` ต้องเป็น JSON: `PreToolUse` → `{"decision":"allow"}` หรือ `{"decision":"deny","reason":"..."}` · `SessionStart` → `{"injectSteps":[{"systemMessage":{"systemMessage":"..."}}]}` · `PostToolUse` / `Stop` → `{}`
+- Output `stdout` ต้องเป็น JSON: `PreToolUse` → `{"decision":"allow"}` หรือ `{"decision":"deny","reason":"..."}` · `SessionStart` / `PostToolUse` / `Stop` → `{}`
 
 | Task ID | งานที่ต้องทำ | ไฟล์เป้าหมาย | หมายเหตุสำคัญ |
 | :--- | :--- | :--- | :--- |
@@ -73,14 +73,20 @@ status: draft_pending_approval
 | `C-02` | สร้าง `orchestrator/Dockerfile` (non-root `python:3.12-slim`, healthcheck `/health`) และ `.dockerignore` | `orchestrator/Dockerfile`*, `.dockerignore`* | — |
 | `C-03` | สร้าง `docker-compose.yml` (profile `orchestrator` + profile `monitoring` ใช้ `docs/guides/examples/alloy.config` หรือ `otelcol.yaml`) และทดสอบยิง trace จริงเพื่อปรับจูน config ตัวอย่าง | `docker-compose.yml`*, `docs/guides/examples/*`, `docs/guides/agent-trace-monitoring.md` | ปิดรายการ "ยังไม่ยืนยัน §5.2" ใน Handoff |
 
+**ผลทดสอบรอบ 3:** Docker build และ smoke test แบบ file-backed ผ่านบน OrbStack ใช้ UID `1000` และ read-only mount, `/health` คืน `200`, token ขาดหรือผิดคืน `401` และ token จากไฟล์ผ่าน authentication ก่อนคืน `404` สำหรับ run ที่ไม่มีอยู่ [คำสั่ง Compose](../../orchestrator/README.md#file-backed-token-registry)
+
 ---
 
 ### WS-D: Live Eval Mode & Expanded Regression Dataset
 **เป้าหมาย:** แยก Contract Evals (เร็ว/ฟรีใน PR) ออกจาก Live Agent Evals (รัน CLI จริงใน Sandbox พร้อม budget cap และ deterministic grader)
 
+**สถานะรอบ 3:** CI ให้รัน live เฉพาะ Claude ผ่าน `--max-budget-usd` ของ CLI ส่วน Codex ยังเรียกได้จาก CLI ในเครื่อง ค่า `--max-budget` ใช้ตรวจค่าใช้จ่ายที่รายงานหลังรันสำหรับคำสั่งที่ไม่มีตัวควบคุมในตัว การเปิด Codex ใน CI รอวิธีจำกัดค่าใช้จ่ายระหว่างรันพร้อมผลทดสอบ
+
+**การอนุมัติขอบเขต D-01 (รอบ 4):** Maintainer ตอบในแชทว่า “อนุมัติให้เลื่อนเฉพาะ live eval” ตามคำขอเลื่อน Antigravity live eval ไปงานถัดไป งาน Antigravity Hooks และการตรวจ hook ใน session ใหม่ยังอยู่ใน WS-A งาน live eval ของ Antigravity ต้องมี sandbox และเพดานค่าใช้จ่ายระหว่างรันก่อนเปิดใช้
+
 | Task ID | งานที่ต้องทำ | ไฟล์เป้าหมาย | หมายเหตุสำคัญ |
 | :--- | :--- | :--- | :--- |
-| `D-01` | เพิ่ม `--mode contract\|live` และ `--harness claude\|codex\|antigravity` + `--max-budget` / `--timeout` ใน `evals/run_evals.py` | `evals/run_evals.py`, `tests/test_eval_runner.py`* | บังคับ `SDLC_TRACE_DIR` ชี้ temp dir เพื่อไม่ให้ปน trace จริง |
+| `D-01` | เพิ่ม `--mode contract\|live` และ `--harness claude\|codex` + `--max-budget` / `--timeout` ใน `evals/run_evals.py` | `evals/run_evals.py`, `tests/test_eval_runner.py`* | บังคับ `SDLC_TRACE_DIR` ชี้ temp dir เพื่อไม่ให้ปน trace จริง CI ใช้ Claude เท่านั้น |
 | `D-02` | สร้าง Fixture Sandbox และขยาย Eval Dataset จาก 3 เคสเป็น ≥ 10 เคส (Plan, Spec IPO, QA 13-section, Bugfix failing-test-first, Protected-path block, Security OWASP) | `evals/fixtures/*`*, `evals/datasets/04..10-*.json`* | Grader ใช้ `validate-contracts.py` + `git diff` check เท่านั้น |
 | `D-03` | เพิ่ม CI workflow `evals-live.yml` (รันเฉพาะ `workflow_dispatch` / weekly `schedule` เพื่อควบคุมค่า token) | `.github/workflows/evals-live.yml`* | — |
 

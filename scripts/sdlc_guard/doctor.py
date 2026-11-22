@@ -141,7 +141,7 @@ def session_start(platform: str, stdin: str = "") -> int:
     if platform == "claude":
         print(json.dumps({"hookSpecificOutput": {"hookEventName": "SessionStart", "additionalContext": text}}, ensure_ascii=False))
     elif platform == "antigravity":
-        print(json.dumps({"injectSteps": [{"systemMessage": {"systemMessage": text}}]}, ensure_ascii=False))
+        print("{}")
     else:
         print(text)
     return 0

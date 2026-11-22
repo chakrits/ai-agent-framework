@@ -4,6 +4,9 @@ services:
     build:
       context: .
       dockerfile: orchestrator/Dockerfile
+    environment:
+      - SDLC_ORCHESTRATOR_TOKENS_JSON=${SDLC_ORCHESTRATOR_TOKENS_JSON:-}
+      - SDLC_ORCHESTRATOR_TOKENS_FILE=${SDLC_ORCHESTRATOR_TOKENS_FILE:-}
     ports:
       - "127.0.0.1:8000:8000"
     volumes:
@@ -30,10 +33,15 @@ services:
   grafana:
     image: grafana/grafana:11.3.0
     profiles: ["monitoring"]
+    entrypoint:
+      - "/bin/sh"
+      - "-c"
+      - "test -n \"$$GF_SECURITY_ADMIN_PASSWORD\" || { echo 'ERROR: GRAFANA_ADMIN_PASSWORD must be set before starting monitoring profile' >&2; exit 1; }; exec /run.sh"
     environment:
       - GF_SECURITY_ADMIN_USER=${GRAFANA_ADMIN_USER:-admin}
-      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD:?Set GRAFANA_ADMIN_PASSWORD}
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD:-}
       - GF_USERS_ALLOW_SIGN_UP=false
+      - GF_AUTH_ANONYMOUS_ENABLED=false
     ports:
       - "127.0.0.1:3000:3000"
     depends_on:

@@ -100,6 +100,8 @@ class PipelineState:
     workspace_root: str
     task_summary: str
     route_plan: RoutePlan
+    scope: str = "default"
+    owner_actor_id: str = ""
     current_stage_index: int = 0
     status: str = "running"  # running | waiting_human_gate | completed | failed
     pending_gate: str | None = None

@@ -31,6 +31,23 @@ class TestWorktreeHelper(unittest.TestCase):
             worktree.resolve_worktree_path(ROOT, "../INT-001")
         self.assertEqual(worktree.validate_work_item("int-001"), "INT-001")
 
+    def test_rejects_symlinked_worktrees_parent_escaping_repo(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp_path = Path(tmp)
+            repo = tmp_path / "repo"
+            outside = tmp_path / "outside"
+            repo.mkdir()
+            outside.mkdir()
+            _init_temp_repo(repo)
+            (repo / ".worktrees").symlink_to(outside, target_is_directory=True)
+
+            with self.assertRaises(ValueError):
+                worktree.resolve_worktree_path(repo, "INT-001")
+            with self.assertRaises(ValueError):
+                worktree.create_worktree(repo, "INT-001", "escape")
+            with self.assertRaises(ValueError):
+                worktree.cleanup_worktree(repo, "INT-001")
+
     def test_rejects_invalid_or_flag_like_base_ref(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             repo = Path(tmp) / "repo"
@@ -52,7 +69,7 @@ class TestWorktreeHelper(unittest.TestCase):
 
             wt_dir, branch = worktree.create_worktree(repo, "INT-001", "Pilot Feature!")
             self.assertTrue(wt_dir.is_dir())
-            self.assertTrue(wt_dir.resolve().is_relative_to((repo / ".worktrees").resolve()))
+            self.assertTrue(wt_dir.resolve().is_relative_to(repo.resolve()))
             self.assertEqual(branch, "feat/INT-001-pilot-feature")
 
             listed = worktree.list_worktrees(repo)

@@ -16,6 +16,7 @@ from orchestrator.api.auth import (
     load_token_registry,
 )
 from orchestrator.api.handlers import GateConflictError, GatePolicyError, OrchestratorService
+from orchestrator.core.state_store import StateLockError
 
 REPO_ROOT = Path(__file__).resolve().parent.parent.parent
 service = OrchestratorService(repo_root=REPO_ROOT)
@@ -45,6 +46,7 @@ class RunRequest(BaseModel):
     work_type: str
     summary: str
     risk_tier: str = "medium"
+    scope: str = "default"
     project_pack: str | None = None
     auto_approve_gates: bool = False
 
@@ -87,18 +89,22 @@ def preview_route(req: RouteRequest) -> dict[str, Any]:
 @app.post("/runs")
 def start_run(
     req: RunRequest,
-    _actor: AuthenticatedActor = Depends(require_authenticated_actor),
+    actor: AuthenticatedActor = Depends(require_authenticated_actor),
 ) -> dict[str, Any]:
     try:
         return service.start_run(
             work_type=req.work_type,
             summary=req.summary,
             risk_tier=req.risk_tier,
+            scope=req.scope,
             project_pack=req.project_pack,
             auto_approve_gates=req.auto_approve_gates,
+            actor=actor,
         )
-    except GatePolicyError as exc:
+    except (GatePolicyError, AuthorizationError) as exc:
         raise HTTPException(status_code=403, detail=str(exc)) from exc
+    except StateLockError as exc:
+        raise HTTPException(status_code=503, detail=str(exc)) from exc
     except (ValueError, FileNotFoundError) as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
 
@@ -106,10 +112,14 @@ def start_run(
 @app.get("/runs/{run_id}")
 def get_run(
     run_id: str,
-    _actor: AuthenticatedActor = Depends(require_authenticated_actor),
+    actor: AuthenticatedActor = Depends(require_authenticated_actor),
 ) -> dict[str, Any]:
     try:
-        return service.get_run(run_id)
+        return service.get_run(run_id, actor=actor)
+    except AuthorizationError as exc:
+        raise HTTPException(status_code=403, detail=str(exc)) from exc
+    except StateLockError as exc:
+        raise HTTPException(status_code=503, detail=str(exc)) from exc
     except (KeyError, ValueError) as exc:
         raise HTTPException(status_code=404, detail=str(exc)) from exc
 
@@ -132,6 +142,8 @@ def approve_gate(
         raise HTTPException(status_code=403, detail=str(exc)) from exc
     except GateConflictError as exc:
         raise HTTPException(status_code=409, detail=str(exc)) from exc
+    except StateLockError as exc:
+        raise HTTPException(status_code=503, detail=str(exc)) from exc
     except KeyError as exc:
         raise HTTPException(status_code=404, detail=str(exc)) from exc
     except ValueError as exc:

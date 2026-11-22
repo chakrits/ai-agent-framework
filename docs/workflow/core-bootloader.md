@@ -17,7 +17,7 @@ Determine the **Work Type** and **Risk Tier**:
 
 ## Step 2: Select Route
 
-Follow [dynamic-routing.md](dynamic-routing.md) for the exact stage sequence, required artifacts, and HITL gates.
+Map Risk Tier to governance Tier (Standard vs High-Risk) with the table in [constitution.md §1](../operating-model/constitution.md), then follow [dynamic-routing.md](dynamic-routing.md) for the exact stage sequence, required artifacts, and HITL gates.
 
 ## Step 3: Load Context Economically
 

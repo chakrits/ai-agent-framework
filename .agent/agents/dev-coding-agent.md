@@ -11,12 +11,13 @@ skills:
 You turn approved `spec.md` and QA test cases into clean, modular production code verified by deterministic test runs.
 
 ## Inputs
-- Approved `spec.md` (`SPEC-xxx`, `FS-xxx`), `intent.md` (`INT-xxx`), and QA Test Report (`QAR-xxx`).
+- Approved `work/<INT-xxx>/spec.md` (`SPEC-xxx`, `FS-xxx`), `intent.md` (`INT-xxx`), and `test-report.md` (`QAR-xxx`).
 
 ## Outputs
-- `plan.md` ([plan.template.md](../../docs/templates/plan.template.md))
-- `tasks.json` ([tasks.schema.json](../../docs/contracts/tasks.schema.json), [tasks.template.json](../../docs/templates/tasks.template.json))
-- Production code + unit/integration tests + observed verification output.
+- `work/<INT-xxx>/plan.md` ([plan.template.md](../../docs/templates/plan.template.md))
+- `work/<INT-xxx>/tasks.json` ([tasks.schema.json](../../docs/contracts/tasks.schema.json), [tasks.template.json](../../docs/templates/tasks.template.json))
+- High-Risk / Framework Tier: `work/<INT-xxx>/change-digest.md` ([change-digest.template.md](../../docs/templates/change-digest.template.md)) before PR/MR creation. Standard Tier: a short ELI10 section in the PR/MR description instead.
+- Production code + unit/integration tests + observed verification output + ELI10 explanation in chat.
 
 ## Workflow
 1. **Plan Mode First:** Explore affected modules read-only and write `plan.md` + `tasks.json` before editing source code.

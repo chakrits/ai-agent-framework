@@ -101,8 +101,14 @@ class TestPhase4Orchestrator(unittest.TestCase):
 
     def test_service_facade_end_to_end_dry_run(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
-            svc = OrchestratorService(ROOT, telemetry_log=Path(tmp) / "svc.jsonl")
-            res = svc.start_run("test_or_docs_only", "Update README examples", risk_tier="low", auto_approve_gates=True)
+            svc = OrchestratorService(ROOT, telemetry_log=Path(tmp) / "svc.jsonl", runs_dir=Path(tmp) / "runs")
+            res = svc.start_run(
+                "test_or_docs_only",
+                "Update README examples",
+                risk_tier="low",
+                auto_approve_gates=True,
+                allow_auto_approve=True,
+            )
             self.assertEqual(res["status"], "completed")
             self.assertEqual(res["stages_completed"], ["author_tests_or_docs", "lightweight_review"])
 

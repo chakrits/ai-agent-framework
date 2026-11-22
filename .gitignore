@@ -5,3 +5,4 @@ __pycache__/
 .sdlc-telemetry/
 .venv/
 .sdlc/
+.worktrees/

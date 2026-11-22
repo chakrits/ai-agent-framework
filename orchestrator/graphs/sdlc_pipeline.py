@@ -7,6 +7,7 @@ import subprocess
 import time
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass, field
+from datetime import datetime, timezone
 from typing import Protocol
 
 from orchestrator.core.loader import FrameworkBundle, assemble_agent_prompt
@@ -99,10 +100,13 @@ class PipelineState:
     workspace_root: str
     task_summary: str
     route_plan: RoutePlan
+    scope: str = "default"
+    owner_actor_id: str = ""
     current_stage_index: int = 0
     status: str = "running"  # running | waiting_human_gate | completed | failed
     pending_gate: str | None = None
     approved_gates: list[str] = field(default_factory=list)
+    gate_approvals: list[dict[str, str]] = field(default_factory=list)
     stage_outputs: dict[str, list[AgentExecutionResult]] = field(default_factory=dict)
     attempts: dict[str, int] = field(default_factory=dict)
     error: str | None = None
@@ -155,14 +159,29 @@ class SDLCPipelineRunner:
         self._record_event(state.run_id, "pipeline_completed", {"stages_executed": len(state.stage_outputs)})
         return state
 
-    def approve_gate(self, state: PipelineState, gate_name: str | None = None) -> PipelineState:
-        """Record human gate approval and resume pipeline execution."""
+    def approve_gate(
+        self,
+        state: PipelineState,
+        gate_name: str | None = None,
+        approver_id: str = "human-cli",
+    ) -> PipelineState:
+        """Record human gate approval with approver identity and resume pipeline execution."""
         target_gate = gate_name or state.pending_gate
         if not target_gate:
             raise ValueError("No pending gate to approve")
+        actor = approver_id.strip()
+        if not actor:
+            raise ValueError("approver_id must be a non-empty human identifier")
         if target_gate not in state.approved_gates:
             state.approved_gates.append(target_gate)
-        self._record_event(state.run_id, "gate_approved", {"gate": target_gate})
+            state.gate_approvals.append(
+                {
+                    "gate": target_gate,
+                    "approver_id": actor,
+                    "approved_at": datetime.now(timezone.utc).astimezone().isoformat(timespec="milliseconds"),
+                }
+            )
+        self._record_event(state.run_id, "gate_approved", {"gate": target_gate, "approver_id": actor})
         return self.run(state, auto_approve_gates=False)
 
     def _execute_stage_with_retry(self, stage: RouteStage, state: PipelineState) -> list[AgentExecutionResult]:

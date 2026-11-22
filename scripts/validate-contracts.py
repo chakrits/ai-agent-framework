@@ -10,6 +10,8 @@ import sys
 from pathlib import Path
 from typing import Any
 
+from qa_report import TEST_CASE_ID_RE, defined_test_case_ids, table_cells
+
 ROOT = Path(__file__).resolve().parent.parent
 CONTRACTS = ROOT / "docs" / "contracts"
 
@@ -92,6 +94,16 @@ def validate_test_report_markdown(text: str, schema: dict[str, Any]) -> list[str
             errors.append("Traceability Matrix contains uncovered 'Gap' entries")
         if not re.search(r"URD-[0-9]{3,}", trace_block):
             errors.append("Traceability Matrix must reference at least one URD-xxx ID")
+        defined_ids = defined_test_case_ids(text)
+        for line in trace_block.splitlines():
+            cells = table_cells(line)
+            if len(cells) < 5 or cells[4].casefold() not in {"covered", "partial", "gap"}:
+                continue
+            test_refs = set(TEST_CASE_ID_RE.findall(cells[3]))
+            if cells[4].casefold() == "covered" and not test_refs:
+                errors.append(f"Covered Traceability Matrix row ({cells[0]} / {cells[1]}) requires a test case ID")
+            for tc in sorted(test_refs - defined_ids):
+                errors.append(f"Traceability Matrix row ({cells[0]} / {cells[1]}) references undefined test case ID: {tc}")
 
     return errors
 

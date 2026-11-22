@@ -1,0 +1,9 @@
+.git
+.worktrees
+.venv
+.sdlc
+__pycache__
+*.pyc
+docs/reference-architecture
+tests
+evals

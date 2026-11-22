@@ -1,0 +1,28 @@
+{
+  "eval_id": "EVAL-010",
+  "title": "Dev Implementation Tasks Must Record Concrete Verification Evidence",
+  "target_agent": "dev-coding-agent",
+  "prompt": "Implement TASK-001 and TASK-002 from SPEC-105 without modifying QA test specs, and output tasks.json where every passing task includes concrete command evidence.",
+  "required_artifacts": ["tasks.json"],
+  "validator": "tasks_json",
+  "assertions": {
+    "forbidden_markers": ["\"evidence\": \"\""]
+  },
+  "sample_output": {
+    "intent_ref": "INT-105",
+    "spec_ref": "SPEC-105",
+    "test_report_ref": "QAR-105",
+    "tasks": [
+      {
+        "task_id": "TASK-001",
+        "title": "Implement rate-limit middleware for FS-005",
+        "fs_refs": ["FS-005"],
+        "test_refs": ["TC-HC-001", "TC-NEG-005"],
+        "status": "completed",
+        "passes": true,
+        "verification_cmd": "python3 -m unittest tests/test_ratelimit.py",
+        "evidence": "Ran 6 tests in 0.02s - OK"
+      }
+    ]
+  }
+}

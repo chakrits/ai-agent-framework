@@ -52,6 +52,7 @@ def main() -> int:
                     risk_tier=args.risk,
                     project_pack=args.project_pack,
                     auto_approve_gates=args.auto_approve,
+                    allow_auto_approve=args.auto_approve,
                 ),
                 indent=2,
             )

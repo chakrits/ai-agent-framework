@@ -1,4 +1,4 @@
-"""Deterministic Stage 6 control-band evaluator (bands.yaml) and draft intent.md generator."""
+"""Deterministic Stage 6 control-band evaluator reading docs/operating-model/bands.yaml."""
 
 from __future__ import annotations
 
@@ -6,7 +6,7 @@ import math
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Sequence
+from typing import Any, Sequence
 
 
 @dataclass(frozen=True)
@@ -22,14 +22,65 @@ class BandEvaluation:
     action: str        # none | log | diagnose | propose
     mode: str          # none | read_only | gated_pr
     breached: bool
+    routes: tuple[str, ...] = ()
+
+
+def _parse_inline_dict_or_list(val: str) -> Any:
+    val = val.strip()
+    if val.startswith("[") and val.endswith("]"):
+        inner = val[1:-1].strip()
+        if not inner:
+            return []
+        return [item.strip().strip("'\"") for item in inner.split(",")]
+    return val.strip("'\"")
+
+
+def load_bands_config(bands_path: Path) -> dict[str, Any]:
+    """Parse docs/operating-model/bands.yaml cleanly using Python stdlib."""
+    metrics: dict[str, Any] = {}
+    current_metric: str | None = None
+    in_tiers = False
+    current_tier: str | None = None
+
+    for raw_line in bands_path.read_text(encoding="utf-8").splitlines():
+        stripped = raw_line.strip()
+        if not stripped or stripped.startswith("#"):
+            continue
+        indent = len(raw_line) - len(raw_line.lstrip(" "))
+        if ":" not in stripped:
+            continue
+        key, val = (p.strip() for p in stripped.split(":", 1))
+
+        if indent == 2 and key != "metrics":
+            current_metric = key
+            metrics[current_metric] = {"tiers": {}}
+            in_tiers = False
+            current_tier = None
+        elif indent == 4 and current_metric:
+            if key == "tiers":
+                in_tiers = True
+            else:
+                in_tiers = False
+                metrics[current_metric][key] = int(val) if val.isdigit() else _parse_inline_dict_or_list(val)
+        elif indent == 6 and current_metric and in_tiers:
+            current_tier = key
+            metrics[current_metric]["tiers"][current_tier] = {}
+        elif indent == 8 and current_metric and in_tiers and current_tier:
+            if key == "threshold":
+                metrics[current_metric]["tiers"][current_tier][key] = float(val)
+            else:
+                metrics[current_metric]["tiers"][current_tier][key] = _parse_inline_dict_or_list(val)
+
+    return {"metrics": metrics}
 
 
 def evaluate_control_band(
     metric_name: str,
     baseline_samples: Sequence[float],
     observed_value: float,
+    bands_config: dict[str, Any] | None = None,
 ) -> BandEvaluation:
-    """Compute sigma distance over baseline samples and map deterministically to 1σ/2σ/3σ tiers."""
+    """Compute sigma distance over baseline samples and map deterministically to bands.yaml tiers."""
     if len(baseline_samples) < 2:
         raise ValueError("baseline_samples must contain at least 2 observations")
 
@@ -42,14 +93,36 @@ def evaluate_control_band(
     else:
         sigma = max(0.0, (observed_value - mean) / stddev)
 
-    if sigma >= 3.0:
-        tier, action, mode, breached = "3sigma", "propose", "gated_pr", True
-    elif sigma >= 2.0:
-        tier, action, mode, breached = "2sigma", "diagnose", "read_only", True
-    elif sigma >= 1.0:
-        tier, action, mode, breached = "1sigma", "log", "none", True
+    defaults: dict[str, tuple[str, str, bool]] = {
+        "3sigma": ("propose", "gated_pr", True),
+        "2sigma": ("diagnose", "read_only", True),
+        "1sigma": ("log", "none", True),
+        "normal": ("none", "none", False),
+    }
+
+    metric_cfg = bands_config.get("metrics", {}).get(metric_name, {}) if bands_config else {}
+    tiers_cfg = metric_cfg.get("tiers", {}) if isinstance(metric_cfg, dict) else {}
+
+    t3 = float(tiers_cfg.get("3sigma", {}).get("threshold", 3.0))
+    t2 = float(tiers_cfg.get("2sigma", {}).get("threshold", 2.0))
+    t1 = float(tiers_cfg.get("1sigma", {}).get("threshold", 1.0))
+
+    if sigma >= t3:
+        tier = "3sigma"
+    elif sigma >= t2:
+        tier = "2sigma"
+    elif sigma >= t1:
+        tier = "1sigma"
     else:
-        tier, action, mode, breached = "normal", "none", "none", False
+        tier = "normal"
+
+    action, mode, breached = defaults[tier]
+    routes: tuple[str, ...] = ()
+    if bands_config and tier != "normal":
+        tier_cfg = tiers_cfg.get(tier, {})
+        action = str(tier_cfg.get("action", action))
+        mode = str(tier_cfg.get("mode", mode))
+        routes = tuple(str(r) for r in tier_cfg.get("routes", []))
 
     return BandEvaluation(
         metric_name=metric_name,
@@ -61,6 +134,7 @@ def evaluate_control_band(
         action=action,
         mode=mode,
         breached=breached,
+        routes=routes,
     )
 
 

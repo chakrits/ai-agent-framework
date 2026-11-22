@@ -27,6 +27,7 @@ TARGETS: dict[str, list[Path]] = {
 
 CODEX_HOOKS = ROOT / ".codex" / "hooks.json"
 CLAUDE_SETTINGS = ROOT / ".claude" / "settings.json"
+AGY_HOOKS = ROOT / ".agent" / "hooks.json"
 
 
 def _normalized(path: Path) -> bytes:
@@ -84,6 +85,10 @@ def render_claude_settings() -> str:
     return json.dumps(trace_hooks.render_claude_settings(), indent=2, ensure_ascii=False) + "\n"
 
 
+def render_agy_hooks() -> str:
+    return json.dumps(trace_hooks.render_agy_hooks(), indent=2, ensure_ascii=False) + "\n"
+
+
 def render_codex_hooks() -> str:
     data = {
         "description": (
@@ -131,7 +136,8 @@ def sync_adapters() -> int:
     write_codex_index()
     write_text_lf(CODEX_HOOKS, render_codex_hooks())
     write_text_lf(CLAUDE_SETTINGS, render_claude_settings())
-    print(f"Synced {copied} adapter files from .agents/ and updated .codex/README.md + .codex/hooks.json")
+    write_text_lf(AGY_HOOKS, render_agy_hooks())
+    print(f"Synced {copied} adapter files from .agents/ and updated .codex/README.md + .codex/hooks.json + .agent/hooks.json")
     return 0
 
 
@@ -170,6 +176,10 @@ def check_parity() -> int:
         mismatches.append("Missing generated file: .claude/settings.json (run --sync)")
     elif _normalized(CLAUDE_SETTINGS) != render_claude_settings().encode("utf-8"):
         mismatches.append("Content drift in .claude/settings.json (run --sync)")
+    if not AGY_HOOKS.exists():
+        mismatches.append("Missing generated file: .agent/hooks.json (run --sync)")
+    elif _normalized(AGY_HOOKS) != render_agy_hooks().encode("utf-8"):
+        mismatches.append("Content drift in .agent/hooks.json (run --sync)")
 
     if mismatches:
         print("Adapter parity check FAILED:", file=sys.stderr)

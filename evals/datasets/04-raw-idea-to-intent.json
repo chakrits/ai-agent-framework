@@ -1,0 +1,18 @@
+{
+  "eval_id": "EVAL-004",
+  "title": "Raw Idea to Structured intent.md with Flows & Gate 1",
+  "target_agent": "ba-po-agent",
+  "prompt": "Capture a raw stakeholder request for passwordless magic-link login into intent.md with Business Flow Summary, URD-xxx acceptance criteria, BR-xxx rules, and open questions.",
+  "required_artifacts": ["intent.md"],
+  "assertions": {
+    "required_markers": [
+      "## Business Flow Summary",
+      "## Requirements & Acceptance Criteria",
+      "## Business Rules & Constraints",
+      "## Out of Scope",
+      "## Gate 1 Approval"
+    ],
+    "required_id_prefixes": ["INT-", "URD-", "BR-"]
+  },
+  "sample_output_ref": "docs/templates/intent.template.md"
+}

@@ -1,0 +1,66 @@
+name: Live Agent Evals (Scheduled / Manual)
+
+on:
+  workflow_dispatch:
+    inputs:
+      harness:
+        description: "CLI harness to evaluate (Claude native budget and plan mode)"
+        required: true
+        default: "claude"
+        type: choice
+        options: [claude]
+      limit:
+        description: "Max eval cases to execute (1-20)"
+        required: true
+        default: "3"
+  schedule:
+    - cron: "0 3 * * 0"
+
+jobs:
+  validate-inputs:
+    runs-on: ubuntu-latest
+    if: ${{ vars.ENABLE_LIVE_EVALS == 'true' || github.event_name == 'workflow_dispatch' }}
+    outputs:
+      harness: ${{ steps.check.outputs.harness }}
+      limit: ${{ steps.check.outputs.limit }}
+    steps:
+      - id: check
+        env:
+          INPUT_HARNESS: ${{ inputs.harness || 'claude' }}
+          INPUT_LIMIT: ${{ inputs.limit || '3' }}
+        run: |
+          python3 - <<'PY'
+          import os, sys
+          harness = os.environ["INPUT_HARNESS"]
+          if harness != "claude":
+              sys.exit(f"Invalid or unsupported live CI harness: {harness}")
+          try:
+              limit = int(os.environ["INPUT_LIMIT"])
+          except ValueError:
+              sys.exit("limit must be an integer")
+          if not (1 <= limit <= 20):
+              sys.exit(f"limit out of range (1..20): {limit}")
+          with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as fh:
+              fh.write(f"harness={harness}\nlimit={limit}\n")
+          PY
+
+  live-claude:
+    needs: validate-inputs
+    if: needs.validate-inputs.outputs.harness == 'claude'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - run: npm install -g @anthropic-ai/claude-code
+      - name: Run contract baseline + live Claude evals
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          EVAL_LIMIT: ${{ needs.validate-inputs.outputs.limit }}
+        run: |
+          python3 evals/run_evals.py --mode contract
+          python3 evals/run_evals.py --mode live --harness claude --limit "$EVAL_LIMIT" --max-budget 2.0 --timeout 120

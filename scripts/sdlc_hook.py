@@ -23,7 +23,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-from sdlc_guard import guard, platform_env, trace, version  # noqa: E402
+from sdlc_guard import agy_adapter, guard, platform_env, trace, version  # noqa: E402
 
 BLOCK = 2
 
@@ -65,10 +65,17 @@ def _trace(payload: dict, platform: str, decision: guard.Decision | None = None)
     )
 
 
+def _normalize_for_platform(payload: dict, platform: str, default_event: str | None = None) -> dict:
+    if platform == "antigravity":
+        return agy_adapter.normalize_payload(payload, default_event=default_event)
+    return payload
+
+
 def _evaluate(payload: dict, platform: str = "claude", record: bool = False) -> int:
     root = _repo_root()
+    normalized = _normalize_for_platform(payload, platform, default_event="PreToolUse")
     decision = guard.decide(
-        guard.parse_event(payload),
+        guard.parse_event(normalized),
         policy=guard.load_policy(),
         env=os.environ,
         repo_root=root,
@@ -76,24 +83,36 @@ def _evaluate(payload: dict, platform: str = "claude", record: bool = False) -> 
         is_tracked=guard.git_is_tracked(root),
     )
     if record:
-        _trace(payload, platform, decision)
+        _trace(normalized, platform, decision)
+    if platform == "antigravity":
+        reason = f"BLOCKED: {decision.reason}" if not decision.allowed else ""
+        print(agy_adapter.format_pretooluse_decision(decision.allowed, reason))
+        return 0
     if decision.allowed:
         return 0
     print(f"BLOCKED: {decision.reason}", file=sys.stderr)
     return BLOCK
 
 
-def _fail_closed(exc: BaseException) -> int:
+def _fail_closed(exc: BaseException, platform: str = "claude") -> int:
     if os.environ.get("SDLC_GUARD_FAIL_OPEN") == "1":
         print(f"WARNING: sdlc guard error ignored (SDLC_GUARD_FAIL_OPEN=1): {exc!r}", file=sys.stderr)
+        if platform == "antigravity":
+            print(agy_adapter.format_pretooluse_decision(True))
         return 0
-    print(f"BLOCKED: sdlc guard internal error (fail-closed): {exc!r}", file=sys.stderr)
+    msg = f"BLOCKED: sdlc guard internal error (fail-closed): {exc!r}"
+    if platform == "antigravity":
+        print(agy_adapter.format_pretooluse_decision(False, msg))
+        return 0
+    print(msg, file=sys.stderr)
     return BLOCK
 
 
 def cmd_pretooluse(platform: str = "claude") -> int:
     raw = _read_stdin()
     if not raw.strip():
+        if platform == "antigravity":
+            print(agy_adapter.format_pretooluse_decision(True))
         return 0
     try:
         payload = json.loads(raw)
@@ -101,7 +120,7 @@ def cmd_pretooluse(platform: str = "claude") -> int:
             raise ValueError("hook payload must be a JSON object")
         return _evaluate(payload, platform, record=True)
     except Exception as exc:  # noqa: BLE001 - guard must fail closed on any error
-        return _fail_closed(exc)
+        return _fail_closed(exc, platform)
 
 
 def cmd_trace(platform: str) -> int:
@@ -110,9 +129,11 @@ def cmd_trace(platform: str) -> int:
         raw = _read_stdin_timeout()
         payload = json.loads(raw) if raw.strip() else {}
         if isinstance(payload, dict):
-            _trace(payload, platform)
+            _trace(_normalize_for_platform(payload, platform), platform)
     except Exception:  # noqa: BLE001
         pass
+    if platform == "antigravity":
+        print(agy_adapter.format_empty_response())
     return 0
 
 
@@ -159,6 +180,7 @@ def main(argv: list[str]) -> int:
             raw = _read_stdin_timeout()
             payload = json.loads(raw) if raw.strip() else {}
             payload = payload if isinstance(payload, dict) else {}
+            payload = _normalize_for_platform(payload, platform, default_event="SessionStart")
             payload.setdefault("hook_event_name", "SessionStart")
             _trace(payload, platform)
             trace.maintenance(_repo_root(), os.environ)  # retention for traces and per-session state

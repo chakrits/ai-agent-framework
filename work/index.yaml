@@ -1,0 +1,16 @@
+version: "1.0"
+work_items:
+  - intent_id: INT-001
+    title: "Cross-Artifact Work Item Traceability Validator"
+    path: "work/INT-001"
+    work_type: "new_feature"
+    risk_tier: "medium"
+    status: "pending_gate_3"
+    artifacts:
+      intent: "work/INT-001/intent.md"
+      spec: "work/INT-001/spec.md"
+      test_report: "work/INT-001/test-report.md"
+      plan: "work/INT-001/plan.md"
+      tasks: "work/INT-001/tasks.json"
+      review: "work/INT-001/REVIEW.md"
+      trace_summary: "work/INT-001/trace-summary.md"

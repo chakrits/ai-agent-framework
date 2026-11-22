@@ -72,3 +72,23 @@ def render_claude_settings() -> dict[str, Any]:
     for event in CLAUDE_TIER1_SYNC:
         hooks[event] = [{"hooks": [claude_handler("trace")]}]
     return {"permissions": {"allow": list(CLAUDE_PERMISSIONS_ALLOW)}, "hooks": hooks}
+
+
+AGY_COMMAND = 'sh "$(git rev-parse --show-toplevel)/scripts/bin/sdlc-hook" {sub} --platform antigravity'
+AGY_TOOL_MATCHER = "run_command|write_to_file|replace_file_content|multi_replace_file_content|view_file"
+
+
+def render_agy_hooks() -> dict[str, Any]:
+    """Generate .agent/hooks.json for Antigravity (synchronous hooks; stdout JSON contract)."""
+
+    def cmd(sub: str, timeout: int = 10) -> dict[str, Any]:
+        return {"type": "command", "command": AGY_COMMAND.format(sub=sub), "timeout": timeout}
+
+    return {
+        "sdlc-guard": {
+            "SessionStart": [cmd("session-start", timeout=30)],
+            "PreToolUse": [{"matcher": AGY_TOOL_MATCHER, "hooks": [cmd("pretooluse", timeout=30)]}],
+            "PostToolUse": [{"matcher": "run_command|write_to_file|replace_file_content|multi_replace_file_content", "hooks": [cmd("trace", timeout=10)]}],
+            "Stop": [cmd("trace", timeout=10)],
+        }
+    }

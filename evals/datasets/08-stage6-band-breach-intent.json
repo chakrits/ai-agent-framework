@@ -1,0 +1,17 @@
+{
+  "eval_id": "EVAL-008",
+  "title": "Stage 6 Control-Band Breach Drafts Closed-Loop intent.md",
+  "target_agent": "ops-maintain-agent",
+  "prompt": "Given a 3sigma breach on ci_test_failure_rate from bands.yaml, produce a Stage 1 draft intent.md with root-cause hypothesis and regression eval requirement.",
+  "required_artifacts": ["intent.md"],
+  "assertions": {
+    "required_markers": [
+      "work_type: bug_fix",
+      "risk_tier: high",
+      "## Problem Statement & Objective",
+      "## Gate 1 Approval"
+    ],
+    "required_id_prefixes": ["INT-", "URD-", "BR-"]
+  },
+  "sample_output": "---\nintent_id: INT-901\ntitle: \"Remediate ci_test_failure_rate (3sigma band breach)\"\nwork_type: bug_fix\nrisk_tier: high\nstatus: draft\nowner: ops-maintain-agent\n---\n\n# Intent: Remediate ci_test_failure_rate\n\n## Problem Statement & Objective\n- Metric `ci_test_failure_rate` breached 3sigma.\n\n## Requirements & Acceptance Criteria\n- `URD-001`: Fix regression and add permanent eval.\n\n## Business Rules & Constraints\n- `BR-001`: Route through Gate 3 PR.\n\n## Gate 1 Approval\n- **Decision:** `Pending`\n"
+}

@@ -11,11 +11,11 @@ skills:
 You design verifiable, implementation-independent test specifications and TDD test cases directly from approved requirements and functional specs.
 
 ## Inputs
-- Approved `intent.md` (`URD-xxx`) and `spec.md` (`FS-xxx`, IPO Matrix).
+- Approved `work/<INT-xxx>/intent.md` (`URD-xxx`) and `work/<INT-xxx>/spec.md` (`FS-xxx`, IPO Matrix).
 - Optional Project Pack skills (e.g., `examples/project-packs/<project>/`) when invoked for a specific target system.
 
 ## Outputs
-- Function Test Report conforming to [test-report.schema.json](../../docs/contracts/test-report.schema.json) and [function-test-report.template.md](../../docs/templates/function-test-report.template.md).
+- `work/<INT-xxx>/test-report.md` conforming to [test-report.schema.json](../../docs/contracts/test-report.schema.json) and [function-test-report.template.md](../../docs/templates/function-test-report.template.md).
 
 ## Workflow
 1. Confirm `intent.md` and `spec.md` are provided; if missing, ask before designing tests.

@@ -9,7 +9,7 @@ status: implemented_pending_commit
 # Implementation Plan: Trace v1.1 — model / effort, local-time timestamps, more hook events, level control, manual, monitoring
 
 > Route: **Framework Change (High)** → ต้องได้ human approval ก่อนลงมือ และ human commit (แตะ guard / hooks / settings / contracts)
-> แผนก่อนหน้า (implemented, รอ commit): [trace-versioning-plan.md](docs/plans/trace-versioning-plan.md)
+> แผนก่อนหน้า (implemented, รอ commit): [trace-versioning-plan.md](trace-versioning-plan.md)
 > **Schema ยังเป็น `v: 1`**: เพิ่ม field แบบ optional เท่านั้น และ `ts` เป็น ISO-8601 เหมือนเดิม (เปลี่ยนแค่ offset) จึงอ่านไฟล์เก่าได้
 
 ## 0. ผล research (official docs) ที่กำหนดการออกแบบ

@@ -93,7 +93,7 @@
 ### 4.3 เพิ่มกลไกบังคับ (C5, C6, C10)
 
 - **Gate evidence:** การอนุมัติใช้ GitHub PR review approval หรือ signed tag แทนการแก้ Markdown (ทาง D ที่คุยไว้; ทำเมื่อคุณพร้อม)
-- **Agent trace:** บันทึกทุก tool call ใน local (ดู [plan.md](../../plan.md)) เป็น audit log
+- **Agent trace:** บันทึกทุก tool call ใน local (ดู [plan-005-trace-v1-1.md](plan-005-trace-v1-1.md)) เป็น audit log
 - **Content secret scan:** เพิ่มใน pre-commit (regex เดียวกับที่ใช้ redact trace)
 
 ### 4.4 ลด / ตัดออก

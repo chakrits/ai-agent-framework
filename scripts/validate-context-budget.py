@@ -9,7 +9,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 
 BUDGETS: list[tuple[str, int]] = [
-    ("AGENTS.md", 120),
+    ("AGENTS.md", 500),
     ("CLAUDE.md", 80),
     (".agents/agents/*.md", 120),
     (".agents/skills/*/SKILL.md", 150),

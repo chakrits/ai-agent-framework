@@ -123,8 +123,17 @@ print(json.dumps({
         with tempfile.TemporaryDirectory() as tmp:
             corrupt_cli = Path(tmp) / "corrupt_git_cli.py"
             corrupt_cli.write_text(
-                """import json, shutil
-shutil.rmtree(".git")
+                """import json, os, shutil, stat, sys
+
+# Git marks object files read-only; on Windows rmtree cannot delete them without clearing the bit first.
+def _force_remove(func, path, _exc):
+    os.chmod(path, stat.S_IWRITE)
+    func(path)
+
+if sys.version_info >= (3, 12):
+    shutil.rmtree(".git", onexc=_force_remove)
+else:
+    shutil.rmtree(".git", onerror=_force_remove)
 print(json.dumps({"intent_ref": "INT-102", "spec_ref": "SPEC-102", "tasks": []}))
 """,
                 encoding="utf-8",

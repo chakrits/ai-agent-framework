@@ -33,6 +33,12 @@ verdict: pending_review
 | :--- | :--- | :--- | :--- |
 | `None` | - | No blockers found | - |
 
+## Council Pressure-Test *(optional — `risk_tier: high` or Human-flagged high reversal cost)*
+- **Lenses Used:** `[e.g., Contrarian, Outsider]`
+- **Preserved Dissent:** `[the strongest unresolved objection, kept verbatim]`
+- **Blind-Spot Check (what did all passes miss?):** `[...]`
+- **Verdict & One Next Step:** `[...]`
+
 ## Gate 3 Human Sign-Off
 - **Reviewer:** `[Human Maintainer / Tech Lead]`
 - **Decision:** `Pending` (`Approved` / `Changes Requested`)

@@ -16,6 +16,7 @@ Follow [AGENTS.md](../AGENTS.md) at the repository root.
 
 ## Canonical Skills (`.agents/skills/`)
 - `agent-trace`
+- `council-pressure-test`
 - `istqb-test-design`
 - `owasp-security-review`
 - `spec-driven-design`

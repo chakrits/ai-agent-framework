@@ -14,3 +14,4 @@ work_items:
       tasks: "work/INT-001/tasks.json"
       review: "work/INT-001/REVIEW.md"
       trace_summary: "work/INT-001/trace-summary.md"
+      change_digest: "work/INT-001/change-digest.md"

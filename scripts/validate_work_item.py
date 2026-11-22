@@ -169,6 +169,12 @@ DIGEST_PLACEHOLDER_RE = re.compile(
 DIGEST_SECTION_NUMBERS = (1, 2, 3, 4, 5)
 
 
+def _section_body(digest_text: str, number: int) -> str:
+    """Return the text between the `## <number>.` heading and the next `#`/`##` heading (or EOF)."""
+    match = re.search(rf"^## {number}\.[^\n]*\n(.*?)(?=^#{{1,2}} |\Z)", digest_text, re.MULTILINE | re.DOTALL)
+    return match.group(1) if match else ""
+
+
 def check_change_digest(digest_text: str) -> list[str]:
     """Reject an empty, stub, or still-templated Change Digest (required sections + placeholder check)."""
     if not digest_text.strip():
@@ -177,6 +183,13 @@ def check_change_digest(digest_text: str) -> list[str]:
     missing = [n for n in DIGEST_SECTION_NUMBERS if not re.search(rf"^## {n}\.", digest_text, re.MULTILINE)]
     if missing:
         errors.append(f"{DIGEST_FILE} is missing required section(s): " + ", ".join(f"## {n}." for n in missing))
+    empty = [
+        n
+        for n in DIGEST_SECTION_NUMBERS
+        if n not in missing and not _section_body(digest_text, n).strip()
+    ]
+    if empty:
+        errors.append(f"{DIGEST_FILE} has section(s) with no content: " + ", ".join(f"## {n}." for n in empty))
     leftovers = sorted({m.group(0).strip() for m in DIGEST_PLACEHOLDER_RE.finditer(digest_text)})
     if leftovers:
         errors.append(f"{DIGEST_FILE} still contains template placeholder(s): {', '.join(leftovers)}")
@@ -230,6 +243,8 @@ def main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(argv)
     if args.work_dir is None and args.digest_file is None:
         parser.error("provide a work item directory and/or --digest-file")
+    if args.work_dir is None and (args.require_review or args.require_digest):
+        parser.error("--require-review/--require-digest need a work item directory (they do not apply to --digest-file)")
 
     errors: list[str] = []
     if args.work_dir is not None:

@@ -315,6 +315,32 @@ class TestChangeDigestRequirement(unittest.TestCase):
             neither = subprocess.run([sys.executable, script], capture_output=True, text=True, check=False)
             self.assertEqual(neither.returncode, 2, neither.stderr)
 
+    def test_sections_with_headings_but_no_content_are_rejected(self) -> None:
+        empty = "# Digest\n\n" + "\n\n".join(f"## {n}. Heading" for n in range(1, 6)) + "\n"
+        errs = validate_work_item.check_change_digest(empty)
+        self.assertTrue(any("no content" in e for e in errs), errs)
+        one_empty = VALID_DIGEST.replace(
+            "## 3. How It Works\n1. อ่านไฟล์ intent, spec, test-report, tasks\n2. เทียบ ID ข้ามไฟล์\n3. รายงาน error ที่ขาด\n",
+            "## 3. How It Works\n\n",
+        )
+        self.assertNotEqual(one_empty, VALID_DIGEST)
+        errs = validate_work_item.check_change_digest(one_empty)
+        self.assertTrue(any("no content" in e and "## 3." in e for e in errs), errs)
+
+    def test_work_item_flags_without_work_dir_are_a_usage_error(self) -> None:
+        script = str(ROOT / "scripts" / "validate_work_item.py")
+        with tempfile.TemporaryDirectory() as tmp:
+            good = Path(tmp) / "good-digest.md"
+            good.write_text(VALID_DIGEST, encoding="utf-8")
+            for flag in ("--require-review", "--require-digest"):
+                with self.subTest(flag=flag):
+                    result = subprocess.run(
+                        [sys.executable, script, "--digest-file", str(good), flag],
+                        capture_output=True, text=True, check=False,
+                    )
+                    self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
+                    self.assertIn("work item directory", result.stderr)
+
     def test_real_handoff_digest_for_this_plan_is_valid(self) -> None:
         text = (ROOT / "docs" / "handoff" / "2026-11-22-governance-consistency-digest.md").read_text(encoding="utf-8")
         self.assertEqual(validate_work_item.check_change_digest(text), [])

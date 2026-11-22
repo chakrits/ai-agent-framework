@@ -175,9 +175,9 @@ Scope: commits `7872de4`, `211d7c2`, `41b5109` and `8c4ae79` (branch `feat/PLAN-
 - Not verified: Python 3.10 / 3.12 runs, Windows, Docker, real CI.
 
 ## Gate 3 Human Sign-Off
-- **Reviewer:** `[Human Maintainer / Tech Lead]`
-- **Decision:** `Pending` (`Approved` / `Changes Requested`)
-- **Timestamp:** `YYYY-MM-DD`
+- **Reviewer:** Human maintainer (GitHub `chakrits`)
+- **Decision:** `Approved` — recorded from the merge of [PR #4](https://github.com/chakrits/ai-agent-framework/pull/4) (merge commit `d764d5f`); no separate written sign-off was left
+- **Timestamp:** 2026-11-22 16:05:10 +07
 
 ## Author Response (2026-11-22, implementer — not a re-review)
 The verdict above stays `changes_requested` until an independent reviewer re-checks. Fixes applied after this report:

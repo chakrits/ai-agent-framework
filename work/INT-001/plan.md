@@ -41,3 +41,20 @@ owner: dev-coding-agent
 
 ## 4. Rollback / Failure Plan
 - Delete `scripts/validate_work_item.py` and `tests/test_work_item_validator.py`.
+
+## Addendum A1 — As-built scope (อนุมัติแล้ว)
+
+ใช้คู่กับ [SPEC-001 Addendum A1](spec.md#addendum-a1--as-built-behaviour) บันทึกสิ่งที่ทำจริงในรีวิวรอบ 3–5 (PR #2) ไม่มีการแก้โค้ดเพิ่ม
+
+- **Files to Create (แทน §1):** `scripts/validate_work_item.py`, `scripts/qa_report.py`, `tests/test_work_item_validator.py`
+- **Files to Modify (แทน "None" ใน §1):** `scripts/validate-contracts.py` (CI gate)
+- **Protected Files:** ตามเดิม
+- **Verification Commands (เพิ่มจาก §3):**
+  - `python3 scripts/validate-contracts.py --check-defaults`
+  - `python3 scripts/validate-contracts.py --tasks work/INT-001/tasks.json --test-report work/INT-001/test-report.md`
+- **Regression tests ของกติกาที่เพิ่ม** (`tests/test_work_item_validator.py`):
+  - `test_mismatched_urd_fs_pair_in_traceability_matrix_fails`
+  - `test_covered_pair_on_shared_fs_requires_its_own_test_reference` (ทั้งสองตัวตรวจ)
+  - `test_undefined_test_case_in_matrix_and_tasks_is_rejected` (ทั้งสองตัวตรวจ)
+  - `test_empty_test_refs_or_missing_tc_or_wrong_fs_mapping_fails`
+- **Rollback (แทน §4):** ตาม SPEC-001 A1.6 ห้ามลบไฟล์ตรง ๆ

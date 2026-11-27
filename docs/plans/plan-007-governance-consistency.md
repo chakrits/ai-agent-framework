@@ -169,6 +169,6 @@ grep -rn "DECISIONS.md\|record the plan in \`plan.md\`" AGENTS.md CLAUDE.md docs
 3. **Implementer claims drift:** the independent review caught the digest overstating facts 3 times (budget "reduced", test counts, enforcement). Keep "diff first, digest last" in `code-reviewer-agent`.
 
 ### Still open after closeout
-- `main` has **no branch protection** (GitHub API: `Branch not protected`), although `AGENTS.md` §1 says `main` is protected and PR-only. A repo admin must enable it (ROADMAP P5).
+- ~~`main` has no branch protection~~ — **Resolved after closeout.** Ruleset [`protect-main`](https://github.com/chakrits/ai-agent-framework/rules/27836720) was created on 2026-11-22 17:10 +07 (after [PR #5](https://github.com/chakrits/ai-agent-framework/pull/5) merged) and its admin bypass was narrowed to pull requests only on 2026-11-27 11:47 +07. Verified with the GitHub API on 2026-11-27: PR required, deletion and force push blocked, 6 CI jobs required, merge / rebase only. A direct-push rejection was not exercised. Remaining limits are listed in ROADMAP P5.
 - The digest validator (`--require-digest` / `--digest-file`) is not run by CI or the git hooks yet (protected paths; needs its own Framework Change).
 - `routing.yaml` as the single source for routing (ROADMAP P5) is still not done; PLAN-007 only aligned the docs with `router.py`.

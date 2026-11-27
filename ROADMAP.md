@@ -2,7 +2,7 @@
 
 > **Architecture:** Enterprise-agnostic Canonical Core (`.agents/` + `docs/`) + Thin Multi-Harness Adapters (`.claude/`, `.codex/`, `.agent/`) + Deterministic Cross-Platform Guardrails (`scripts/sdlc_guard/`) + Optional Python Orchestrator
 > **Analysis & Rationale:** [Framework Review & Roadmap v2](docs/plans/framework-review-roadmap-v2.md) · [Claude AI-Native SDLC Playbook Analysis](docs/reference-architecture/benchmarks/claude-ai-native-sdlc-playbook-analysis.md) · [Cross-Platform Plan](docs/plans/cross-platform-harness-plan.md)
-> **Last re-baseline:** 2026-11-21 · **Last update:** 2026-11-27 (เปิด branch protection บน `main`)
+> **Last re-baseline:** 2026-11-21 · **Last update:** 2026-11-27 (PLAN-008 closeout; branch protection บน `main`)
 
 ## สถานะที่ใช้
 
@@ -83,6 +83,16 @@
 - [x] ที่เก็บ ADR (`docs/adr/` + template), skill `council-pressure-test`, reviewer อ่าน diff ก่อน digest
 - [x] Independent review 3 รอบ (สุดท้าย `approved`) + CI 6/6 เขียวที่ head สุดท้าย
 - [ ] ให้ CI / git hook เรียก digest validator (ต้องเป็น Framework Change แยก เพราะแตะ protected path)
+
+### Prompt Consistency & Standard-Tier Records (PLAN-008) — ✅ Verified
+> แผนและผลรีวิว: [plan-008-prompt-consistency.md](docs/plans/plan-008-prompt-consistency.md) · [plan-008-review.md](docs/plans/plan-008-review.md) · merge [PR #7](https://github.com/chakrits/ai-agent-framework/pull/7) (`e1d439d`) · release `v0.3.1` ยังรอ [PR #8](https://github.com/chakrits/ai-agent-framework/pull/8)
+- [x] แก้ role prompt / skill / workflow ให้ตรงกับ route และ contract
+- [x] งาน Standard ที่ไม่มี work item บันทึก `## Plan Checkpoint` / `## Verification` / `## Review` ใน PR/MR (constitution, contracts, templates)
+- [x] High-risk bug fix ต้องมีตาราง traceability จาก Fast-Track Spec ไป regression test
+- [x] Independent review 3 รอบ (สุดท้าย `approved_for_human_gate`) + CI 6/6 เขียวที่ head สุดท้าย ([run 45957484815](https://github.com/chakrits/ai-agent-framework/actions/runs/45957484815))
+- [ ] ยืนยันด้วย live eval ว่า agent ทำตามกติกาใหม่ (ปัจจุบันมีแค่ contract eval)
+- [ ] ให้ CI ติดตั้ง FastAPI เพื่อรัน HTTP endpoint test ที่ถูกข้าม
+- [ ] Follow-up G2–G12 และข้อจำกัดใน §8.4 ของแผน
 
 ### P6: Runtime Registry & Work Records — ⬜
 - [ ] `runtimes/registry.yaml` + `runtimes/<app>/runtime.yaml` (stack FE/BE/DB/Redis/API, คำสั่ง build/test/lint/run, env, ports, health)

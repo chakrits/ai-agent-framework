@@ -368,6 +368,6 @@ macOS, Python 3.14.10, `PYTHONDONTWRITEBYTECODE=1`, `SDLC_TRACE_DIR` ชี้ t
 - หากแก้ไฟล์ใดหลังรอบนี้ ต้องรันตรวจใหม่และรีวิวส่วนที่เปลี่ยน
 
 ### Gate 3 Human Sign-Off
-- **Reviewer:** `[Human Maintainer / Tech Lead]`
-- **Decision:** `Pending` (`Approved` / `Changes Requested`)
-- **Timestamp:** `YYYY-MM-DD`
+- **Reviewer:** Human maintainer (GitHub `chakrits`)
+- **Decision:** `Approved` — บันทึกจากการ merge [PR #7](https://github.com/chakrits/ai-agent-framework/pull/7) (merge commit `e1d439d`); ไม่มี sign-off แยกเป็นลายลักษณ์อักษร รวมถึงการรับทราบ §8.4 และกติกาที่ผ่อนลง ช่อง sign-off ของรอบ 1–2 คงค่าเดิมไว้เป็นประวัติ
+- **Timestamp:** 2026-11-27 15:50:36 +07

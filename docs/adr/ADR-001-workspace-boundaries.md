@@ -1,7 +1,7 @@
 ---
 adr_id: ADR-001
 title: Framework and target repository boundaries
-status: proposed
+status: accepted
 date: 2026-11-27
 work_item: PLAN-010
 supersedes: null
@@ -23,17 +23,17 @@ The framework owns shared SDLC instructions and validators, while the runtime pi
 
 ## Decision
 
-Propose using a target repository for the first runtime pilot. Keep shared instructions and contracts in the framework repository, domain guidance in project packs, and product source in the target repository. The pilot's own spec will define how to link a checkout and revision to work-item evidence.
+Use a target repository for the first runtime pilot. Keep shared instructions and contracts in the framework repository, domain guidance in project packs, and product source in the target repository. The pilot's own spec will define how to link a checkout and revision to work-item evidence.
 
 ## Consequences
 
 - Framework and application releases can proceed independently during the pilot.
 - The pilot must show how the reviewer identifies the target checkout and its verification evidence.
-- Revisit packaging or a monorepo after the pilot. Supersede this ADR if it is accepted and the boundary later changes.
+- Revisit packaging or a monorepo after the pilot. Supersede this ADR if the boundary later changes.
 
 ## Approval
 
-- **Approver (Gate 2, Human SA / Tech Lead):** Pending
-- **Decision:** Pending
-- **Date:** Pending
-- **Evidence Link:** Pending
+- **Approver (Gate 2, Human SA / Tech Lead):** `@chakrits`
+- **Decision:** Accepted. PR comment: “approve ADR-001”
+- **Date:** 2026-11-27
+- **Evidence Link:** [PR #18 approval comment](https://github.com/chakrits/ai-agent-framework/pull/18#issuecomment-7219540245)

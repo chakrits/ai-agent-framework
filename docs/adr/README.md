@@ -11,4 +11,4 @@ Durable architectural or security trade-offs are recorded here before closeout (
 
 | ADR | Title | Status | Approver / Date |
 | :--- | :--- | :--- | :--- |
-| [ADR-001](ADR-001-workspace-boundaries.md) | Framework and target repository boundaries | Proposed | Pending |
+| [ADR-001](ADR-001-workspace-boundaries.md) | Framework and target repository boundaries | Accepted | `@chakrits` / 2026-11-27 |

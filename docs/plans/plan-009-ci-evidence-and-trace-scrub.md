@@ -3,7 +3,9 @@ plan_id: PLAN-009
 intent_ref: N/A (Framework / Process Change)
 spec_ref: this document (Framework Spec — Gate 2)
 owner: main agent session (design และ implement) / Human maintainer (protected commit)
-status: approved_in_progress
+status: merged
+merged: 2026-11-27 17:48:38 +07 (PR #14, merge commit 0553126)
+released_in: v0.3.2
 created: 2026-11-27 (Asia/Bangkok)
 ---
 
@@ -125,3 +127,33 @@ python -c 'import sys,unittest; s=unittest.defaultTestLoader.loadTestsFromName("
 
 - **Approver:** Human Maintainer (ตอบในแชทต่อข้อเสนอแก้ m1, m3, README และ digest)
 - **Decision:** `Approved` — ข้อความ: “แก้เลย” (การรับความเสี่ยง M1 ยังไม่ได้ตัดสิน ให้ตัดสินที่ Gate 3)
+
+## 10. Closeout (บันทึก 2026-11-27 17:52 +07, หลัง merge)
+
+| รายการ | ผล | หลักฐาน |
+| :--- | :--- | :--- |
+| Merge | Human maintainer merge ด้วย merge commit ขณะ[ผลรีวิว](plan-009-review.md)ยังเป็น `changes_requested` ไม่มี sign-off เป็นลายลักษณ์อักษร และ PR ไม่มี GitHub review | [PR #14](https://github.com/chakrits/ai-agent-framework/pull/14), head `f4edda2`, merge commit `0553126`, 2026-11-27 17:48:38 +07 |
+| CI ที่ PR head `f4edda2` | ผ่าน 6/6 (ubuntu / macOS / Windows × py3.10 / 3.12) | [run 45984856538](https://github.com/chakrits/ai-agent-framework/actions/runs/45984856538) |
+| §5.4 FastAPI test รันจริง | `test_endpoints_auth_rbac_scope_and_lifecycle` ใน step ใหม่ได้ `ok` และ `Ran 1 test` ครบ 6 job (ในรอบ unit test ก่อนติดตั้ง dependency ยังถูกข้ามตามที่ออกแบบ) | log ของ run เดียวกัน; ติดตั้ง `fastapi 0.165.0`, `starlette 1.10.0`, `httpx 0.29.0`, `pydantic 2.14.4` |
+| Test ของ WS-A บน Linux / Windows | ผ่านในรอบ unit test ของ run เดียวกัน | เช่นเดียวกัน |
+| CI บน `main` หลัง merge (`0553126`) | ผ่าน 6/6 | [run 45985223645](https://github.com/chakrits/ai-agent-framework/actions/runs/45985223645) |
+| Release | `v0.3.2` เผยแพร่ 2026-11-27 17:51:51 +07 | [PR #15](https://github.com/chakrits/ai-agent-framework/pull/15) (`1654475`), [release v0.3.2](https://github.com/chakrits/ai-agent-framework/releases/tag/v0.3.2) |
+| Independent review | รอบเดียวที่ `eadcc98`: `changes_requested` (Blocker 1, Major 1, Minor 7) | [plan-009-review.md](plan-009-review.md) |
+
+### สถานะของ finding
+| ข้อ | สถานะ |
+| :--- | :--- |
+| B1 (ไม่มีหลักฐาน CI) | มีหลักฐานแล้วตามตารางข้างบน (ผู้ implement บันทึก ยังไม่ได้รีวิวซ้ำ) |
+| m1, m3, m5 (README) | แก้ใน `5662ae3` **ยังไม่ได้รีวิวซ้ำโดยผู้ตรวจอิสระ** |
+| M1 (path / ชื่อผู้ใช้รูปอื่น) | **เปิดอยู่ และ Human ยังไม่ได้ตัดสินรับความเสี่ยง** จนกว่าจะแก้ ต้องอ่านไฟล์ export ก่อน commit |
+| m2, m4, m6, m7 | เปิดอยู่ |
+
+### พบเพิ่มจาก CI
+- `StarletteDeprecationWarning`: การใช้ `httpx` กับ `starlette.testclient` ถูก deprecate และแนะนำ `httpx2` (follow-up รวมกับ m7)
+
+### ไม่ได้ตรวจ
+- live eval, Docker, Windows เครื่องจริง และการรีวิวส่วนที่เปลี่ยนหลัง `eadcc98`
+
+### บทเรียน
+1. **การแก้ปัญหา path หลุดแบบเจาะจุดเดียวไม่พอ:** G11 ปิดกรณีตัดกลาง path แต่รีวิวพบรูปอื่นที่พบบ่อยกว่า (M1) งานถัดไปควรมี test ที่ตรวจไฟล์ export ว่าไม่มีชื่อผู้ใช้
+2. **step CI ต้อง fail เมื่อ test ไม่ได้รัน:** `unittest discover` ผ่านได้แม้ test ถูกข้าม (m1)

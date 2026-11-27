@@ -149,5 +149,7 @@ python -c 'import sys,unittest; s=unittest.defaultTestLoader.loadTestsFromName("
 
 ## Gate 3 Human Sign-Off
 - **Reviewer:** `[Human Maintainer]`
-- **Decision:** `Pending` (`Approved` / `Changes Requested`)
-- **Timestamp:** Pending
+- **Decision:** ไม่มี sign-off เป็นลายลักษณ์อักษร Human maintainer merge [PR #14](https://github.com/chakrits/ai-agent-framework/pull/14) (`0553126`) ขณะ verdict ยังเป็น `changes_requested`
+- **Timestamp:** 2026-11-27 17:48:38 +07 (เวลา merge)
+
+> **บันทึกหลัง merge (2026-11-27 17:52 +07, โดยผู้ implement ไม่ใช่ผู้ตรวจ):** verdict และ finding ข้างบนเป็นของ `eadcc98` และไม่ถูกแก้ หลักฐาน CI และสถานะของแต่ละ finding อยู่ใน [PLAN-009 §10](plan-009-ci-evidence-and-trace-scrub.md) การ merge ไม่ถือเป็นการรับความเสี่ยง M1 และ `5662ae3` ยังไม่ได้รีวิวซ้ำ

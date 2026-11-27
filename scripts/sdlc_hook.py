@@ -14,16 +14,64 @@ Usage:
   sdlc_hook.py --check-path PATH | --check-cmd COMMAND | --pre-commit   # legacy flags
 """
 
-from __future__ import annotations
-
-import json
+# Import isolation (PLAN-011): keep this file's directory off sys.path so that files placed next to it are
+# never imported by name. Nothing above this block may import a module that is not already loaded at startup.
 import os
 import sys
-from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parent))
+_HERE = os.path.dirname(os.path.realpath(__file__))
+sys.path[:] = [p for p in sys.path if os.path.normcase(os.path.realpath(p or os.curdir)) != os.path.normcase(_HERE)]
 
-from sdlc_guard import agy_adapter, guard, platform_env, trace, version  # noqa: E402
+import importlib.util  # noqa: E402
+
+
+def _load_package(name: str, directory: str) -> None:
+    """Import a sibling package by path without putting its parent directory on sys.path."""
+    if name not in sys.modules:
+        spec = importlib.util.spec_from_file_location(
+            name, os.path.join(directory, "__init__.py"), submodule_search_locations=[directory]
+        )
+        module = importlib.util.module_from_spec(spec)
+        sys.modules[name] = module
+        spec.loader.exec_module(module)
+
+
+import json
+
+TOOL_HOOK_COMMANDS = {"pretooluse", "hook", "--check-path", "--check-cmd"}
+ADVISORY_COMMANDS = {"trace", "session-start"}  # these never block, even when healthy
+
+
+def _guard_unloadable(argv: list[str], exc: BaseException) -> int:
+    """Answer for a guard that cannot be imported. Exit code 1 would not block a PreToolUse hook."""
+    command = argv[0] if argv else "pretooluse"
+    antigravity = ("--platform", "antigravity") in zip(argv, argv[1:])
+    message = f"sdlc guard could not be loaded: {exc!r}"
+    if command in ADVISORY_COMMANDS:
+        print(f"WARNING: {message}", file=sys.stderr)
+        if antigravity:
+            print("{}")
+        return 0
+    fail_open = command in TOOL_HOOK_COMMANDS and os.environ.get("SDLC_GUARD_FAIL_OPEN") == "1"
+    if fail_open:
+        print(f"WARNING: {message} (ignored: SDLC_GUARD_FAIL_OPEN=1)", file=sys.stderr)
+    if antigravity and command in TOOL_HOOK_COMMANDS:
+        decision = {"decision": "allow"} if fail_open else {"decision": "deny", "reason": f"BLOCKED: {message}"}
+        print(json.dumps(decision))
+        return 0
+    if fail_open:
+        return 0
+    print(f"BLOCKED: {message}", file=sys.stderr)
+    return 2
+
+
+try:
+    _load_package("sdlc_guard", os.path.join(_HERE, "sdlc_guard"))
+    from sdlc_guard import agy_adapter, guard, platform_env, trace, version  # noqa: E402
+except BaseException as exc:  # noqa: BLE001 - includes SyntaxError and SystemExit raised during import
+    if __name__ != "__main__":
+        raise
+    raise SystemExit(_guard_unloadable(sys.argv[1:], exc))
 
 BLOCK = 2
 

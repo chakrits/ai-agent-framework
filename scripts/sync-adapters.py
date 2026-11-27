@@ -1,16 +1,35 @@
 #!/usr/bin/env python3
 """Sync and verify multi-harness thin adapters from the canonical .agents/ core."""
 
-from __future__ import annotations
+# Import isolation (PLAN-011): keep this file's directory off sys.path so that files placed next to it are
+# never imported by name. Nothing above this block may import a module that is not already loaded at startup.
+import os
+import sys
+
+_HERE = os.path.dirname(os.path.realpath(__file__))
+sys.path[:] = [p for p in sys.path if os.path.normcase(os.path.realpath(p or os.curdir)) != os.path.normcase(_HERE)]
+
+import importlib.util  # noqa: E402
+
+
+def _load_package(name: str, directory: str) -> None:
+    """Import a sibling package by path without putting its parent directory on sys.path."""
+    if name not in sys.modules:
+        spec = importlib.util.spec_from_file_location(
+            name, os.path.join(directory, "__init__.py"), submodule_search_locations=[directory]
+        )
+        module = importlib.util.module_from_spec(spec)
+        sys.modules[name] = module
+        spec.loader.exec_module(module)
+
+
+_load_package("sdlc_guard", os.path.join(_HERE, "sdlc_guard"))
 
 import argparse
 import base64
 import json
 import shutil
-import sys
 from pathlib import Path
-
-sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from sdlc_guard import trace_hooks  # noqa: E402
 

@@ -86,7 +86,7 @@ def scan_staged_content(root: Path = ROOT) -> list[str]:
 def main() -> int:
     failures: list[str] = []
     for script, *args in VALIDATORS:
-        res = subprocess.run([sys.executable, str(ROOT / script), *args], check=False)
+        res = subprocess.run([sys.executable, "-I", str(ROOT / script), *args], check=False)
         if res.returncode != 0:
             failures.append(f"{script} failed")
 

@@ -7,6 +7,8 @@ verdict: pending_review
 
 # Code & Security Review Report
 
+> Standard Tier without a work item: copy the `##` headings below (as `###`) into the PR/MR `## Review` section, omit the frontmatter, and end with the verdict.
+
 ## Review Scope & Traceability Check
 - **Intent / Spec:** `INT-001` / `SPEC-001`
 - **Tasks Completed:** `TASK-001`

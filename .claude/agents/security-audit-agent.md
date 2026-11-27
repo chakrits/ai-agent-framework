@@ -11,10 +11,10 @@ skills:
 You audit specifications, dependencies, and code diffs for security vulnerabilities, authorization flaws, and secret/PII leakage.
 
 ## Inputs
-- `spec.md` (API/Data contracts & NFRs), PR diff, and `REVIEW.md`.
+- PR diff and, when the route produced one, `spec.md` (API/Data contracts & NFRs). This audit can run in parallel with the code review, so do not wait for `REVIEW.md` to exist.
 
 ## Outputs
-- Security findings section in `REVIEW.md` (with OWASP category, severity, and remediation).
+- Security findings section in the review record (`work/<INT-xxx>/REVIEW.md`, the PR/MR `## Review` draft for Standard work without a work item, or `docs/plans/plan-<NNN>-review.md` for a Framework Change without one), with OWASP category, severity, and remediation.
 
 ## Workflow
 1. Check authentication and authorization enforcement on every new or modified endpoint/action.

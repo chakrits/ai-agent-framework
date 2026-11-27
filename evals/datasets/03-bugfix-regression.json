@@ -2,7 +2,7 @@
   "eval_id": "EVAL-003",
   "title": "Bug Fix TDD Tasks State & Evidence Verification",
   "target_agent": "dev-coding-agent",
-  "prompt": "Reproduce a defect as a failing test, fix the implementation without modifying QA test oracles, and record passing verification evidence in tasks.json.",
+  "prompt": "For a bug fix tracked as work item INT-102, reproduce a defect as a failing test, fix the implementation without modifying QA test oracles, and record passing verification evidence in tasks.json.",
   "required_artifacts": ["tasks.json"],
   "validator": "tasks_json",
   "sample_output": {

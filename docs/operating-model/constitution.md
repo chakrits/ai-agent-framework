@@ -13,7 +13,7 @@ Agents propose, implement, and verify; **human sign-off is mandatory** at these 
 | **Plan Checkpoint** *(Standard Tier only, unnumbered)* | Plan → Implement | Plan packet (target files, test strategy, verification cmds, rollback) approved in chat; approval recorded under `## Plan Checkpoint` in the PR/MR description | Maintainer / Tech Lead |
 | **Gate 1: Scope & Intent** | Plan → Design | `intent.md` (`URD-xxx`, business rules, measurable acceptance criteria) | PO / BA |
 | **Gate 2: Architecture & Spec** *(variants: Fast-Track Spec, Change Plan, Framework Spec)* | Design → Build/Test | `spec.md` (`FS-xxx`, IPO Matrix, API/DB contracts, security notes, rollback) or `docs/plans/plan-<NNN>-<slug>.md` for framework changes | SA / Tech Lead |
-| **Gate 3: Release & Merge** | Verify → Deploy | Passing tests, `REVIEW.md`, `Related to #ID`; High-Risk also needs security audit, 100% traceability, trace summary, `change-digest.md` | Maintainer / Tech Lead |
+| **Gate 3: Release & Merge** | Verify → Deploy | Passing tests, `REVIEW.md` (Standard work without a work item: the `## Review` section of the PR/MR description), `Related to #ID`; High-Risk also needs security audit, 100% traceability, trace summary, `change-digest.md` | Maintainer / Tech Lead |
 
 ### Risk → Tier Mapping (single source; routing and bootloader link here)
 

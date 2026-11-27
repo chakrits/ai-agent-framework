@@ -1,8 +1,8 @@
 {
   "eval_id": "EVAL-006",
-  "title": "Multi-Pass Code Review with Oracle Check and Nit Cap",
+  "title": "Multi-Pass Code Review with Oracle Check and Severity Triage",
   "target_agent": "code-reviewer-agent",
-  "prompt": "Review a PR against SPEC-001 and PLAN-001 running Bugs, Security, and Compliance passes, checking Test Oracle Integrity and capping Nits at 5.",
+  "prompt": "Review a PR against SPEC-001 and PLAN-001 running Bugs, Security, and Compliance passes, checking Test Oracle Integrity and classifying findings as Blocker, Major, or Minor.",
   "required_artifacts": ["REVIEW.md"],
   "assertions": {
     "required_markers": [

@@ -13,7 +13,7 @@
       "status": "completed",
       "passes": true,
       "verification_cmd": "python3 -m unittest tests/test_work_item_validator.py -v",
-      "evidence": "9 tests passed; missing and partial canonical mappings both return CLI exit 1."
+      "evidence": "2026-11-27, 3f082dc: Ran 25 tests, OK (includes PLAN-007 digest tests); missing canonical mapping returns CLI exit 1. Pilot revision recorded 9 tests."
     },
     {
       "task_id": "TASK-002",
@@ -24,8 +24,8 @@
       "target_files": ["scripts/validate_work_item.py", "tests/test_work_item_validator.py"],
       "status": "completed",
       "passes": true,
-      "verification_cmd": "python3 scripts/validate_work_item.py work/INT-001 --require-review",
-      "evidence": "Work item validation PASSED (work/INT-001); Contract validation PASSED"
+      "verification_cmd": "python3 scripts/validate_work_item.py work/INT-001 --require-review && python3 scripts/validate-contracts.py --tasks work/INT-001/tasks.json --test-report work/INT-001/test-report.md",
+      "evidence": "2026-11-27, 3f082dc: Work item validation PASSED (work/INT-001); Contract validation PASSED"
     }
   ]
 }

@@ -69,6 +69,8 @@ python -m unittest discover -s tests -p test_orchestrator_api.py -v
 - ชื่อ job เดิมไม่เปลี่ยน จึงไม่ต้องแก้ required checks ของ ruleset `protect-main`
 - **ยังไม่ยืนยัน:** ชุด dependency ที่ `TestClient` ต้องใช้บน version ล่าสุด และผลบน 6 job จะยืนยันจาก CI ของ PR
 
+> **แก้โดย Amendment A1 (§9):** บรรทัด `unittest discover` ด้านบนถูกแทนด้วยคำสั่งใน §9
+
 ## 5. Verification (ก่อนขอ Gate 3)
 
 1. Test ใหม่ของ WS-A: fail กับโค้ดเดิม และผ่านหลัง apply patch (บันทึก output)
@@ -102,3 +104,24 @@ python -m unittest discover -s tests -p test_orchestrator_api.py -v
 - **Approver:** Human Maintainer (ตอบในแชท)
 - **Decision:** `Approved` — ข้อความ: “อนุมัติ PLAN-009 และเริ่มรีวิว INT-001 ได้เลย”
 - **Recorded at:** 2026-11-27 17:16 +07 (เวลาที่บันทึก ไม่ใช่เวลาอนุมัติที่แน่นอน)
+
+## 9. Amendment A1 — แก้ตาม[รีวิวอิสระ](plan-009-review.md) (`eadcc98`)
+
+| ข้อ | การแก้ |
+| :--- | :--- |
+| m1 | step FastAPI ใช้คำสั่งด้านล่างแทน `unittest discover` เพื่อให้ fail เมื่อ endpoint test ถูกถอด เปลี่ยนชื่อ หรือถูกข้าม |
+| m3 | test ของ WS-A ใช้ path จำลองคงที่ (repo อยู่ใต้ home) แทนการคำนวณจาก path ของ runner ตาม §2 และ assert ชิ้นส่วนหลังแทน home ด้วย |
+| m5 | เพิ่ม `README.md` เข้า scope เพื่อแก้ข้อความเรื่อง digest ใน CI ส่วน `ROADMAP.md` อัปเดตหลัง merge |
+
+```bash
+python -c 'import sys,unittest; s=unittest.defaultTestLoader.loadTestsFromName("tests.test_orchestrator_api.TestFastAPIHttpEndpoints"); r=unittest.TextTestRunner(verbosity=2).run(s); sys.exit(0 if r.testsRun and r.wasSuccessful() and not r.skipped else 1)'
+```
+
+**ข้อจำกัดที่ไม่แก้ในแผนนี้ (follow-up):**
+- **M1:** `scrub_paths` ยังปล่อยชื่อผู้ใช้หรือชื่อโฟลเดอร์ในรูปอื่น เช่น `-Users-<user>-...`, Git Bash / WSL path และ path ที่ escape ช่องว่าง จนกว่าจะแก้ ต้องอ่านไฟล์ export ก่อน commit
+- **m2:** การตัดข้อความตอนบันทึก trace ยังเกิดก่อน scrub
+- **m4, m6, m7:** digest loop ผ่านเมื่อไม่พบไฟล์, ชื่อสถานะแผนไม่ตรงกัน, และการ pin dependency / `permissions` ใน workflow
+- คำสั่งใน §7: เพิ่ม commit สำหรับ A1 ก่อน commit ชุดที่ 4
+
+- **Approver:** Human Maintainer (ตอบในแชทต่อข้อเสนอแก้ m1, m3, README และ digest)
+- **Decision:** `Approved` — ข้อความ: “แก้เลย” (การรับความเสี่ยง M1 ยังไม่ได้ตัดสิน ให้ตัดสินที่ Gate 3)

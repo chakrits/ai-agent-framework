@@ -13,6 +13,7 @@ import threading
 import unittest
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
+from unittest import mock
 
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / "scripts"))
@@ -344,11 +345,13 @@ class TestCli(TraceCase):
         self.assertIn("<repo>/scripts/run.py", text)
 
     def test_export_scrubs_paths_cut_by_command_truncation(self) -> None:
-        for index, (label, base) in enumerate((("repo", str(ROOT)), ("home", str(Path.home())))):
+        # Fixed paths, repo under home as on CI runners, so every OS exercises the same cut.
+        home, repo = "/home/someuser", "/home/someuser/work/secretrepo"
+        for index, (label, base, token) in enumerate((("repo", repo, "<repo>"), ("home", home, "~"))):
             with self.subTest(path=label):
                 work_item = f"INT-02{index}"
                 self.env["SDLC_WORK_ITEM"] = work_item
-                # Pad so the 100-character cut in the summary lands just before the end of the path, on any runner.
+                # Pad so the 100-character cut in the summary lands just before the end of the path.
                 kept = len(base) - 3
                 prefix = "echo " + "x" * (100 - kept - len("echo ") - 1) + " "
                 payload = post_payload(session=f"cut-{label}")
@@ -357,11 +360,13 @@ class TestCli(TraceCase):
                 recorded = [e for e in self.events() if e.get("work_item") == work_item]
                 self.assertIn(base, recorded[0]["input"]["command"])  # otherwise this test proves nothing
                 out_file = Path(self.tmp.name) / f"cut-{label}.md"
-                self.assertEqual(self.run_cli("export", "--work-item", work_item, "--out", str(out_file))[0], 0)
+                with mock.patch.object(trace_cli.guard, "REPO_ROOT", repo), \
+                        mock.patch.object(trace_cli.Path, "home", return_value=Path(home)):
+                    self.assertEqual(self.run_cli("export", "--work-item", work_item, "--out", str(out_file))[0], 0)
                 text = out_file.read_text(encoding="utf-8")
-                for spelling in (base, base.replace("\\", "/"), base.replace("/", "\\")):
-                    self.assertNotIn(spelling[:kept], text)
-                self.assertIn("<repo>" if label == "repo" else "~", text)
+                for fragment in ("/home/some", "someuser", "secretr", "~/work"):
+                    self.assertNotIn(fragment, text)
+                self.assertIn(f"{token}/private", text)
 
     def test_scrub_paths_handles_windows_spellings(self) -> None:
         out = trace_cli.scrub_paths(r"type C:\Users\dev\repo\a.txt and C:/Users/dev/repo/b.txt", r"C:\Users\dev\repo", home=r"C:\Users\dev")

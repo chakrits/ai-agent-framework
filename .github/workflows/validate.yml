@@ -91,4 +91,5 @@ jobs:
       - name: FastAPI endpoint tests
         run: |
           python -c "import fastapi.testclient"
-          python -m unittest discover -s tests -p test_orchestrator_api.py -v
+          # Fails if the endpoint tests are missing or skipped, not only when they fail.
+          python -c 'import sys,unittest; s=unittest.defaultTestLoader.loadTestsFromName("tests.test_orchestrator_api.TestFastAPIHttpEndpoints"); r=unittest.TextTestRunner(verbosity=2).run(s); sys.exit(0 if r.testsRun and r.wasSuccessful() and not r.skipped else 1)'

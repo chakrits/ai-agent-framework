@@ -90,7 +90,7 @@ python3 evals/run_evals.py --mode contract
 python3 -m unittest discover -s tests
 ```
 
-The digest checks are not run by CI or the git hooks yet, so the reviewer runs them by hand.
+CI checks the format of existing digests (`docs/handoff/*-digest.md` and `work/INT-*/change-digest.md`). Neither CI nor the git hooks require a change to have a digest or run `--require-digest`, so the reviewer checks that by hand.
 
 ## Prerequisites & Setup (Windows / macOS / Linux / WSL)
 

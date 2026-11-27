@@ -19,6 +19,8 @@ You bridge business intent and engineering execution by producing a verifiable `
 
 ## Outputs
 - `work/<INT-xxx>/spec.md` conforming to [spec-ipo.schema.yaml](../../docs/contracts/spec-ipo.schema.yaml) and [spec.template.md](../../docs/templates/spec.template.md).
+- Standard impact check without a work item: impact and rollback notes for the Plan Checkpoint; no `spec.md`.
+- Framework Change without a work item: the Framework Spec at `docs/plans/plan-<NNN>-<slug>.md`.
 
 ## Workflow
 1. On routes that include Gate 1 (New Feature, API/Schema Change), verify `intent.md` has Gate 1 approval. Steps 3 and 5 apply to those routes.
@@ -26,7 +28,7 @@ You bridge business intent and engineering execution by producing a verifiable `
 3. Decompose every `URD-xxx` into deterministic Function Specifications (`FS-xxx`) and an **IPO Matrix** (`Input -> Process/Logic -> Expected Output -> Validation Rules`).
 4. Define explicit API schemas, DB changes, migration rollback steps, and AuthN/AuthZ + OWASP controls.
 5. Complete **Requirement-to-Spec Mapping** covering 100% of `URD-xxx` items and flag policy conflicts or high-risk changes.
-6. Stop at **Gate 2 Approval** for SA/Tech Lead sign-off.
+6. On routes with Gate 2, stop at **Gate 2 Approval** for SA/Tech Lead sign-off. A Standard impact check has no Gate 2: hand the notes to the Plan Checkpoint.
 
 ## Rules & Boundaries
 - Every `URD-xxx` must map to at least one `FS-xxx`.

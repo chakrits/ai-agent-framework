@@ -29,7 +29,7 @@ Designed to work seamlessly across interactive coding harnesses (**Claude Code**
 ## Core Principles
 
 1. **Single Canonical Source of Truth:** All specialist roles, skills, contracts, and routing rules live in `.agents/` and `docs/`. Host folders (`.claude/`, `.codex/`, `.agent/`) are thin adapters.
-2. **Spec-Driven Development (SDD):** Version-controlled artifacts (`intent.md` → `spec.md` → `test-report.md` → `plan.md` / `tasks.json` → `REVIEW.md` → `change-digest.md`) live together in `work/<INT-xxx>/` and are the contract between humans and agents. They never go at the repo root.
+2. **Spec-Driven Development (SDD):** Version-controlled artifacts (`intent.md` → `spec.md` → `test-report.md` → `plan.md` / `tasks.json` → `REVIEW.md` → `change-digest.md`) live together in `work/<INT-xxx>/` and are the contract between humans and agents. Standard-Tier work without a work item keeps its plan, verification, and review in the PR/MR. Artifacts never go at the repo root.
 3. **Dynamic Risk-Based Routing:** Classify tasks first via [core-bootloader.md](docs/workflow/core-bootloader.md) and select the minimum safe workflow ([dynamic-routing.md](docs/workflow/dynamic-routing.md)).
 4. **Tiered Human Gates, Fixed Gate Numbers:** Agents propose, implement and verify. Humans approve gates and hold sole merge authority. Gate numbers mean the same thing in every tier (see below).
 5. **Deterministic Harness & Gates:** Rules are enforced by validation scripts, path guards, and CI evals — not just natural-language wishes.
@@ -42,7 +42,7 @@ Definitions and the full Risk → Tier mapping live in the [Constitution §1](do
 
 | Tier | Typical work | Gates |
 | :--- | :--- | :--- |
-| **Standard** | Isolated low/medium bug fix, config, docs/tests | Plan Checkpoint (recorded in the PR/MR) → **Gate 3** Merge |
+| **Standard** | Isolated low/medium bug fix, config, docs/tests | Plan Checkpoint and review (recorded in the PR/MR) → **Gate 3** Merge |
 | **High-Risk** | New feature, API/DB schema | **Gate 1** Intent → **Gate 2** Spec → **Gate 3** Merge |
 | **High-Risk (Fast-Track)** | High-risk bug fix or config change | **Gate 2** Fast-Track Spec / Change Plan → **Gate 3** |
 | **High-Risk (Framework)** | `AGENTS.md`, `.agents/`, contracts, guards, CI gates | **Gate 2** Framework Spec (`docs/plans/plan-<NNN>-<slug>.md`) → **Gate 3** |

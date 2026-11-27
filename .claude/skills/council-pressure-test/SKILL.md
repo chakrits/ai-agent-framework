@@ -7,7 +7,7 @@ description: Single-model multi-lens adversarial decision and review pass (inspi
 
 ## 1. When to Apply (and Skip)
 - **"High-stakes" means:** `risk_tier: high`, or a decision the Human flags as costly to reverse. Not a judgment the agent makes alone for routine work.
-- **Record the output:** write it under `## Council Pressure-Test` in `REVIEW.md` (template section) or in an ADR (`docs/adr/`), keeping the strongest dissent verbatim, so it can be audited.
+- **Record the output:** write it under `## Council Pressure-Test` in `REVIEW.md` or `docs/plans/plan-<NNN>-review.md`, under `### Council Pressure-Test` inside the PR/MR `## Review`, or in an ADR (`docs/adr/`), keeping the strongest dissent verbatim, so it can be audited.
 - **Use when:** Requirements are ambiguous with multiple options, architectural/schema decisions carry high reversal cost, or high-risk code reviews risk subtle blind spots.
 - **Skip when:** A task has a single deterministic answer, routine bug fix, or low-risk docs/config change (respect `dynamic-routing.md`).
 
@@ -29,4 +29,4 @@ Instead of mimicking job titles, analyze from opposing thinking lenses that chal
 ## 4. SDLC Gate Integration
 - **Gate 1 (`ba-po-agent`):** Apply *First Principles* + *The Outsider* on ambiguous `intent.md` drafts before locking `URD-xxx`.
 - **Gate 2 (`sa-architect-agent`):** Apply *Contrarian vs. Expansionist* + *Executor* before finalizing high-risk `spec.md` / ADRs.
-- **Gate 3 (`code-reviewer-agent`):** Preserve genuine clashes in `REVIEW.md` and ask what both implementation and spec overlooked.
+- **Gate 3 (`code-reviewer-agent`):** Preserve genuine clashes in the review record and ask what both implementation and spec overlooked.

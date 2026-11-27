@@ -3,7 +3,13 @@ plan_id: PLAN-006
 intent_ref: N/A (Framework & Roadmap Execution Plan)
 spec_ref: docs/plans/framework-review-roadmap-v2.md
 owner: sa-architect-agent / human-maintainer
-status: draft_pending_approval
+status: released
+commits: 5ae1169 (2026-11-21), 16db38c (2026-11-22)
+merged: PR #2, merge commit eca7f22 (both Windows jobs failed in that PR; all six jobs passed later in PR #4, merge commit d764d5f, run 45005508352)
+released_in: v0.3.0
+approval_record: no written approval of the whole plan found in this file; its approval checkbox is unchecked. See §D-01 note for one scoped chat approval
+review_note: the latest PLAN-006 review file (round 6) is changes_requested (pilot PR/CI evidence); no later re-review file found. Tracked under work/INT-001 Gate 3
+status_note: released is used because no defined plan-status set was found; status updated 2026-11-27 from Git history and GitHub; the body below is the historical plan text
 ---
 
 # Implementation Plan (PLAN-006): Antigravity Hooks/Trace, FastAPI Testing, Docker/Worktree, Live Evals & Real E2E Pilot

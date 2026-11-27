@@ -220,7 +220,7 @@ scripts/ hooks/ evals/ orchestrator/
 
 ## 9. แหล่งอ้างอิง
 
-- Claude AI-Native SDLC Playbook — https://claude.com/resources/articles/the-ai-native-sdlc-playbook (วิเคราะห์ใน [benchmark doc](../reference-architecture/benchmarks/claude-ai-native-sdlc-playbook-analysis.md))
+- Claude AI-Native SDLC Playbook — https://claude.com/resources/articles/the-ai-native-sdlc-playbook (วิเคราะห์ใน [benchmark doc](../knowledge/benchmarks/claude-ai-native-sdlc-playbook-analysis.md))
 - Claude Code Hooks reference — https://code.claude.com/docs/en/hooks
 - Claude Code Monitoring (OpenTelemetry) — https://code.claude.com/docs/en/monitoring-usage
 - Codex AGENTS.md guide — https://developers.openai.com/codex/guides/agents-md

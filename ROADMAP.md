@@ -1,7 +1,7 @@
 # AI-Native SDLC Agent Framework — Roadmap (v2)
 
 > **Architecture:** Enterprise-agnostic Canonical Core (`.agents/` + `docs/`) + Thin Multi-Harness Adapters (`.claude/`, `.codex/`, `.agent/`) + Deterministic Cross-Platform Guardrails (`scripts/sdlc_guard/`) + Optional Python Orchestrator
-> **Analysis & Rationale:** [Framework Review & Roadmap v2](docs/plans/framework-review-roadmap-v2.md) · [Claude AI-Native SDLC Playbook Analysis](docs/reference-architecture/benchmarks/claude-ai-native-sdlc-playbook-analysis.md) · [Cross-Platform Plan](docs/plans/cross-platform-harness-plan.md)
+> **Analysis & Rationale:** [Framework Review & Roadmap v2](docs/plans/framework-review-roadmap-v2.md) · [Claude AI-Native SDLC Playbook Analysis](docs/knowledge/benchmarks/claude-ai-native-sdlc-playbook-analysis.md) · [Cross-Platform Plan](docs/plans/cross-platform-harness-plan.md)
 > **Last re-baseline:** 2026-11-21 · **Last update:** 2026-11-27 (PLAN-009 closeout)
 
 ## สถานะที่ใช้

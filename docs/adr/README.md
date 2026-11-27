@@ -7,7 +7,8 @@ Durable architectural or security trade-offs are recorded here before closeout (
 - **When to write one:** a decision that is costly to reverse, changes a contract/gate/guardrail, or resolves a high-stakes tradeoff (e.g., after a `council-pressure-test`).
 - **Lifecycle:** `proposed` → `accepted` (Human approval at Gate 2) → optionally `superseded by ADR-xxx`. Never rewrite an accepted ADR; supersede it.
 - **Recording approval:** fill the ADR's `## Approval` section (approver, decision, date, evidence link) and set the front-matter `status: accepted` in the same commit. An ADR without an evidence link is still `proposed`.
-- **Index:** list every ADR below in numeric order. No ADR has been recorded yet; add the first row when `ADR-001` is written.
+- **Index:** list every ADR below in numeric order.
 
 | ADR | Title | Status | Approver / Date |
 | :--- | :--- | :--- | :--- |
+| [ADR-001](ADR-001-workspace-boundaries.md) | Framework and target repository boundaries | Proposed | Pending |

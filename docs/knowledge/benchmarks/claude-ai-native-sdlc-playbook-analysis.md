@@ -1,5 +1,7 @@
 # Reference Analysis: The AI-Native SDLC Playbook (Anthropic / Claude)
 
+> Moved from `docs/reference-architecture/benchmarks/claude-ai-native-sdlc-playbook-analysis.md` as recorded in framework commit `f80092e6a9a40e83de2bd06d4d6232ec4ae3deae`.
+
 - **Source URL:** https://claude.com/resources/articles/the-ai-native-sdlc-playbook
 - **Author:** Louis Claxton (Anthropic Applied AI Team)
 - **Published Date:** August 21, 2026

@@ -3,6 +3,14 @@
 All notable changes to this project are documented here. This file is maintained by
 [release-please](https://github.com/googleapis/release-please) from [Conventional Commits](https://www.conventionalcommits.org/).
 
+## [0.3.3](https://github.com/chakrits/ai-agent-framework/compare/v0.3.2...v0.3.3) (2026-11-27)
+
+
+### Bug Fixes
+
+* **guard:** isolate entry point imports and fail closed on load errors ([a090409](https://github.com/chakrits/ai-agent-framework/commit/a090409a9acaa4bccf758123e35471afec1cea7e))
+* **guard:** isolate entry point imports and fail closed on load errors ([0c5425a](https://github.com/chakrits/ai-agent-framework/commit/0c5425ac4a1fbdbdac0571c47d5ab3855769d5a6))
+
 ## [0.3.2](https://github.com/chakrits/ai-agent-framework/compare/v0.3.1...v0.3.2) (2026-11-27)
 
 

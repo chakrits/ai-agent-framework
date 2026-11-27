@@ -1,0 +1,64 @@
+{
+  "schema_version": 2,
+  "diagram_type": "workflow",
+  "meta": {
+    "title": "Task Routing and Human Gates",
+    "output": "docs/diagrams/task-routing-workflow.html",
+    "quality_profile": "showcase",
+    "repository": { "url": "https://github.com/chakrits/ai-agent-framework.git", "revision": "0515215ca65496065d71c124e73b9492afb6b5ba" }
+  },
+  "lanes": [
+    { "id": "human", "label": "Human" },
+    { "id": "agents", "label": "Agents" },
+    { "id": "checks", "label": "Guard and CI" }
+  ],
+  "mainPath": ["request", "classify", "approve", "build", "review", "ci", "merge"],
+  "nodes": [
+    { "id": "request", "lane": "human", "col": 0, "type": "external", "label": "Request", "sublabel": "task or issue", "sources": [{ "path": "docs/workflow/core-bootloader.md", "line": 1, "end_line": 9 }] },
+    { "id": "classify", "lane": "agents", "col": 1, "type": "backend", "label": "Classify", "sublabel": "type + risk", "sources": [{ "path": "orchestrator/core/router.py", "line": 61, "end_line": 91 }] },
+    { "id": "approve", "lane": "human", "col": 2, "type": "security", "label": "Pre-build gate", "sublabel": "Checkpoint / G1, G2", "sources": [{ "path": "docs/operating-model/constitution.md", "line": 11, "end_line": 15 }] },
+    { "id": "build", "lane": "agents", "col": 3, "type": "backend", "label": "Build and test", "sublabel": "failing test first", "sources": [{ "path": "AGENTS.md", "line": 72, "end_line": 73 }] },
+    { "id": "guard", "lane": "checks", "col": 3, "type": "security", "label": "Guard hook", "sublabel": "file + shell tools", "sources": [{ "path": "scripts/sdlc_guard/guard.py", "line": 111, "end_line": 140 }] },
+    { "id": "review", "lane": "agents", "col": 4, "type": "backend", "label": "Independent review", "sublabel": "+ security if routed", "sources": [{ "path": "orchestrator/core/router.py", "line": 94, "end_line": 100 }] },
+    { "id": "ci", "lane": "checks", "col": 5, "type": "cloud", "label": "CI checks", "sublabel": "6 matrix jobs", "sources": [{ "path": ".github/workflows/validate.yml", "line": 10, "end_line": 20 }] },
+    { "id": "merge", "lane": "human", "col": 5, "type": "security", "label": "Gate 3", "sublabel": "review + merge", "sources": [{ "path": "docs/operating-model/constitution.md", "line": 16 }] }
+  ],
+  "edges": [
+    { "id": "e1", "from": "request", "to": "classify", "variant": "emphasis" },
+    { "id": "e2", "from": "classify", "to": "approve", "label": "plan packet", "variant": "emphasis" },
+    { "id": "e3", "from": "approve", "to": "build", "label": "approved", "variant": "emphasis" },
+    { "id": "e4", "from": "guard", "to": "build", "label": "may block", "variant": "security" },
+    { "id": "e5", "from": "build", "to": "review", "variant": "emphasis" },
+    { "id": "e6", "from": "review", "to": "ci", "label": "open PR", "variant": "emphasis" },
+    { "id": "e7", "from": "ci", "to": "merge", "label": "green", "variant": "emphasis" }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "Which gates",
+      "items": [
+        "Standard: Plan Checkpoint, Gate 3",
+        "Feature or API/schema (always High-Risk): Gate 1, 2, 3",
+        "High-Risk bug fix or config, and Framework: Gate 2, 3",
+        "Orchestrator adds security audit at medium/high risk, never for test/docs-only"
+      ]
+    },
+    {
+      "dot": "rose",
+      "title": "Loops not drawn",
+      "items": [
+        "Scope or risk drift goes back to the pre-build gate",
+        "Two failed verify-rework cycles stop and escalate"
+      ]
+    },
+    {
+      "dot": "amber",
+      "title": "Not machine-enforced",
+      "items": [
+        "Router escalates only on keywords and two low-risk cases",
+        "Orchestrator does not pause for the Standard Plan Checkpoint",
+        "Admin can merge without green checks (used for Release PRs)"
+      ]
+    }
+  ]
+}

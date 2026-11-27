@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Who Does What</title>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500;600&family=Noto+Serif:ital@0;1&family=Noto+Sans+KR:wght@400;500;600&family=Noto+Serif+KR:wght@400&family=Noto+Sans+TC:wght@400;500;600&family=Noto+Serif+TC:wght@400&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --color-paper:   #f5f5f5;   /* white-smoke */
+      --color-ink:     #2d3142;   /* jet-black */
+      --color-muted:   #4f5d75;   /* blue-slate */
+      --color-accent:  #bf4520;   /* burnt-tangerine */
+      --font-sans:     'Geist', system-ui, sans-serif;
+      --font-serif:    'Instrument Serif', 'Noto Serif', 'Noto Serif KR', serif;
+      --font-mono:     'Geist Mono', ui-monospace, monospace;
+    }
+
+    body {
+      font-family: var(--font-sans);
+      background: var(--color-paper);
+      color: var(--color-ink);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 3rem 2rem;
+    }
+
+    .frame { max-width: 1200px; width: 100%; }
+    /* The SVG holds its readable width (min-width == the viewBox width, so the
+       type ramp is never silently scaled down). This wrapper lets a narrow
+       screen scroll the diagram instead of the whole page. */
+    .diagram-container { width: 100%; overflow-x: auto; }
+
+    .eyebrow {
+      font-family: var(--font-mono);
+      font-size: 0.66rem;
+      font-weight: 500;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--color-muted);
+      margin-bottom: 0.5rem;
+    }
+
+    h1 {
+      font-family: var(--font-serif);
+      font-size: clamp(1.5rem, 2.4vw + 0.75rem, 2rem);
+      font-weight: 400;
+      letter-spacing: -0.02em;
+      line-height: 1.15;
+      color: var(--color-ink);
+      margin-bottom: 1.5rem;
+    }
+
+    svg { width: 100%; min-width: 960px; display: block; }
+    /* Paper has no scrollbar, so the local scroller would clip instead of
+       scroll. Let the diagram scale down to the sheet: smaller but whole
+       beats sharp but cut off. Must come after the svg rule above - a media
+       query adds no specificity, so a later plain rule would win. */
+    @media print {
+      .diagram-container { overflow-x: visible; }
+      svg { min-width: 0; }
+    }
+  </style>
+</head>
+<body>
+  <div class="frame">
+    <p class="eyebrow">Swimlane · AI-Native SDLC Framework</p>
+    <h1>Who Does What, From Plan to Merge</h1>
+
+    <!-- Replace sdlc-swimlane with a unique slug for this diagram before export. -->
+    <div class="diagram-container">
+      <svg viewBox="0 0 960 528" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="sdlc-swimlane-title sdlc-swimlane-desc">
+        <title id="sdlc-swimlane-title">Who Does What, From Plan to Merge</title>
+        <desc id="sdlc-swimlane-desc">Humans approve plans and merge, agents plan, build and review, and the guard hook and CI check the work, with the record location for each kind of work.</desc>
+        <defs>
+          <marker id="arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#4f5d75"/></marker>
+          <marker id="arrow-accent" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#bf4520"/></marker>
+          <marker id="arrow-link" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#2e5aa8"/></marker>
+
+          <!-- OPTIONAL: dot-pattern background. Uncomment the <pattern> and the second <rect> below if you want the dotted paper look. -->
+          <!--
+          <pattern id="dots" width="22" height="22" patternUnits="userSpaceOnUse">
+            <circle cx="1" cy="1" r="0.9" fill="rgba(45,49,66,0.10)"/>
+          </pattern>
+          -->
+        </defs>
+
+        <rect width="100%" height="100%" fill="#f5f5f5"/>
+        <!-- <rect width="100%" height="100%" fill="url(#dots)" opacity="0.55"/> -->
+
+        <line x1="16" y1="40" x2="944" y2="40" stroke="rgba(45,49,66,0.12)" stroke-width="1"/>
+        <text x="24" y="96" font-family="'Geist Mono', ui-monospace, monospace" font-size="9" font-weight="400" fill="#4f5d75" text-anchor="start" letter-spacing="1.4">HUMAN</text>
+        <line x1="16" y1="144" x2="944" y2="144" stroke="rgba(45,49,66,0.12)" stroke-width="1"/>
+        <text x="24" y="200" font-family="'Geist Mono', ui-monospace, monospace" font-size="9" font-weight="400" fill="#4f5d75" text-anchor="start" letter-spacing="1.4">AGENTS</text>
+        <line x1="16" y1="248" x2="944" y2="248" stroke="rgba(45,49,66,0.12)" stroke-width="1"/>
+        <text x="24" y="304" font-family="'Geist Mono', ui-monospace, monospace" font-size="9" font-weight="400" fill="#4f5d75" text-anchor="start" letter-spacing="1.4">GUARD / CI</text>
+        <line x1="16" y1="352" x2="944" y2="352" stroke="rgba(45,49,66,0.12)" stroke-width="1"/>
+        <text x="232" y="28" font-family="'Geist Mono', ui-monospace, monospace" font-size="9" font-weight="400" fill="#4f5d75" text-anchor="middle" letter-spacing="1.4">APPROVE</text>
+        <text x="432" y="28" font-family="'Geist Mono', ui-monospace, monospace" font-size="9" font-weight="400" fill="#4f5d75" text-anchor="middle" letter-spacing="1.4">BUILD</text>
+        <text x="632" y="28" font-family="'Geist Mono', ui-monospace, monospace" font-size="9" font-weight="400" fill="#4f5d75" text-anchor="middle" letter-spacing="1.4">VERIFY</text>
+        <text x="832" y="28" font-family="'Geist Mono', ui-monospace, monospace" font-size="9" font-weight="400" fill="#4f5d75" text-anchor="middle" letter-spacing="1.4">MERGE</text>
+        <path d="M 232 164 V 124" fill="none" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+        <path d="M 312 92 H 424 Q 432 92 432 100 V 164" fill="none" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+        <path d="M 432 268 V 228" fill="none" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)" stroke-dasharray="5,4"/>
+        <path d="M 512 196 H 552" fill="none" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+        <path d="M 632 228 V 268" fill="none" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+        <path d="M 712 300 H 824 Q 832 300 832 292 V 124" fill="none" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+        <rect x="240" y="139" width="32" height="13" fill="#f5f5f5"/>
+        <text x="256.0" y="148" font-family="'Geist Mono', ui-monospace, monospace" font-size="8" font-weight="400" fill="#4f5d75" text-anchor="middle" letter-spacing="0.6">PLAN</text>
+        <rect x="440" y="127" width="56" height="13" fill="#f5f5f5"/>
+        <text x="468.0" y="136" font-family="'Geist Mono', ui-monospace, monospace" font-size="8" font-weight="400" fill="#4f5d75" text-anchor="middle" letter-spacing="0.6">APPROVED</text>
+        <rect x="440" y="243" width="44" height="13" fill="#f5f5f5"/>
+        <text x="462.0" y="252" font-family="'Geist Mono', ui-monospace, monospace" font-size="8" font-weight="400" fill="#4f5d75" text-anchor="middle" letter-spacing="0.6">BLOCKS</text>
+        <rect x="640" y="243" width="50" height="13" fill="#f5f5f5"/>
+        <text x="665.0" y="252" font-family="'Geist Mono', ui-monospace, monospace" font-size="8" font-weight="400" fill="#4f5d75" text-anchor="middle" letter-spacing="0.6">OPEN PR</text>
+        <rect x="840" y="203" width="38" height="13" fill="#f5f5f5"/>
+        <text x="859.0" y="212" font-family="'Geist Mono', ui-monospace, monospace" font-size="8" font-weight="400" fill="#4f5d75" text-anchor="middle" letter-spacing="0.6">GREEN</text>
+        <rect x="152" y="60" width="160" height="64" rx="6" fill="#f5f5f5"/>
+        <rect x="152" y="60" width="160" height="64" rx="6" fill="rgba(191,69,32,0.08)" stroke="#bf4520" stroke-width="1"/>
+        <text x="232" y="84" font-family="'Geist', system-ui, sans-serif" font-size="12" font-weight="600" fill="#2d3142" text-anchor="middle">Approve plan</text>
+        <text x="232" y="100" font-family="'Geist Mono', ui-monospace, monospace" font-size="9" font-weight="400" fill="#5a6580" text-anchor="middle">Std: Checkpoint</text>
+        <text x="232" y="113" font-family="'Geist Mono', ui-monospace, monospace" font-size="9" font-weight="400" fill="#5a6580" text-anchor="middle">High: Gate 1/2</text>
+        <rect x="752" y="60" width="160" height="64" rx="6" fill="#f5f5f5"/>
+        <rect x="752" y="60" width="160" height="64" rx="6" fill="rgba(191,69,32,0.08)" stroke="#bf4520" stroke-width="1"/>
+        <text x="832" y="84" font-family="'Geist', system-ui, sans-serif" font-size="12" font-weight="600" fill="#2d3142" text-anchor="middle">Merge (Gate 3)</text>
+        <text x="832" y="100" font-family="'Geist Mono', ui-monospace, monospace" font-size="9" font-weight="400" fill="#5a6580" text-anchor="middle">reads the review</text>
+        <text x="832" y="113" font-family="'Geist Mono', ui-monospace, monospace" font-size="9" font-weight="400" fill="#5a6580" text-anchor="middle">all tiers</text>
+        <rect x="152" y="164" width="160" height="64" rx="6" fill="#f5f5f5"/>
+        <rect x="152" y="164" width="160" height="64" rx="6" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+        <text x="232" y="188" font-family="'Geist', system-ui, sans-serif" font-size="12" font-weight="600" fill="#2d3142" text-anchor="middle">Plan packet</text>
+        <text x="232" y="204" font-family="'Geist Mono', ui-monospace, monospace" font-size="9" font-weight="400" fill="#5a6580" text-anchor="middle">files, tests,</text>
+        <text x="232" y="217" font-family="'Geist Mono', ui-monospace, monospace" font-size="9" font-weight="400" fill="#5a6580" text-anchor="middle">risks, rollback</text>
+        <rect x="352" y="164" width="160" height="64" rx="6" fill="#f5f5f5"/>
+        <rect x="352" y="164" width="160" height="64" rx="6" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+        <text x="432" y="188" font-family="'Geist', system-ui, sans-serif" font-size="12" font-weight="600" fill="#2d3142" text-anchor="middle">Build and test</text>
+        <text x="432" y="204" font-family="'Geist Mono', ui-monospace, monospace" font-size="9" font-weight="400" fill="#5a6580" text-anchor="middle">failing test first</text>
+        <text x="432" y="217" font-family="'Geist Mono', ui-monospace, monospace" font-size="9" font-weight="400" fill="#5a6580" text-anchor="middle">record evidence</text>
+        <rect x="552" y="164" width="160" height="64" rx="6" fill="#f5f5f5"/>
+        <rect x="552" y="164" width="160" height="64" rx="6" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+        <text x="632" y="188" font-family="'Geist', system-ui, sans-serif" font-size="12" font-weight="600" fill="#2d3142" text-anchor="middle">Independent review</text>
+        <text x="632" y="204" font-family="'Geist Mono', ui-monospace, monospace" font-size="9" font-weight="400" fill="#5a6580" text-anchor="middle">not the author</text>
+        <text x="632" y="217" font-family="'Geist Mono', ui-monospace, monospace" font-size="9" font-weight="400" fill="#5a6580" text-anchor="middle">+ security if routed</text>
+        <rect x="352" y="268" width="160" height="64" rx="6" fill="#f5f5f5"/>
+        <rect x="352" y="268" width="160" height="64" rx="6" fill="rgba(45,49,66,0.05)" stroke="#4f5d75" stroke-width="1"/>
+        <text x="432" y="292" font-family="'Geist', system-ui, sans-serif" font-size="12" font-weight="600" fill="#2d3142" text-anchor="middle">Guard hook</text>
+        <text x="432" y="308" font-family="'Geist Mono', ui-monospace, monospace" font-size="9" font-weight="400" fill="#5a6580" text-anchor="middle">file + shell tools</text>
+        <rect x="552" y="268" width="160" height="64" rx="6" fill="#f5f5f5"/>
+        <rect x="552" y="268" width="160" height="64" rx="6" fill="rgba(45,49,66,0.05)" stroke="#4f5d75" stroke-width="1"/>
+        <text x="632" y="292" font-family="'Geist', system-ui, sans-serif" font-size="12" font-weight="600" fill="#2d3142" text-anchor="middle">CI matrix</text>
+        <text x="632" y="308" font-family="'Geist Mono', ui-monospace, monospace" font-size="9" font-weight="400" fill="#5a6580" text-anchor="middle">3 OS x 2 Python</text>
+        <text x="24" y="384" font-family="'Geist Mono', ui-monospace, monospace" font-size="9" font-weight="400" fill="#4f5d75" text-anchor="start" letter-spacing="1.4">WHERE THE RECORD LIVES</text>
+        <text x="24" y="408" font-family="'Geist', system-ui, sans-serif" font-size="12" font-weight="600" fill="#2d3142" text-anchor="start">Standard, no work item</text>
+        <text x="232" y="408" font-family="'Geist Mono', ui-monospace, monospace" font-size="9" font-weight="400" fill="#5a6580" text-anchor="start">PR/MR sections: Plan Checkpoint, Verification, Review</text>
+        <line x1="24" y1="416" x2="936" y2="416" stroke="rgba(45,49,66,0.12)" stroke-width="1"/>
+        <text x="24" y="432" font-family="'Geist', system-ui, sans-serif" font-size="12" font-weight="600" fill="#2d3142" text-anchor="start">With a work item</text>
+        <text x="232" y="432" font-family="'Geist Mono', ui-monospace, monospace" font-size="9" font-weight="400" fill="#5a6580" text-anchor="start">work/&lt;INT-xxx&gt;/ (plan, tasks, review)</text>
+        <line x1="24" y1="440" x2="936" y2="440" stroke="rgba(45,49,66,0.12)" stroke-width="1"/>
+        <text x="24" y="456" font-family="'Geist', system-ui, sans-serif" font-size="12" font-weight="600" fill="#2d3142" text-anchor="start">Framework, no work item</text>
+        <text x="232" y="456" font-family="'Geist Mono', ui-monospace, monospace" font-size="9" font-weight="400" fill="#5a6580" text-anchor="start">docs/plans/plan-&lt;NNN&gt;-&lt;slug&gt;.md + plan-&lt;NNN&gt;-review.md; digest in docs/handoff/</text>
+        <line x1="24" y1="464" x2="936" y2="464" stroke="rgba(45,49,66,0.12)" stroke-width="1"/>
+        <line x1="16" y1="488" x2="944" y2="488" stroke="rgba(45,49,66,0.12)" stroke-width="1"/>
+        <rect x="24" y="500" width="16" height="12" rx="3" fill="rgba(191,69,32,0.08)" stroke="#bf4520"/>
+        <text x="48" y="510" font-family="'Geist Mono', ui-monospace, monospace" font-size="9" font-weight="400" fill="#5a6580" text-anchor="start">Human gate</text>
+        <rect x="144" y="500" width="16" height="12" rx="3" fill="#ffffff" stroke="#2d3142"/>
+        <text x="168" y="510" font-family="'Geist Mono', ui-monospace, monospace" font-size="9" font-weight="400" fill="#5a6580" text-anchor="start">Agent step</text>
+        <rect x="264" y="500" width="16" height="12" rx="3" fill="rgba(45,49,66,0.05)" stroke="#4f5d75"/>
+        <text x="288" y="510" font-family="'Geist Mono', ui-monospace, monospace" font-size="9" font-weight="400" fill="#5a6580" text-anchor="start">Automated check</text>
+        <line x1="408" y1="506" x2="440" y2="506" stroke="#4f5d75" stroke-width="1.2" stroke-dasharray="5,4"/>
+        <text x="448" y="510" font-family="'Geist Mono', ui-monospace, monospace" font-size="9" font-weight="400" fill="#5a6580" text-anchor="start">Can stop the step</text>
+
+      </svg>
+    </div>
+  </div>
+</body>
+</html>

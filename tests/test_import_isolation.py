@@ -183,13 +183,18 @@ class TestPlantedModules(unittest.TestCase):
             "import py_compile, sys; py_compile.compile(sys.argv[1], doraise=True, "
             "invalidation_mode=py_compile.PycInvalidationMode.UNCHECKED_HASH)"
         )
+        # One case per place that loads a single-file module, so reverting any of them to cached loading fails.
         cases = (
             ("scripts/qa_report.py", ("scripts/validate_work_item.py", "no-such-dir"), 1),
+            ("scripts/qa_report.py", ("scripts/validate-contracts.py", "--check-defaults"), 0),
             ("scripts/sdlc_hook.py", ("scripts/doctor.py",), 0),
+            ("scripts/sdlc_hook.py", ("scripts/precommit.py",), 1),
+            ("scripts/sdlc_hook.py", ("scripts/setup.py",), 0),
+            ("scripts/sdlc_hook.py", ("scripts/sdlc_trace.py", "config", "show"), 0),
             ("scripts/validate-contracts.py", ("evals/run_evals.py", "--mode", "contract"), 0),
         )
         for module, command, code in cases:
-            with self.subTest(module=module):
+            with self.subTest(module=module, entry=command[0]):
                 source = self.repo / module
                 original = source.read_bytes()
                 cache = source.parent / "__pycache__"

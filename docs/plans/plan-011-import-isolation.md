@@ -3,7 +3,7 @@ plan_id: PLAN-011
 intent_ref: N/A (Framework Change · security fix)
 spec_ref: this document (Framework Spec, Gate 2)
 owner: main agent session (design และเตรียม patch) / Human maintainer (Gate 2, apply protected patch, Gate 3)
-status: implemented_pending_protected_patch
+status: implemented_pending_rereview
 created: 2026-11-27 18:55:13 +07 (Asia/Bangkok)
 ---
 
@@ -17,7 +17,7 @@ created: 2026-11-27 18:55:13 +07 (Asia/Bangkok)
 
 **SEC-B1 (High)** จาก security audit รอบ INT-001 รอบ 8: entry script ของ guard, validator และ eval runner ไม่ได้แยกเส้นทาง import ออกจากเนื้อหาใน working tree ทำให้การควบคุมความปลอดภัยของ repository ถูกทำให้ไม่ทำงานได้ รายงานฉบับเต็มและวิธีทำซ้ำเก็บนอก repository
 
-**เป้าหมาย:** ไฟล์หรือโฟลเดอร์ใหม่ใน `scripts/` หรือ `evals/` รวมถึง bytecode cache ของ module ไฟล์เดียว ต้องไม่ถูกรันแทนโค้ดจริงระหว่าง import ของ hook, pre-commit, validator และ eval (เป้าหมายนี้จำกัดที่การ import ดู §6 และ §8 ข้อ 3)
+**เป้าหมาย:** ไฟล์หรือโฟลเดอร์ที่วางในระดับบนสุดของ `scripts/` หรือ `evals/` รวมถึง bytecode cache ของ module ไฟล์เดียว ต้องไม่ถูกรันแทนโค้ดจริงระหว่าง import ของ hook, pre-commit, validator และ eval เป้าหมายนี้ครอบคลุมกลไกของ SEC-B1 เท่านั้น **ไม่ได้ยืนยันว่าการควบคุมของ guard ถูกทำให้ไม่ทำงานด้วยวิธีอื่นไม่ได้** (ดู §6, §8 ข้อ 3 และ §11)
 
 ## 2. หลักฐานจาก prototype (สำเนาชั่วคราว, macOS, Python 3.11 และ 3.14)
 
@@ -50,7 +50,7 @@ created: 2026-11-27 18:55:13 +07 (Asia/Bangkok)
 
 1. ก่อนบล็อกแยก path ห้าม import module ที่ยังไม่ถูกโหลดตอน interpreter เริ่ม (ใช้ได้เฉพาะ `os`, `sys`) ห้ามมี `from __future__` ใน entry script
 2. ห้ามใส่ `scripts/` หรือ `evals/` กลับเข้า `sys.path` ไม่ว่าตำแหน่งใด
-3. module ภายในโหลดด้วย path ตรง module ไฟล์เดียว (`sdlc_hook`, `qa_report`, `validate-contracts`) ต้อง compile จาก source ไม่อ่าน bytecode cache ส่วน package `sdlc_guard` โหลดตามปกติ โดย `scripts/sdlc_guard/**` (รวม `__pycache__`) อยู่ใต้ protected glob
+3. module ภายในโหลดด้วย path ตรง module ไฟล์เดียว (`sdlc_hook`, `qa_report`, `validate-contracts`) ต้อง compile จาก source ไม่อ่าน bytecode cache ส่วน package `sdlc_guard` โหลดตามปกติ ข้อนี้ไม่ได้รับประกันการคุ้มครองตัว package (ดู §11)
 4. subprocess และ launcher ที่เรียก Python ของ framework ใช้ `-I`
 5. เทียบ path ด้วย `os.path.normcase(os.path.realpath(...))` ทั้งสองฝั่ง
 6. patch ต้องคง line ending เดิม (`sdlc-hook` เป็น LF, `sdlc-hook.cmd` เป็น CRLF)
@@ -65,6 +65,8 @@ created: 2026-11-27 18:55:13 +07 (Asia/Bangkok)
 | `scripts/validate-contracts.py`, `validate-context-budget.py`, `sync-adapters.py`, `doctor.py`, `precommit.py`, `setup.py`, `evals/run_evals.py` | ci_gate | main session |
 | `scripts/validate_work_item.py`, `scripts/sdlc_trace.py`, `scripts/worktree.py` | ไม่ถูกคุ้มครอง | main session |
 | `tests/test_import_isolation.py` (ใหม่) | test code | main session |
+
+คอลัมน์ "ผู้ลงมือ" เป็นขั้นตอนของทีม ไม่ใช่สิ่งที่ guard บังคับกับทุก role
 
 คำสั่ง inline `python -c` ใน `.github/workflows/validate.yml` (ขั้น trace) ใส่ `scripts` เข้า path เอง อยู่ในสภาพแวดล้อม CI ให้ผู้รีวิวตัดสินว่าจะแก้พร้อมกันหรือไม่ โดยค่าเริ่มต้นไม่แก้
 
@@ -91,7 +93,7 @@ Test ใหม่คัดลอก repository ไป temporary directory แล
 ## 6. นอก Scope และความเสี่ยงคงเหลือ
 
 - การแก้ไฟล์ของ framework เองที่มีอยู่แล้ว (SEC-M4 ถ้าไม่เลือก ALT 2)
-- bytecode cache ใน `scripts/sdlc_guard/__pycache__/` พึ่ง protected glob ซึ่งคุ้มครองเฉพาะสิ่งที่ guard ตรวจเห็น
+- การคุ้มครองของ guard ต่อการเปลี่ยนเนื้อหาของ framework ยังไม่ครบ (BLK-1, MAJ-1, MAJ-3 ใน [plan-011-review.md](plan-011-review.md)) การระบุ protected path ใน `policy.json` ไม่ได้แปลว่าถูกบังคับกับทุก role หรือทุกวิธีเขียน รับความเสี่ยงตาม §11
 - สิ่งที่โค้ดของ script ใหม่ทำเองเมื่อถูกรัน ไม่ผ่านการตรวจระดับข้อความคำสั่ง (ดู §8 ข้อ 3)
 - ผู้ที่รันคำสั่ง shell ได้ตามใจ หรือควบคุม `PATH` / ตัว interpreter อยู่นอกสิ่งที่ guard นี้ป้องกันได้
 - SEC-M1 ถึง SEC-M3 (ตัวตรวจ traceability), งานค้างจาก PLAN-009 (เลื่อนเป็น PLAN-012), `AGENTS.md`, `README.md`, `ROADMAP.md` (PR #18 กำลังแก้ จึงบันทึก Roadmap ตอน closeout)
@@ -122,10 +124,10 @@ Revert change ของ PLAN-011 เป็นชุดเดียว (launcher,
 - **เพิ่มจาก inventory เดิม:** `scripts/worktree.py` เป็น entry script ที่ §4.2 ตกหล่น structure test พบตอนรันบน baseline จึงแก้ด้วย ภายใต้ ALT 1 ("entry script ทุกตัว")
 - **Test-first:** `tests/test_import_isolation.py` fail บน `f80092e` ขณะกรณีควบคุมที่ไม่มีไฟล์ทดสอบผ่าน
 - **ไฟล์ไม่ protected:** แก้ใน worktree แล้ว
-- **ไฟล์ protected:** เตรียมเป็น patch นอก repository ฉบับรวม Amendment A1 (SHA-256 `e1c23cc510ecf8efa262bc6f1db98b589f7cb132b04252c644766afaae31c268`) รอ Human apply (แทน patch ฉบับก่อน A1)
+- **ไฟล์ protected:** เตรียมเป็น patch นอก repository ฉบับรวม Amendment A1 (SHA-256 `e1c23cc510ecf8efa262bc6f1db98b589f7cb132b04252c644766afaae31c268`) (แทน patch ฉบับก่อน A1) Human Maintainer apply และ commit ใน `0c5425a` (แจ้งในแชต "Commit แล้ว")
 - **ตรวจบนสำเนาที่ apply patch รวม A1 (macOS):** 259 tests ผ่าน (skip 3) บน Python 3.14.10 และ 3.11.18, contract eval 10/10, validators ผ่าน, `sdlc-hook.cmd` คง CRLF
 - **เกณฑ์ §5 ข้อ 7 (encoding):** ยังไม่แก้ `sdlc_guard/doctor.py` รอผล Windows CI และการรีวิว
-- **ยังไม่ได้ทำ:** commit, รีวิวอิสระ, CI, Windows / Linux / Python 3.10 และ 3.12
+- **สถานะ (อัปเดต 2026-11-27 20:44:39 +07):** commit และรีวิวอิสระบน `0c5425a` ทำแล้ว (§11) ส่วน CI, Windows, Linux และ Python 3.10 / 3.12 ยังไม่ได้ตรวจ หัวข้อนี้เริ่มบันทึกก่อน Amendment A1 และเพิ่มผลของ A1 ภายหลัง
 
 ## 10. Amendment A1 · Fail-closed เมื่อโหลด guard ไม่สำเร็จ
 
@@ -140,3 +142,19 @@ Revert change ของ PLAN-011 เป็นชุดเดียว (launcher,
 - **ผลกระทบ:** guard ที่เสียจะบล็อกทุก tool call ต้องแก้จาก terminal ของ Human
 - **Test:** เพิ่ม 2 test ใน `tests/test_import_isolation.py` fail ก่อนแก้และผ่านหลังแก้
 - **Approver / Evidence:** Human Maintainer · 2026-11-27 19:48:42 +07 (เวลาที่บันทึก) · ข้อความในแชต "เพิ่มใน patch"
+
+## 11. ผลรีวิวบน `0c5425a` และ Security Sign-off
+
+ผลรวม: `blocked_security` ([plan-011-review.md](plan-011-review.md)) · Blocker BLK-1 (High, มีมาก่อน) · Major M1, MAJ-1, MAJ-2, MAJ-3
+
+**Security sign-off ของ Human Maintainer** · 2026-11-27 20:44:39 +07 (เวลาที่บันทึก) · ข้อความในแชต "รับตามข้อเสนอ" ตอบข้อเสนอต่อไปนี้:
+
+1. **BLK-1 (High), MAJ-1, MAJ-3 (ยังไม่ยืนยันบน Windows):** รับความเสี่ยงไว้ก่อน และแก้ในแผนใหม่ถัดจาก PLAN-011
+2. **ขยายความเสี่ยงที่รับไว้ใน §8 ข้อ 3:** รวมกรณีที่ script ใหม่ซึ่งถูกรันอาจทำให้ guard และ pre-commit ถูกปิดแบบถาวรและมองไม่เห็นได้
+3. **การเปิดเผย:** land เป็น PR เดียว บันทึกสาธารณะระบุว่ายังมีข้อ High ค้างอยู่ โดยไม่บอกวิธี
+
+**แก้ใน PLAN-011:** M1, MAJ-2 และเอกสารล้าสมัย (m8) โดยแก้เฉพาะ `tests/` และเอกสาร ไม่เปลี่ยนโค้ด ต้องรีวิวซ้ำบน SHA ใหม่ก่อน push
+
+- **M1:** test ของ bytecode cache ครอบคลุมจุดโหลด module ไฟล์เดียวครบ 7 จุด ทดลองถอยกลับทีละจุดในสำเนาชั่วคราว test fail ทั้ง 7
+- **MAJ-2:** ปรับข้อความ §1, §4.1 (3), §4.2, §6 และ §9
+- **ยังเปิด:** Minor m1, m3–m7, m9 และ Minor ของ security audit ให้ประเมินในแผนถัดไป

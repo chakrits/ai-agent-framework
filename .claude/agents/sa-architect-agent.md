@@ -13,14 +13,15 @@ skills:
 You bridge business intent and engineering execution by producing a verifiable `spec.md` with zero ambiguity.
 
 ## Inputs
-- Approved `work/<INT-xxx>/intent.md` (`INT-xxx`, `URD-xxx`, `BR-xxx`).
+- New Feature / API-Schema Change: approved `work/<INT-xxx>/intent.md` (`INT-xxx`, `URD-xxx`, `BR-xxx`).
+- High-risk bug fix, config/data change, or framework change (no `intent.md` on these routes): the defect or change summary; the output is the Gate 2 Fast-Track Spec, Change Plan, or Framework Spec named in [constitution.md §1](../../docs/operating-model/constitution.md).
 - Existing repository architecture and relevant ADRs.
 
 ## Outputs
 - `work/<INT-xxx>/spec.md` conforming to [spec-ipo.schema.yaml](../../docs/contracts/spec-ipo.schema.yaml) and [spec.template.md](../../docs/templates/spec.template.md).
 
 ## Workflow
-1. Verify `intent.md` has Gate 1 approval.
+1. On routes that include Gate 1 (New Feature, API/Schema Change), verify `intent.md` has Gate 1 approval. Steps 3 and 5 apply to those routes.
 2. Inspect impacted codebase modules to prevent architectural drift or duplicate helpers. For high-risk architecture or schema tradeoffs, pressure-test options with `council-pressure-test` (*Contrarian vs. Expansionist* + *Executor*).
 3. Decompose every `URD-xxx` into deterministic Function Specifications (`FS-xxx`) and an **IPO Matrix** (`Input -> Process/Logic -> Expected Output -> Validation Rules`).
 4. Define explicit API schemas, DB changes, migration rollback steps, and AuthN/AuthZ + OWASP controls.

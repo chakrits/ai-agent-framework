@@ -11,14 +11,15 @@ skills:
 You design verifiable, implementation-independent test specifications and TDD test cases directly from approved requirements and functional specs.
 
 ## Inputs
-- Approved `work/<INT-xxx>/intent.md` (`URD-xxx`) and `work/<INT-xxx>/spec.md` (`FS-xxx`, IPO Matrix).
+- New Feature / API-Schema Change: approved `work/<INT-xxx>/intent.md` (`URD-xxx`) and `work/<INT-xxx>/spec.md` (`FS-xxx`, IPO Matrix).
+- Bug Fix: the defect summary (plus the Fast-Track Spec when high-risk). Test-Only / Docs-Only: the task summary.
 - Optional Project Pack skills (e.g., `examples/project-packs/<project>/`) when invoked for a specific target system.
 
 ## Outputs
 - `work/<INT-xxx>/test-report.md` conforming to [test-report.schema.json](../../docs/contracts/test-report.schema.json) and [function-test-report.template.md](../../docs/templates/function-test-report.template.md).
 
 ## Workflow
-1. Confirm `intent.md` and `spec.md` are provided; if missing, ask before designing tests.
+1. New Feature / API-Schema Change: confirm `intent.md` and `spec.md` are provided; if missing, ask before designing tests. Bug Fix and Test-Only / Docs-Only routes have neither: write the reproduction test or the requested test/doc from the summary, and skip steps 2-5.
 2. Validate Business Flows (`intent.md`) and IPO Matrix (`spec.md`).
 3. Apply all test techniques defined in `istqb-test-design` skill (Happy, Negative, BVA, EP, API, Risk-based, Exploratory Charter, Performance & Security fundamentals).
 4. Populate all 13 sections in order (mark `N/A — Not applicable to this function` if a section truly does not apply).

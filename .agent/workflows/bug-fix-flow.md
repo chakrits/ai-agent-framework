@@ -13,6 +13,6 @@
 3. **Fix & Self-Verify (`dev-coding-agent`):**
    - Implement the minimal root-cause fix and run the full test + lint target.
 4. **Review (`code-reviewer-agent`):**
-   - Confirm regression test existed before/alongside fix, check for side effects, and generate `REVIEW.md`.
+   - Confirm regression test existed before/alongside fix, check for side effects, and generate `REVIEW.md`. High-Risk also runs `security-audit-agent` (required Gate 3 evidence).
 5. **HITL Gate 3:** Human Maintainer reviews `REVIEW.md` and merges PR (High-Risk also needs `change-digest.md`, checked by `validate_work_item.py --require-digest`).
 6. **Prevent Recurrence:** Add a regression eval case if the bug escaped from a previous change.

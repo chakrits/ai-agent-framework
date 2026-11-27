@@ -45,6 +45,13 @@ jobs:
       - name: Validate SDLC contracts and templates
         run: python scripts/validate-contracts.py --check-defaults
 
+      - name: Validate change digests (format only, presence is not enforced)
+        run: |
+          shopt -s nullglob
+          for f in docs/handoff/*-digest.md work/INT-*/change-digest.md; do
+            python scripts/validate_work_item.py --digest-file "$f"
+          done
+
       - name: Run harness unit tests
         run: python -m unittest discover -s tests -v
 
@@ -76,3 +83,12 @@ jobs:
           '{"tool_name":"PowerShell","tool_input":{"command":"Get-Content .env"},"cwd":"."}' | & scripts\bin\sdlc-hook.cmd pretooluse
           if ($LASTEXITCODE -ne 2) { Write-Error "expected exit 2, got $LASTEXITCODE"; exit 1 }
           exit 0
+
+      # Keep these last: every step above must keep passing on the standard library alone.
+      - name: Install optional API dependencies
+        run: python -m pip install -r orchestrator/requirements.txt httpx
+
+      - name: FastAPI endpoint tests
+        run: |
+          python -c "import fastapi.testclient"
+          python -m unittest discover -s tests -p test_orchestrator_api.py -v

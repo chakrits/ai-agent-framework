@@ -77,11 +77,12 @@ def is_tool_result(ev: dict[str, Any]) -> bool:
     return ev.get("event") in {"PostToolUse", "PostToolUseFailure"} or is_blocked(ev)
 
 
-def summarize(events: list[dict[str, Any]]) -> dict[str, Any]:
+def summarize(events: list[dict[str, Any]], scrub: Callable[[str], str] = lambda text: text) -> dict[str, Any]:
     results = [e for e in events if is_tool_result(e) and e.get("tool_name")]
     durations = [e["duration_ms"] for e in results if isinstance(e.get("duration_ms"), (int, float))]
     reasons = Counter(r for e in events if is_blocked(e) for r in e["decision"].get("reasons", []))
-    commands = Counter(e["input"]["command"].splitlines()[0][:100] for e in results if e.get("input", {}).get("command"))
+    # Scrub before cutting: a path split by the cut would no longer match the string being replaced.
+    commands = Counter(scrub(e["input"]["command"].splitlines()[0])[:100] for e in results if e.get("input", {}).get("command"))
     return {
         "sessions": len({e.get("session_id") for e in events}),
         "events": len(events),
@@ -230,14 +231,17 @@ def scrub_paths(text: str, repo_root: Path | str, home: Path | str | None = None
 
 
 def cmd_export(events: list[dict[str, Any]], args: argparse.Namespace, ctx: dict[str, Any]) -> int:
-    data = summarize(_filter(events, args.work_item))
+    def scrub(text: str) -> str:
+        return scrub_paths(text, guard.REPO_ROOT)
+
+    data = summarize(_filter(events, args.work_item), scrub)
     if not data["events"]:
         print(f"No trace events for work item {args.work_item}.", file=sys.stderr)
         return 1
     out = Path(args.out)
     out.parent.mkdir(parents=True, exist_ok=True)
     with out.open("w", encoding="utf-8", newline="\n") as fh:
-        fh.write(scrub_paths(render_markdown(data, args.work_item), guard.REPO_ROOT))
+        fh.write(scrub(render_markdown(data, args.work_item)))
     print(f"Wrote {out}")
     return 0
 

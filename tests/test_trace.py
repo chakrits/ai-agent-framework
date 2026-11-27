@@ -343,6 +343,26 @@ class TestCli(TraceCase):
         self.assertNotIn(home + "/private", text)
         self.assertIn("<repo>/scripts/run.py", text)
 
+    def test_export_scrubs_paths_cut_by_command_truncation(self) -> None:
+        for index, (label, base) in enumerate((("repo", str(ROOT)), ("home", str(Path.home())))):
+            with self.subTest(path=label):
+                work_item = f"INT-02{index}"
+                self.env["SDLC_WORK_ITEM"] = work_item
+                # Pad so the 100-character cut in the summary lands just before the end of the path, on any runner.
+                kept = len(base) - 3
+                prefix = "echo " + "x" * (100 - kept - len("echo ") - 1) + " "
+                payload = post_payload(session=f"cut-{label}")
+                payload["tool_input"] = {"command": f"{prefix}{base}/private/out.txt"}
+                self.record(payload)
+                recorded = [e for e in self.events() if e.get("work_item") == work_item]
+                self.assertIn(base, recorded[0]["input"]["command"])  # otherwise this test proves nothing
+                out_file = Path(self.tmp.name) / f"cut-{label}.md"
+                self.assertEqual(self.run_cli("export", "--work-item", work_item, "--out", str(out_file))[0], 0)
+                text = out_file.read_text(encoding="utf-8")
+                for spelling in (base, base.replace("\\", "/"), base.replace("/", "\\")):
+                    self.assertNotIn(spelling[:kept], text)
+                self.assertIn("<repo>" if label == "repo" else "~", text)
+
     def test_scrub_paths_handles_windows_spellings(self) -> None:
         out = trace_cli.scrub_paths(r"type C:\Users\dev\repo\a.txt and C:/Users/dev/repo/b.txt", r"C:\Users\dev\repo", home=r"C:\Users\dev")
         self.assertEqual(out, "type <repo>\\a.txt and <repo>/b.txt")

@@ -2,7 +2,7 @@
 
 > **Architecture:** Enterprise-agnostic Canonical Core (`.agents/` + `docs/`) + Thin Multi-Harness Adapters (`.claude/`, `.codex/`, `.agent/`) + Deterministic Cross-Platform Guardrails (`scripts/sdlc_guard/`) + Optional Python Orchestrator
 > **Analysis & Rationale:** [Framework Review & Roadmap v2](docs/plans/framework-review-roadmap-v2.md) · [Claude AI-Native SDLC Playbook Analysis](docs/reference-architecture/benchmarks/claude-ai-native-sdlc-playbook-analysis.md) · [Cross-Platform Plan](docs/plans/cross-platform-harness-plan.md)
-> **Last re-baseline:** 2026-11-21 · **Last update:** 2026-11-27 (PLAN-008 closeout; branch protection บน `main`)
+> **Last re-baseline:** 2026-11-21 · **Last update:** 2026-11-27 (PLAN-009 closeout)
 
 ## สถานะที่ใช้
 
@@ -67,7 +67,7 @@
 - [x] Versioning: `version.txt` (SemVer, เริ่ม `0.1.0`) + release-please + `CHANGELOG.md` + commit-msg hook บังคับ Conventional Commits + `LICENSE` (MIT) + `CONTRIBUTING.md` + README badges
 - [x] Governance quick fixes: constitution อ้าง `policy.json` แทน `.sdlc` ที่คลุมเครือ, ลบ permission ปลอมใน `settings.json`, อัปเดต PR/MR templates, สแกนเนื้อหา staged diff หา secret ใน pre-commit
 - [x] แก้ guard ให้นับ override env var เฉพาะที่มีผลจริง (ไม่นับข้อความใน quote/heredoc) + อัป `actions/checkout@v5`, `setup-python@v6`
-- [x] Release แรกและรอบถัดไปผ่าน release-please: `v0.1.0`, `v0.2.0`, `v0.3.0`, `v0.3.1` ([releases](https://github.com/chakrits/ai-agent-framework/releases)); Discussions เปิดแล้ว และ GitHub Actions สร้าง Release PR ได้ (PR #1, #3, #8)
+- [x] Release แรกและรอบถัดไปผ่าน release-please: `v0.1.0`, `v0.2.0`, `v0.3.0`, `v0.3.1`, `v0.3.2` ([releases](https://github.com/chakrits/ai-agent-framework/releases)); Discussions เปิดแล้ว และ GitHub Actions สร้าง Release PR ได้ (PR #1, #3, #8, #15)
 - [x] แก้เทสต์ `test_eval_runner` ที่ fail บน Windows CI มาตั้งแต่ `main` `eca7f22`: fixture ลบ `.git` ที่เป็น read-only ไม่ได้ (`8c4ae79`, PR #4) — CI 6/6 เขียวที่ [run 45005508352](https://github.com/chakrits/ai-agent-framework/actions/runs/45005508352)
 - [ ] CI บน GitLab (ยังไม่ได้ผูก remote)
 - [x] ตั้ง branch protection บน `main` ด้วย ruleset [`protect-main`](https://github.com/chakrits/ai-agent-framework/rules/27836720) (ยืนยันผ่าน GitHub API เมื่อ 2026-11-27): ห้ามลบและห้าม force push, ต้องเปิด PR (required approvals = 0 เพราะมีผู้ดูแลคนเดียว, ต้อง resolve conversation), merge ได้เฉพาะ merge / rebase, required checks ครบ 6 jobs ของ CI matrix; Repository admin bypass ได้เฉพาะผ่าน PR
@@ -82,7 +82,7 @@
 - [x] ELI10 Change Digest + `validate_work_item.py --require-digest` / `--digest-file` (เทสต์ 16 ข้อ)
 - [x] ที่เก็บ ADR (`docs/adr/` + template), skill `council-pressure-test`, reviewer อ่าน diff ก่อน digest
 - [x] Independent review 3 รอบ (สุดท้าย `approved`) + CI 6/6 เขียวที่ head สุดท้าย
-- [ ] ให้ CI / git hook เรียก digest validator (ต้องเป็น Framework Change แยก เพราะแตะ protected path)
+- [ ] ให้ CI / git hook เรียก digest validator — *ความคืบหน้า:* PLAN-009 ให้ CI ตรวจรูปแบบ digest ที่มีอยู่แล้ว ยังไม่บังคับว่าต้องมี digest และ git hook ยังไม่เรียก (แตะ protected path)
 
 ### Prompt Consistency & Standard-Tier Records (PLAN-008) — ✅ Verified
 > แผนและผลรีวิว: [plan-008-prompt-consistency.md](docs/plans/plan-008-prompt-consistency.md) · [plan-008-review.md](docs/plans/plan-008-review.md) · merge [PR #7](https://github.com/chakrits/ai-agent-framework/pull/7) (`e1d439d`) · release [`v0.3.1`](https://github.com/chakrits/ai-agent-framework/releases/tag/v0.3.1) ([PR #8](https://github.com/chakrits/ai-agent-framework/pull/8), `5c50e1e`)
@@ -91,8 +91,16 @@
 - [x] High-risk bug fix ต้องมีตาราง traceability จาก Fast-Track Spec ไป regression test
 - [x] Independent review 3 รอบ (สุดท้าย `approved_for_human_gate`) + CI 6/6 เขียวที่ head สุดท้าย ([run 45957484815](https://github.com/chakrits/ai-agent-framework/actions/runs/45957484815))
 - [ ] ยืนยันด้วย live eval ว่า agent ทำตามกติกาใหม่ (ปัจจุบันมีแค่ contract eval)
-- [ ] ให้ CI ติดตั้ง FastAPI เพื่อรัน HTTP endpoint test ที่ถูกข้าม
-- [ ] Follow-up G2–G12 และข้อจำกัดใน §8.4 ของแผน
+- [x] ให้ CI ติดตั้ง FastAPI เพื่อรัน HTTP endpoint test ที่ถูกข้าม (PLAN-009, [run 45984856538](https://github.com/chakrits/ai-agent-framework/actions/runs/45984856538))
+- [ ] Follow-up G2–G10, G12 และข้อจำกัดใน §8.4 ของแผน (G11 แก้บางส่วนใน PLAN-009)
+
+### Trace Export Scrub & CI Evidence (PLAN-009) — 🟡 Implemented
+> แผนและผลรีวิว: [plan-009-ci-evidence-and-trace-scrub.md](docs/plans/plan-009-ci-evidence-and-trace-scrub.md) · [plan-009-review.md](docs/plans/plan-009-review.md) · merge [PR #14](https://github.com/chakrits/ai-agent-framework/pull/14) (`0553126`) · release [`v0.3.2`](https://github.com/chakrits/ai-agent-framework/releases/tag/v0.3.2) ([PR #15](https://github.com/chakrits/ai-agent-framework/pull/15), `1654475`)
+- [x] trace export แทน path ก่อนตัดข้อความ (G11 กรณีตัดกลาง path)
+- [x] CI ตรวจรูปแบบ Change Digest และรัน FastAPI endpoint test โดย fail เมื่อ test ไม่ได้รัน — CI 6/6 เขียว ([run 45984856538](https://github.com/chakrits/ai-agent-framework/actions/runs/45984856538))
+- [ ] Independent review ผ่าน: รอบเดียวได้ `changes_requested` ก่อน merge และการแก้ `5662ae3` ยังไม่ได้รีวิวซ้ำ
+- [ ] M1: path / ชื่อผู้ใช้ยังหลุดใน trace export ได้ในรูปอื่น (รวม m2) — อ่านไฟล์ก่อน commit
+- [ ] m4, m6, m7 และเปลี่ยน `httpx` เป็น `httpx2` ตามคำเตือนใน CI
 
 ### P6: Runtime Registry & Work Records — ⬜
 - [ ] `runtimes/registry.yaml` + `runtimes/<app>/runtime.yaml` (stack FE/BE/DB/Redis/API, คำสั่ง build/test/lint/run, env, ports, health)

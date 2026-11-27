@@ -66,7 +66,8 @@ Definitions and the full Risk → Tier mapping live in the [Constitution §1](do
 | `scripts/` | Guards and hooks (`sdlc_hook.py`, `sdlc_guard/`), validators, `sync-adapters.py`, `worktree.py`, `sdlc_trace.py` |
 | `orchestrator/`, `evals/`, `tests/` | Python orchestrator (CLI + optional FastAPI), contract/live evals, unit tests |
 | `examples/project-packs/` | Domain overlays (e.g., `ebmc/`) |
-| `docs/reference-architecture/` | Read-only conceptual archive (01–09) |
+| `docs/knowledge/` | Benchmarks and their provenance |
+| `docs/reference-architecture/` | Historical reference artifacts |
 
 ## Quick Navigation
 
@@ -76,7 +77,8 @@ Definitions and the full Risk → Tier mapping live in the [Constitution §1](do
 - **Routing:** [Core Bootloader](docs/workflow/core-bootloader.md) | [Dynamic Routing](docs/workflow/dynamic-routing.md)
 - **Example Project Pack:** [EBMC Project Pack](examples/project-packs/ebmc/README.md)
 - **Stateless Python Orchestrator:** [orchestrator/README.md](orchestrator/README.md)
-- **Conceptual Knowledge Base:** [Reference Architecture (01–09)](docs/reference-architecture/)
+- **Knowledge Index:** [Benchmarks and provenance](docs/knowledge/README.md)
+- **Product Checkout:** Keep application source in its target repository for the runtime pilot. `work/<INT-xxx>/` holds framework work-item evidence and `.sdlc/` holds local state and traces.
 
 ## Verification Commands
 

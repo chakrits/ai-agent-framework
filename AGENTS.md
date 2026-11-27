@@ -14,7 +14,8 @@
 | **Knowledge Base / Domain Docs** | `docs/operating-model/`, `docs/workflow/`, `docs/contracts/`, `docs/plans/`, `docs/guides/` |
 | **Active Work-Item State Dir** | `work/<INT-xxx>/` (`work/index.yaml`) · Local agent traces in `.sdlc/traces/` (`scripts/sdlc_trace.py`) |
 | **Playbooks & Reusable Skills** | `.agents/` (`agents/`, `skills/`, `workflows/`); agents and skills mirrored to `.claude/` and `.agent/`, workflows to `.agent/` only |
-| **Read-Only / Domain Overlays** | `docs/reference-architecture/` (archive); domain packs in `examples/project-packs/` (e.g., `ebmc/`) |
+| **Knowledge / Archive** | [Knowledge index](docs/knowledge/README.md) for benchmarks and provenance; `docs/reference-architecture/` for historical artifacts |
+| **Domain Overlays / Product Checkout** | Domain packs in `examples/project-packs/` (e.g., `ebmc/`); application source in its target repository for the runtime pilot |
 | **Workspace Isolation Rule** | `feat/<INT-xxx>-<slug>` via `python3 scripts/worktree.py create <INT-xxx> <slug>` (`.worktrees/`) |
 | **Communication Language** | Thai for chat, work-item artifacts, and handoffs/digests; English for code, identifiers, schemas, commit messages, and framework core docs/templates/contracts (headings may be bilingual) |
 | **Reference Timestamp** | `YYYY-MM-DD HH:mm:ss +07 (Asia/Bangkok)` *(human docs/reports; traces use ISO-8601 `+07:00`)* |

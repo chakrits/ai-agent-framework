@@ -2,7 +2,7 @@
 
 > **Architecture:** Enterprise-agnostic Canonical Core (`.agents/` + `docs/`) + Thin Multi-Harness Adapters (`.claude/`, `.codex/`, `.agent/`) + Deterministic Cross-Platform Guardrails (`scripts/sdlc_guard/`) + Optional Python Orchestrator
 > **Analysis & Rationale:** [Framework Review & Roadmap v2](docs/plans/framework-review-roadmap-v2.md) · [Claude AI-Native SDLC Playbook Analysis](docs/reference-architecture/benchmarks/claude-ai-native-sdlc-playbook-analysis.md) · [Cross-Platform Plan](docs/plans/cross-platform-harness-plan.md)
-> **Last re-baseline:** 2026-11-21 · **Last update:** 2026-11-22 (PLAN-007 closeout, release `v0.3.0`)
+> **Last re-baseline:** 2026-11-21 · **Last update:** 2026-11-27 (เปิด branch protection บน `main`)
 
 ## สถานะที่ใช้
 
@@ -70,7 +70,8 @@
 - [x] Release แรกและรอบถัดไปผ่าน release-please: `v0.1.0`, `v0.2.0`, `v0.3.0` ([releases](https://github.com/chakrits/ai-agent-framework/releases)); Discussions เปิดแล้ว และ GitHub Actions สร้าง Release PR ได้ (PR #1, #3)
 - [x] แก้เทสต์ `test_eval_runner` ที่ fail บน Windows CI มาตั้งแต่ `main` `eca7f22`: fixture ลบ `.git` ที่เป็น read-only ไม่ได้ (`8c4ae79`, PR #4) — CI 6/6 เขียวที่ [run 45005508352](https://github.com/chakrits/ai-agent-framework/actions/runs/45005508352)
 - [ ] CI บน GitLab (ยังไม่ได้ผูก remote)
-- [ ] ตั้ง branch protection บน `main` — **ยังไม่ได้ตั้ง** (GitHub API ตอบ `Branch not protected` เมื่อ 2026-11-22) ทั้งที่ `AGENTS.md` §1 เขียนว่า `main` protected; ต้องให้ admin ของ repo เปิดเอง
+- [x] ตั้ง branch protection บน `main` ด้วย ruleset [`protect-main`](https://github.com/chakrits/ai-agent-framework/rules/27836720) (ยืนยันผ่าน GitHub API เมื่อ 2026-11-27): ห้ามลบและห้าม force push, ต้องเปิด PR (required approvals = 0 เพราะมีผู้ดูแลคนเดียว, ต้อง resolve conversation), merge ได้เฉพาะ merge / rebase, required checks ครบ 6 jobs ของ CI matrix; Repository admin bypass ได้เฉพาะผ่าน PR
+  - *ข้อจำกัดที่เหลือ:* admin ยัง merge PR ที่ check ไม่ผ่านได้ (จำเป็นสำหรับ Release PR ที่สร้างด้วย `GITHUB_TOKEN` จึงไม่มี CI รัน — ต้องเปลี่ยนเป็น PAT / GitHub App ก่อนจึงจะเลิก bypass ได้) และยังไม่มี CODEOWNERS
 - [ ] ยืนยันบน Windows จริง: Git Bash รับ path `C:\…` ใน `CLAUDE_PROJECT_DIR`, ชื่อ tool PowerShell ของ Claude, Codex `commandWindows` + การ pipe stdin ผ่าน `$input`
 - [ ] ให้ `routing.yaml` เป็นแหล่งข้อมูลเดียว — *ความคืบหน้า:* PLAN-007 ทำให้ gate model ใน constitution / dynamic-routing / AGENTS.md ตรงกับ `router.py` แล้ว แต่ยังไม่มี `routing.yaml`
 

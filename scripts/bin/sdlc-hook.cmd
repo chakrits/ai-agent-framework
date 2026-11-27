@@ -6,21 +6,21 @@ setlocal
 set "ENTRY=%~dp0..\sdlc_hook.py"
 set "CHECK=import sys; sys.exit(0 if sys.version_info >= (3, 10) else 1)"
 
-py -3 -c "%CHECK%" >nul 2>nul
+py -3 -I -c "%CHECK%" >nul 2>nul
 if errorlevel 1 goto try_python
-py -3 "%ENTRY%" %*
+py -3 -I "%ENTRY%" %*
 exit /b %errorlevel%
 
 :try_python
-python -c "%CHECK%" >nul 2>nul
+python -I -c "%CHECK%" >nul 2>nul
 if errorlevel 1 goto try_python3
-python "%ENTRY%" %*
+python -I "%ENTRY%" %*
 exit /b %errorlevel%
 
 :try_python3
-python3 -c "%CHECK%" >nul 2>nul
+python3 -I -c "%CHECK%" >nul 2>nul
 if errorlevel 1 goto fail
-python3 "%ENTRY%" %*
+python3 -I "%ENTRY%" %*
 exit /b %errorlevel%
 
 :fail

@@ -1,12 +1,17 @@
 #!/usr/bin/env python3
 """Worktree lifecycle helper for parallel SDLC sessions (.worktrees/INT-xxx)."""
 
-from __future__ import annotations
+# Import isolation (PLAN-011): keep this file's directory off sys.path so that files placed next to it are
+# never imported by name. Nothing above this block may import a module that is not already loaded at startup.
+import os
+import sys
+
+_HERE = os.path.dirname(os.path.realpath(__file__))
+sys.path[:] = [p for p in sys.path if os.path.normcase(os.path.realpath(p or os.curdir)) != os.path.normcase(_HERE)]
 
 import argparse
 import re
 import subprocess
-import sys
 from pathlib import Path
 
 WORK_ITEM_RE = re.compile(r"^INT-[0-9]{3,}$")

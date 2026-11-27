@@ -1,26 +1,39 @@
 #!/usr/bin/env python3
 """Dual-mode SDLC eval runner: deterministic contract evals (PR) and isolated live CLI evals."""
 
-from __future__ import annotations
+# Import isolation (PLAN-011): keep this file's directory off sys.path so that files placed next to it are
+# never imported by name. Nothing above this block may import a module that is not already loaded at startup.
+import os
+import sys
+
+_HERE = os.path.dirname(os.path.realpath(__file__))
+sys.path[:] = [p for p in sys.path if os.path.normcase(os.path.realpath(p or os.curdir)) != os.path.normcase(_HERE)]
+
+import importlib.util  # noqa: E402
+
+
+def _load(name: str, path: str) -> None:
+    """Load one module by path, compiled from source so a stale or planted bytecode cache is never used."""
+    if name not in sys.modules:
+        module = importlib.util.module_from_spec(importlib.util.spec_from_file_location(name, path))
+        sys.modules[name] = module
+        with open(path, "rb") as fh:
+            exec(compile(fh.read(), path, "exec"), module.__dict__)
+
 
 import argparse
-import importlib.util
 import json
-import os
 import shutil
 import subprocess
-import sys
 import tempfile
 from pathlib import Path
 from typing import Any
 
 ROOT = Path(__file__).resolve().parent.parent
-sys.path.insert(0, str(ROOT / "scripts"))
 
-_spec = importlib.util.spec_from_file_location("validate_contracts", ROOT / "scripts" / "validate-contracts.py")
-assert _spec and _spec.loader
-validate_contracts = importlib.util.module_from_spec(_spec)
-_spec.loader.exec_module(validate_contracts)
+
+_load("validate_contracts", str(ROOT / "scripts" / "validate-contracts.py"))
+validate_contracts = sys.modules["validate_contracts"]
 
 PROTECTED_SANDBOX_PREFIXES = (
     "tests/",

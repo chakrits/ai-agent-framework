@@ -3,7 +3,10 @@ plan_id: PLAN-005
 intent_ref: N/A (Framework / Process Change)
 spec_ref: docs/plans/trace-versioning-plan.md (extends the agent trace, schema v1)
 owner: dev-coding-agent
-status: implemented_pending_commit
+status: released
+commit: c78aed9 (2026-11-21)
+released_in: v0.2.0
+status_note: status updated 2026-11-27 from Git history; the body below is the historical plan text
 ---
 
 # Implementation Plan: Trace v1.1 — model / effort, local-time timestamps, more hook events, level control, manual, monitoring

@@ -3,7 +3,10 @@ plan_id: PLAN-004
 intent_ref: N/A (Framework / Process Change)
 spec_ref: docs/plans/governance-review.md (C7, C9, C10, C11, C12)
 owner: dev-coding-agent
-status: implemented_pending_commit
+status: released
+commit: f44211d (2026-11-21)
+released_in: v0.1.0
+status_note: status updated 2026-11-27 from Git history; the body below is the historical plan text
 ---
 
 # Implementation Plan: Agent Trace + Versioning/Release + README Badges + Governance Quick Fixes

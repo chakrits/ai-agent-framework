@@ -67,7 +67,7 @@
 - [x] Versioning: `version.txt` (SemVer, เริ่ม `0.1.0`) + release-please + `CHANGELOG.md` + commit-msg hook บังคับ Conventional Commits + `LICENSE` (MIT) + `CONTRIBUTING.md` + README badges
 - [x] Governance quick fixes: constitution อ้าง `policy.json` แทน `.sdlc` ที่คลุมเครือ, ลบ permission ปลอมใน `settings.json`, อัปเดต PR/MR templates, สแกนเนื้อหา staged diff หา secret ใน pre-commit
 - [x] แก้ guard ให้นับ override env var เฉพาะที่มีผลจริง (ไม่นับข้อความใน quote/heredoc) + อัป `actions/checkout@v5`, `setup-python@v6`
-- [x] Release แรกและรอบถัดไปผ่าน release-please: `v0.1.0`, `v0.2.0`, `v0.3.0` ([releases](https://github.com/chakrits/ai-agent-framework/releases)); Discussions เปิดแล้ว และ GitHub Actions สร้าง Release PR ได้ (PR #1, #3)
+- [x] Release แรกและรอบถัดไปผ่าน release-please: `v0.1.0`, `v0.2.0`, `v0.3.0`, `v0.3.1` ([releases](https://github.com/chakrits/ai-agent-framework/releases)); Discussions เปิดแล้ว และ GitHub Actions สร้าง Release PR ได้ (PR #1, #3, #8)
 - [x] แก้เทสต์ `test_eval_runner` ที่ fail บน Windows CI มาตั้งแต่ `main` `eca7f22`: fixture ลบ `.git` ที่เป็น read-only ไม่ได้ (`8c4ae79`, PR #4) — CI 6/6 เขียวที่ [run 45005508352](https://github.com/chakrits/ai-agent-framework/actions/runs/45005508352)
 - [ ] CI บน GitLab (ยังไม่ได้ผูก remote)
 - [x] ตั้ง branch protection บน `main` ด้วย ruleset [`protect-main`](https://github.com/chakrits/ai-agent-framework/rules/27836720) (ยืนยันผ่าน GitHub API เมื่อ 2026-11-27): ห้ามลบและห้าม force push, ต้องเปิด PR (required approvals = 0 เพราะมีผู้ดูแลคนเดียว, ต้อง resolve conversation), merge ได้เฉพาะ merge / rebase, required checks ครบ 6 jobs ของ CI matrix; Repository admin bypass ได้เฉพาะผ่าน PR
@@ -85,7 +85,7 @@
 - [ ] ให้ CI / git hook เรียก digest validator (ต้องเป็น Framework Change แยก เพราะแตะ protected path)
 
 ### Prompt Consistency & Standard-Tier Records (PLAN-008) — ✅ Verified
-> แผนและผลรีวิว: [plan-008-prompt-consistency.md](docs/plans/plan-008-prompt-consistency.md) · [plan-008-review.md](docs/plans/plan-008-review.md) · merge [PR #7](https://github.com/chakrits/ai-agent-framework/pull/7) (`e1d439d`) · release `v0.3.1` ยังรอ [PR #8](https://github.com/chakrits/ai-agent-framework/pull/8)
+> แผนและผลรีวิว: [plan-008-prompt-consistency.md](docs/plans/plan-008-prompt-consistency.md) · [plan-008-review.md](docs/plans/plan-008-review.md) · merge [PR #7](https://github.com/chakrits/ai-agent-framework/pull/7) (`e1d439d`) · release [`v0.3.1`](https://github.com/chakrits/ai-agent-framework/releases/tag/v0.3.1) ([PR #8](https://github.com/chakrits/ai-agent-framework/pull/8), `5c50e1e`)
 - [x] แก้ role prompt / skill / workflow ให้ตรงกับ route และ contract
 - [x] งาน Standard ที่ไม่มี work item บันทึก `## Plan Checkpoint` / `## Verification` / `## Review` ใน PR/MR (constitution, contracts, templates)
 - [x] High-risk bug fix ต้องมีตาราง traceability จาก Fast-Track Spec ไป regression test

@@ -6,7 +6,7 @@ owner: sa-architect-agent (design) / dev-coding-agent (implement)
 status: merged
 created: 2026-11-27 (Asia/Bangkok)
 merged: 2026-11-27 15:50:36 +07 (PR #7, merge commit e1d439d)
-released_in: pending (v0.3.1, Release PR #8 ยังเปิดอยู่)
+released_in: v0.3.1
 amendment: A1 approved (see §7); A2 approved (see §8)
 ---
 
@@ -433,7 +433,7 @@ git grep -n -E "REVIEW\.md|plan\.md|tasks\.json|work/<INT" -- AGENTS.md CLAUDE.m
 | Gate 3 (Release & Merge) | Human maintainer merge ด้วย merge commit | [PR #7](https://github.com/chakrits/ai-agent-framework/pull/7), merge commit `e1d439d`, 2026-11-27 15:50:36 +07 |
 | CI ที่ PR head `df189a4` | ผ่าน 6/6 (ubuntu / macOS / Windows × py3.10 / 3.12) | [run 45957484815](https://github.com/chakrits/ai-agent-framework/actions/runs/45957484815) |
 | CI บน `main` หลัง merge (`e1d439d`) | `SDLC Framework Validation & Agent Evals` จบ `success` | [run 45968822336](https://github.com/chakrits/ai-agent-framework/actions/runs/45968822336) |
-| Release | ยังไม่ tag; `v0.3.1` รอ merge | [PR #8](https://github.com/chakrits/ai-agent-framework/pull/8) |
+| Release | `v0.3.1` เผยแพร่ 2026-11-27 16:03:40 +07; CHANGELOG มี `fix(agents)` (`f120f49`) รายการเดียว commit `docs(governance)` ไม่แสดงใน release notes | [release v0.3.1](https://github.com/chakrits/ai-agent-framework/releases/tag/v0.3.1), [PR #8](https://github.com/chakrits/ai-agent-framework/pull/8) merge commit `5c50e1e` (PR นี้ไม่มี check รันบน PR) |
 | Independent review | รอบ 1 `changes_requested` → รอบ 2 `changes_requested` → รอบ 3 `approved_for_human_gate` | [plan-008-review.md](plan-008-review.md) |
 | ไม่ได้ตรวจ | live eval / พฤติกรรม agent จริง; HTTP endpoint test 1 ข้อถูกข้ามเพราะ CI ไม่ติดตั้ง FastAPI; ไม่ได้รัน `security-audit-agent` แยก (มีเฉพาะหัวข้อ Security ในรีวิว) | — |
 
@@ -442,6 +442,5 @@ git grep -n -E "REVIEW\.md|plan\.md|tasks\.json|work/<INT" -- AGENTS.md CLAUDE.m
 2. **ผลรีวิวไม่ผูกกับ commit:** รอบ 3 ตรวจ working tree ที่ยังไม่ commit จึงยืนยันจากรีวิวอย่างเดียวไม่ได้ว่าตรงกับ `df189a4` (ดู G12)
 
 ### ยังค้างหลัง closeout
-- Release `v0.3.1` ([PR #8](https://github.com/chakrits/ai-agent-framework/pull/8))
 - ข้อจำกัดใน §8.4 และ minor ที่เปิดอยู่ R3-m1, R3-m2, R2-m5 ในผลรีวิว
 - Follow-up G2–G9 ([prompt audit](../handoff/2026-11-27-prompt-audit.md)) และ G10–G12 (§7.4)

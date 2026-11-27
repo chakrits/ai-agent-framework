@@ -3,6 +3,15 @@
 All notable changes to this project are documented here. This file is maintained by
 [release-please](https://github.com/googleapis/release-please) from [Conventional Commits](https://www.conventionalcommits.org/).
 
+## [0.3.2](https://github.com/chakrits/ai-agent-framework/compare/v0.3.1...v0.3.2) (2026-11-27)
+
+
+### Bug Fixes
+
+* **ci:** require FastAPI endpoint tests to run and harden path test ([5662ae3](https://github.com/chakrits/ai-agent-framework/commit/5662ae3a228aaedb7db8a3fe92ee79dee71e36b6))
+* scrub trace export paths before truncation and verify CI evidence (PLAN-009) ([0553126](https://github.com/chakrits/ai-agent-framework/commit/055312682dda3a9742fbd60f6291752b110d2d9b))
+* **trace:** scrub paths before truncating exported commands ([eadcc98](https://github.com/chakrits/ai-agent-framework/commit/eadcc983fd91e4ba5d3b9e347eccf74950848763))
+
 ## [0.3.1](https://github.com/chakrits/ai-agent-framework/compare/v0.3.0...v0.3.1) (2026-11-27)
 
 

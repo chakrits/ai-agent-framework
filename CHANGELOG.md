@@ -3,6 +3,13 @@
 All notable changes to this project are documented here. This file is maintained by
 [release-please](https://github.com/googleapis/release-please) from [Conventional Commits](https://www.conventionalcommits.org/).
 
+## [0.3.1](https://github.com/chakrits/ai-agent-framework/compare/v0.3.0...v0.3.1) (2026-11-27)
+
+
+### Bug Fixes
+
+* **agents:** align role prompts with routes and contracts ([f120f49](https://github.com/chakrits/ai-agent-framework/commit/f120f494dab05b36b4239710849d7f1e4eca3775))
+
 ## [0.3.0](https://github.com/chakrits/ai-agent-framework/compare/v0.2.0...v0.3.0) (2026-11-22)
 
 
